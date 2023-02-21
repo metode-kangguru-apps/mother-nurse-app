@@ -1,32 +1,38 @@
 import { useState, useMemo, useEffect, useRef } from "react"
-import { View, TextInput, StyleSheet, Animated, Platform } from "react-native"
+import { View, Text, TextInput, StyleSheet, Animated, Platform, KeyboardTypeOptions } from "react-native"
 import { Spacing } from "src/lib/ui/spacing"
-import { TextSize } from "src/lib/ui/textSize"
 
 type Props = {
     label: string,
-    defaultValue?: string
+    defaultValue?: string,
+    type?: "no-border",
+    keyboardType?: KeyboardTypeOptions,
+    statePrefix?: string, 
+    onFocus?: (state: boolean) => void
 }
 
 const FloatingInput: React.FC<Props> = ({
     label,
-    defaultValue
+    defaultValue,
+    type,
+    keyboardType = "default",
+    statePrefix,
+    onFocus
 }) => {
     const [focus, setFocus] = useState<boolean>(false)
-    const [inputValue, setInputValue] = useState<string>(defaultValue || '')
-    const style = useMemo(() => createStyle(focus), [focus])
-    const isFocusedAnimated = useRef(new Animated.Value(defaultValue === '' ? 0 : 1)).current;
+    const [inputValue, setInputValue] = useState<string>(defaultValue || statePrefix || '')
+    const isFocusedAnimated = useRef(new Animated.Value(0)).current;
+
+    const style = useMemo(() => createStyle(type, !!statePrefix), [type, statePrefix])
+    const borderColor = useMemo(() => handleBorderColorChange(type, focus), [focus, type])
 
     const handleTopBasedOnPlatform = (): number[] => {
-        switch(Platform.OS){
-            case 'web':
-                return [16, 6]
-            case 'android':
-                return [24, 13]
+        switch (Platform.OS) {
             case 'ios':
-                return [24, 14]
+                return [17, 7]
+            default:
+                return [16, 6]
         }
-        return [16, 6]
     }
 
     const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
@@ -45,23 +51,34 @@ const FloatingInput: React.FC<Props> = ({
         outputRange: Platform.OS === 'web' ? [1, 0.9] : [1, 0.9],
     })
 
+    function handleBorderColorChange(
+        type: "no-border" | undefined,
+        focus: boolean
+    ) {
+        if (!type) {
+            return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)"
+        } else {
+            return "transparent"
+        }
+    }
+
     useEffect(() => {
         Animated.timing(isFocusedAnimated, {
-            toValue: (focus || inputValue !== '') ? 1 : 0,
+            toValue: (focus || inputValue !== '' || statePrefix) ? 1 : 0,
             duration: 200,
             useNativeDriver: true,
         }).start();
     }, [focus])
 
     return (
-        <View style={style.inputContainer}>
+        <View>
             <Animated.Text style={[
                 style.labelStyle, {
                     transform: [
-                        {translateX: handleAnimatedOnFocusLeft},
-                        {translateY: handleAnimatedOnFocusTop},
-                        {scaleX: handleAnimatedOnFocusSize},
-                        {scaleY: handleAnimatedOnFocusSize}
+                        { translateX: handleAnimatedOnFocusLeft },
+                        { translateY: handleAnimatedOnFocusTop },
+                        { scaleX: handleAnimatedOnFocusSize },
+                        { scaleY: handleAnimatedOnFocusSize }
                     ],
                     fontSize: 14,
                     // web 14
@@ -70,34 +87,56 @@ const FloatingInput: React.FC<Props> = ({
             ]}>
                 {label}
             </Animated.Text>
+            {statePrefix &&
+                <Text style={style.statePrefix}>{statePrefix}</Text>
+            }
             <TextInput
-                style={[style.textInput, {borderColor: !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)"}]}
-                onFocus={() => setFocus(true)}
-                onBlur={() => setFocus(false)}
-                onChange={(state) => setInputValue(state.nativeEvent.text)}
+                style={[style.textInput, { borderColor: borderColor, outlineStyle: 'none' }]}
+                keyboardType={keyboardType}
+                onFocus={() => {
+                    setFocus(true)
+                    onFocus && onFocus(true)
+                }}
+                onBlur={() => {
+                    setFocus(false)
+                    onFocus && onFocus(false)
+                }}
+                onChange={(state) => {
+                    setInputValue(state.nativeEvent.text)
+                }}
+                defaultValue={defaultValue}
             />
         </View>
     )
 }
 
 const createStyle = (
-    isFocused: boolean
+    type: "no-border" | undefined,
+    isStatePrefix: boolean
 ) => {
+    const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny
     return StyleSheet.create({
-        inputContainer: {
-            paddingVertical: Spacing.tiny,
-        },
         labelStyle: {
             position: 'absolute',
         },
+        statePrefix: {
+            position: 'absolute',
+            top: Platform.OS === 'android' ? 23 : 26,
+            left: 15
+        },
         textInput: {
-            borderWidth: 2,
-            paddingHorizontal: Spacing.tiny + Spacing.extratiny,
+            paddingHorizontal: textInputPaddingHorizontal,
             paddingTop: Platform.OS === 'android' ? 17 : 24,
             paddingBottom: Platform.OS === 'android' ? 4 : 8,
             position: 'relative',
-            borderRadius: Spacing.tiny
-
+            outline: "none",
+            borderWidth: 2,
+            ...(type === 'no-border' ? {} : {
+                borderRadius: 10
+            }),
+            ...(isStatePrefix && {
+                paddingLeft: textInputPaddingHorizontal + (Spacing.small * 2 - Spacing.extratiny / 2)
+            })
         },
     })
 }

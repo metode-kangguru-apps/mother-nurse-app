@@ -1,37 +1,57 @@
 import { useSelector } from "react-redux"
 
 import { RootState } from "@redux/types"
-import { Button, StyleSheet, Text, View } from "react-native"
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 import { Font } from "src/lib/ui/font"
+import { color } from "src/lib/ui/color"
 import { Spacing } from "src/lib/ui/spacing"
 import { TextSize } from "src/lib/ui/textSize"
 
 import { AuthStackParamList } from "src/router/types"
 import FloatingInput from "src/common/FloatingInput"
+import PhoneNumberInput from "src/common/PhoneNumberInput"
 
 import { Ionicons } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons'; 
 
-interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-user-information'> {}
+
+interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-user-information'> { }
 
 const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
     const userState = useSelector((state: RootState) => state.user)
-    if(userState.loading) return <Text>Loading...</Text>
+    if (userState.loading) return <Text>Loading...</Text>
     return (
         <View style={style.container}>
-            <View style={style.welcomeImageContainer}>
-                <View style={style.welcomeImage}>
-                    <Ionicons name="md-images-outline" size={64} color="gray" />
+            <View style={style.contentContainer}>
+                <View style={style.welcomeImageContainer}>
+                    <View style={style.welcomeImage}>
+                        <Ionicons name="md-images-outline" size={64} color="gray" />
+                    </View>
+                </View>
+                <View style={style.formRegistration}>
+                    <Text style={style.title}>Daftar</Text>
+                    <View style={style.inputContainer}>
+                        <FloatingInput label="Nama Ibu" />
+                    </View>
+                    <View style={style.inputContainer}>
+                        <PhoneNumberInput />
+                    </View>
+                    <View style={style.inputContainer}>
+                        <FloatingInput label="Kode Perawat" />
+                    </View>
                 </View>
             </View>
-            <View style={style.formRegistration}>
-                <Text style={style.title}>Daftarkan data diri</Text>
-                <FloatingInput label="Nama Panggilan"></FloatingInput>
-                <FloatingInput label="Alamat Email"></FloatingInput>
-                <FloatingInput label="Status Mother"></FloatingInput>
+            <View style={style.buttonContainer}>
+                <TouchableOpacity style={style.prevButton} onPress={() => navigation.goBack()}>
+                    <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
+                    <Text style={style.prevButtonTitle}>Kembali</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={style.nextButton} onPress={() => navigation.push('register-baby-information')}>
+                    <Text style={style.buttonTitle}>Selanjutnya</Text>
+                </TouchableOpacity>
             </View>
-            <Button title="Logout" onPress={() => navigation.navigate('logout')}></Button>
         </View>
     )
 }
@@ -39,15 +59,19 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
 const style = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: Spacing.base,
-        alignItems: 'center'
+        justifyContent: 'space-between',
+        paddingVertical: Spacing.base,
+        paddingHorizontal: Spacing.small,
+    },
+    contentContainer: {
+        width: "100%",
     },
     welcomeImageContainer: {
-        width: "90%",
-        height: "30%",
+        width: "100%",
+        height: Spacing.xlarge * 3.5,
         display: 'flex',
         alignItems: 'center',
-        marginBottom: Spacing.xlarge,
+        marginBottom: Spacing.xlarge / 2,
     },
     welcomeImage: {
         width: "100%",
@@ -58,13 +82,44 @@ const style = StyleSheet.create({
         alignItems: 'center'
     },
     formRegistration: {
-        width: "90%",
+        width: "100%",
     },
     title: {
-        fontFamily: Font.Bold,
-        fontSize: TextSize.title,
-        marginBottom: Spacing.extratiny
+        fontFamily: Font.Black,
+        fontSize: TextSize.h5,
+        marginBottom: Spacing.small
     },
+    inputContainer: {
+        marginBottom: Spacing.tiny
+    },
+    buttonContainer: {
+        display: 'flex',
+        width: "100%",
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    nextButton: {
+        paddingVertical: Spacing.xsmall,
+        paddingHorizontal: Spacing.large,
+        backgroundColor: color.secondary,
+        borderRadius: Spacing.xlarge
+    },
+    buttonTitle: {
+        fontFamily: Font.Bold,
+        fontSize: TextSize.body,
+        color: color.lightneutral,
+    },
+    prevButton: {
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    prevButtonTitle: {
+        color: color.accent2,
+        fontSize: TextSize.body,
+        fontFamily: Font.Bold,
+        paddingLeft: Spacing.small
+    }
 })
 
 export default RegisterUserInformation
