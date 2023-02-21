@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux"
 
 import { RootState } from "@redux/types"
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 import { Font } from "src/lib/ui/font"
@@ -14,7 +14,7 @@ import FloatingInput from "src/common/FloatingInput"
 import PhoneNumberInput from "src/common/PhoneNumberInput"
 
 import { Ionicons } from '@expo/vector-icons';
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons';
 
 
 interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-user-information'> { }
@@ -23,36 +23,38 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
     const userState = useSelector((state: RootState) => state.user)
     if (userState.loading) return <Text>Loading...</Text>
     return (
-        <View style={style.container}>
-            <View style={style.contentContainer}>
-                <View style={style.welcomeImageContainer}>
-                    <View style={style.welcomeImage}>
-                        <Ionicons name="md-images-outline" size={64} color="gray" />
+        <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={style.container}>
+                <View style={style.contentContainer}>
+                    <View style={style.welcomeImageContainer}>
+                        <View style={style.welcomeImage}>
+                            <Ionicons name="md-images-outline" size={64} color="gray" />
+                        </View>
+                    </View>
+                    <View style={style.formRegistration}>
+                        <Text style={style.title}>Daftar</Text>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Nama Ibu" />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <PhoneNumberInput />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Kode Perawat" />
+                        </View>
                     </View>
                 </View>
-                <View style={style.formRegistration}>
-                    <Text style={style.title}>Daftar</Text>
-                    <View style={style.inputContainer}>
-                        <FloatingInput label="Nama Ibu" />
-                    </View>
-                    <View style={style.inputContainer}>
-                        <PhoneNumberInput />
-                    </View>
-                    <View style={style.inputContainer}>
-                        <FloatingInput label="Kode Perawat" />
-                    </View>
+                <View style={style.buttonContainer}>
+                    <TouchableOpacity style={style.prevButton} onPress={() => navigation.goBack()}>
+                        <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
+                        <Text style={style.prevButtonTitle}>Kembali</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={style.nextButton} onPress={() => navigation.push('register-baby-information')}>
+                        <Text style={style.buttonTitle}>Selanjutnya</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
-            <View style={style.buttonContainer}>
-                <TouchableOpacity style={style.prevButton} onPress={() => navigation.goBack()}>
-                    <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
-                    <Text style={style.prevButtonTitle}>Kembali</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={style.nextButton} onPress={() => navigation.push('register-baby-information')}>
-                    <Text style={style.buttonTitle}>Selanjutnya</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        </ScrollView>
     )
 }
 
@@ -83,6 +85,7 @@ const style = StyleSheet.create({
     },
     formRegistration: {
         width: "100%",
+        marginBottom: Spacing.large
     },
     title: {
         fontFamily: Font.Black,

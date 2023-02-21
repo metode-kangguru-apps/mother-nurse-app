@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native"
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 import { Font } from "src/lib/ui/font"
@@ -20,55 +20,57 @@ interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-bab
 
 const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
     return (
-        <View style={style.container}>
-            <View style={style.contentContainer}>
-                <View style={style.welcomeImageContainer}>
-                    <View style={style.welcomeImage}>
-                        <Ionicons name="md-images-outline" size={64} color="gray" />
+        <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={style.container}>
+                <View style={style.contentContainer}>
+                    <View style={style.welcomeImageContainer}>
+                        <View style={style.welcomeImage}>
+                            <Ionicons name="md-images-outline" size={64} color="gray" />
+                        </View>
+                    </View>
+                    <View style={style.formRegistration}>
+                        <Text style={style.title}>Daftar Bayi</Text>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Nama" />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Tanggal Lahir" />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Berat (gram)" />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Tinggi Badan (cm)" />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Jenis Kelamin" />
+                        </View>
+                        <View style={style.addBaby}>
+                            <Text>
+                                Ada lebih dari 1 bayi?
+                            </Text>
+                            <Text style={style.addBabyButton}> Tambah Bayi </Text>
+                            <SimpleLineIcons name="question" size={Spacing.small} color={color.primary} />
+                        </View>
                     </View>
                 </View>
-                <View style={style.formRegistration}>
-                    <Text style={style.title}>Daftar Bayi</Text>
-                    <View style={style.inputContainer}>
-                        <FloatingInput label="Nama" />
-                    </View>
-                    <View style={style.inputContainer}>
-                        <FloatingInput label="Tanggal Lahir" />
-                    </View>
-                    <View style={style.inputContainer}>
-                        <FloatingInput label="Berat (gram)" />
-                    </View>
-                    <View style={style.inputContainer}>
-                        <FloatingInput label="Tinggi Badan (cm)" />
-                    </View>
-                    <View style={style.inputContainer}>
-                        <FloatingInput label="Jenis Kelamin" />
-                    </View>
-                    <View style={style.addBaby}>
-                        <Text>
-                            Ada lebih dari 1 bayi?
-                        </Text>
-                        <Text style={style.addBabyButton}> Tambah Bayi </Text>
-                        <SimpleLineIcons name="question" size={Spacing.small} color={color.primary} />
-                    </View>
+                <View style={style.buttonContainer}>
+                    <TouchableOpacity style={style.prevButton} onPress={() => navigation.goBack()}>
+                        <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
+                        <Text style={style.prevButtonTitle}>Kembali</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={style.nextButton}>
+                        <Text style={style.buttonTitle}>Selanjutnya</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
-            <View style={style.buttonContainer}>
-                <TouchableOpacity style={style.prevButton} onPress={() => navigation.goBack()}>
-                    <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
-                    <Text style={style.prevButtonTitle}>Kembali</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={style.nextButton}>
-                    <Text style={style.buttonTitle}>Selanjutnya</Text>
-                </TouchableOpacity>
-            </View>
-        </View>
+        </ScrollView>
     )
 }
 
 const style = StyleSheet.create({
     container: {
-        width: "100%",
+        flex: 1,
         justifyContent: 'space-between',
         paddingVertical: Spacing.base,
         paddingHorizontal: Spacing.small,
