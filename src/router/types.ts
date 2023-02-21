@@ -8,6 +8,7 @@ export type MotherStackParamList = {
 export type AuthStackParamList = {
     "login": undefined
     "register-user-information": undefined
+    "register-baby-information": undefined
     "logout": undefined
 }
 
