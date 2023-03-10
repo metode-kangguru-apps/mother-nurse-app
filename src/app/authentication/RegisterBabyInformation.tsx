@@ -12,6 +12,7 @@ import FloatingInput from "src/common/FloatingInput"
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
+import DateTimePicker from "src/common/DateTimePicker"
 
 
 
@@ -34,7 +35,9 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                             <FloatingInput label="Nama" />
                         </View>
                         <View style={style.inputContainer}>
-                            <FloatingInput label="Tanggal Lahir" />
+                            <DateTimePicker
+                                label="Tanggal Lahir"
+                            />
                         </View>
                         <View style={style.inputContainer}>
                             <FloatingInput label="Berat (gram)" />

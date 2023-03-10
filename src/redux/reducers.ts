@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import notesReducer from "./actions/notes"
 import userReducer from "./actions/user"
+import globalReducer from "./actions/global"
 
 const notesPersistConfig = {
   key: "notes",
@@ -17,11 +18,17 @@ const userPersistConfig = {
   whitelist: ["user"],
 };
 
+const globalPersistConfig = {
+  key: "global",
+  storage: AsyncStorage,
+}
+
 
 
 const rootReducer = combineReducers({
   notes: persistReducer(notesPersistConfig, notesReducer),
   user: persistReducer(userPersistConfig, userReducer),
+  global: persistReducer(globalPersistConfig, globalReducer)
 });
 
 export default rootReducer;
