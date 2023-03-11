@@ -1,5 +1,9 @@
+import { clearDateTimePicker, setShowDateTimePicker } from "@redux/actions/global"
+import { useAppDispatch } from "@redux/hooks"
+import { RootState } from "@redux/types"
 import { useState, useMemo, useEffect, useRef } from "react"
-import { View, Text, TextInput, StyleSheet, Animated, Platform, KeyboardTypeOptions } from "react-native"
+import { View, TextInput, StyleSheet, Animated, Platform, KeyboardTypeOptions } from "react-native"
+import { useSelector } from "react-redux"
 import { Spacing } from "src/lib/ui/spacing"
 
 type Props = {
@@ -7,7 +11,6 @@ type Props = {
     defaultValue?: string,
     type?: "no-border",
     keyboardType?: KeyboardTypeOptions,
-    statePrefix?: string, 
     onFocus?: (state: boolean) => void
 }
 
@@ -16,14 +19,20 @@ const FloatingInput: React.FC<Props> = ({
     defaultValue,
     type,
     keyboardType = "default",
-    statePrefix,
     onFocus
 }) => {
+    const dispatch = useAppDispatch()
     const [focus, setFocus] = useState<boolean>(false)
-    const [inputValue, setInputValue] = useState<string>(defaultValue || statePrefix || '')
+    const [inputValue, setInputValue] = useState<string>(defaultValue || '')
     const isFocusedAnimated = useRef(new Animated.Value(0)).current;
+    const textInputRef = useRef(null)
 
-    const style = useMemo(() => createStyle(type, !!statePrefix), [type, statePrefix])
+    const {
+        showDateTimePicker,
+        dateTimePicker
+    } = useSelector((state: RootState) => state.global)
+
+    const style = useMemo(() => createStyle(type), [type])
     const borderColor = useMemo(() => handleBorderColorChange(type, focus), [focus, type])
 
     const handleTopBasedOnPlatform = (): number[] => {
@@ -64,14 +73,22 @@ const FloatingInput: React.FC<Props> = ({
 
     useEffect(() => {
         Animated.timing(isFocusedAnimated, {
-            toValue: (focus || inputValue !== '' || statePrefix) ? 1 : 0,
+            toValue: (focus || inputValue !== '') ? 1 : 0,
             duration: 200,
             useNativeDriver: true,
         }).start();
     }, [focus])
 
+    useEffect(() => {
+        if (!showDateTimePicker && dateTimePicker) {
+            textInputRef.current?.blur()
+            setInputValue(dateTimePicker)
+            dispatch(clearDateTimePicker())
+        }
+    }, [showDateTimePicker])
+
     return (
-        <View>
+        <View style={{ width: "100%" }}>
             <Animated.Text style={[
                 style.labelStyle, {
                     transform: [
@@ -87,24 +104,29 @@ const FloatingInput: React.FC<Props> = ({
             ]}>
                 {label}
             </Animated.Text>
-            {statePrefix &&
-                <Text style={style.statePrefix}>{statePrefix}</Text>
-            }
             <TextInput
+                ref={textInputRef}
                 style={[style.textInput, { borderColor: borderColor, outlineStyle: 'none' }]}
                 keyboardType={keyboardType}
                 onFocus={() => {
                     setFocus(true)
                     onFocus && onFocus(true)
+                    dispatch(setShowDateTimePicker({
+                        showDateTimePicker: true,
+                    }))
                 }}
                 onBlur={() => {
                     setFocus(false)
                     onFocus && onFocus(false)
+                    dispatch(setShowDateTimePicker({
+                        showDateTimePicker: false
+                    }))
                 }}
                 onChange={(state) => {
                     setInputValue(state.nativeEvent.text)
                 }}
-                defaultValue={defaultValue}
+                showSoftInputOnFocus={false}
+                defaultValue={inputValue}
             />
         </View>
     )
@@ -112,7 +134,6 @@ const FloatingInput: React.FC<Props> = ({
 
 const createStyle = (
     type: "no-border" | undefined,
-    isStatePrefix: boolean
 ) => {
     const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny
     return StyleSheet.create({
@@ -134,9 +155,6 @@ const createStyle = (
             ...(type === 'no-border' ? {} : {
                 borderRadius: 10
             }),
-            ...(isStatePrefix && {
-                paddingLeft: textInputPaddingHorizontal + (Spacing.small * 2 - Spacing.extratiny / 2)
-            })
         },
     })
 }

@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "expo-firebase-redux",
-    "slug": "test-tugas-akhir",
+    "name": "mother-app-nurse",
+    "slug": "mother-nurse-app",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
-    "scheme": "expo-firebase-redux",
+    "scheme": "mother-app-nurse",
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -20,7 +20,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.muhammadhafizm.expo-firebase-redux"
+      "bundleIdentifier": "com.pmk-app-dev.mother-nurse-app"
     },
     "android": {
       "adaptiveIcon": {
@@ -36,6 +36,6 @@
         "projectId": "6a65d9a2-8428-4c54-9199-6cea6bf22460"
       }
     },
-    "owner": "muhammadhafizm"
+    "owner": "pmk-app-dev"
   }
 }

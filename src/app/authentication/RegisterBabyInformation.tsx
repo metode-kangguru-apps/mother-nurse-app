@@ -1,27 +1,25 @@
-import { useSelector } from "react-redux"
-
-import { RootState } from "@redux/types"
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native"
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
 
 import { Font } from "src/lib/ui/font"
-import { color } from "src/lib/ui/color"
 import { Spacing } from "src/lib/ui/spacing"
 import { TextSize } from "src/lib/ui/textSize"
+import { color } from "src/lib/ui/color"
 
 import { AuthStackParamList } from "src/router/types"
 import FloatingInput from "src/common/FloatingInput"
-import PhoneNumberInput from "src/common/PhoneNumberInput"
 
 import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
+import { SimpleLineIcons } from '@expo/vector-icons';
+import DateTimePicker from "src/common/DateTimePicker"
 
 
-interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-user-information'> { }
 
-const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
-    const userState = useSelector((state: RootState) => state.user)
-    if (userState.loading) return <Text>Loading...</Text>
+
+interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-baby-information'> { }
+
+const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
             <View style={style.container}>
@@ -32,15 +30,30 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
                         </View>
                     </View>
                     <View style={style.formRegistration}>
-                        <Text style={style.title}>Daftar</Text>
+                        <Text style={style.title}>Daftar Bayi</Text>
                         <View style={style.inputContainer}>
-                            <FloatingInput label="Nama Ibu" />
+                            <FloatingInput label="Nama" />
                         </View>
                         <View style={style.inputContainer}>
-                            <PhoneNumberInput />
+                            <DateTimePicker
+                                label="Tanggal Lahir"
+                            />
                         </View>
                         <View style={style.inputContainer}>
-                            <FloatingInput label="Kode Perawat" />
+                            <FloatingInput label="Berat (gram)" />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Tinggi Badan (cm)" />
+                        </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput label="Jenis Kelamin" />
+                        </View>
+                        <View style={style.addBaby}>
+                            <Text>
+                                Ada lebih dari 1 bayi?
+                            </Text>
+                            <Text style={style.addBabyButton}> Tambah Bayi </Text>
+                            <SimpleLineIcons name="question" size={Spacing.small} color={color.primary} />
                         </View>
                     </View>
                 </View>
@@ -49,7 +62,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
                         <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
                         <Text style={style.prevButtonTitle}>Kembali</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={style.nextButton} onPress={() => navigation.push('register-baby-information')}>
+                    <TouchableOpacity style={style.nextButton}>
                         <Text style={style.buttonTitle}>Selanjutnya</Text>
                     </TouchableOpacity>
                 </View>
@@ -95,6 +108,13 @@ const style = StyleSheet.create({
     inputContainer: {
         marginBottom: Spacing.tiny
     },
+    addBaby: {
+        display: 'flex',
+        flexDirection: 'row'
+    },
+    addBabyButton: {
+        color: color.primary
+    },
     buttonContainer: {
         display: 'flex',
         width: "100%",
@@ -125,4 +145,4 @@ const style = StyleSheet.create({
     }
 })
 
-export default RegisterUserInformation
+export default RegisterBabyInformation

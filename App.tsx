@@ -46,9 +46,9 @@ const App: React.FC<{}> = () => {
 
   return (
     <NavigationContainer linking={linking} onReady={onLayoutRootView}>
-      <BaseContainer>
-        <Provider store={store}>
-          <PersistGate loading={null} persistor={persistor}>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <BaseContainer>
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
@@ -57,11 +57,11 @@ const App: React.FC<{}> = () => {
               }}
             >
               <Stack.Screen name='auth' component={AuthRouter} />
-              <Stack.Screen name='mother' component={MotherRouter}/>
+              <Stack.Screen name='mother' component={MotherRouter} />
             </Stack.Navigator>
-          </PersistGate>
-        </Provider>
-      </BaseContainer>
+          </BaseContainer>
+        </PersistGate>
+      </Provider>
     </NavigationContainer>
   );
 }
