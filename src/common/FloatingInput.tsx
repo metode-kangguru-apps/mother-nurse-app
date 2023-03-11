@@ -129,7 +129,6 @@ const createStyle = (
             paddingTop: Platform.OS === 'android' ? 17 : 24,
             paddingBottom: Platform.OS === 'android' ? 4 : 8,
             position: 'relative',
-            outline: "none",
             borderWidth: 2,
             ...(type === 'no-border' ? {} : {
                 borderRadius: 10

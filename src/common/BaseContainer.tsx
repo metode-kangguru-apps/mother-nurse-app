@@ -1,18 +1,25 @@
-import { View, StyleSheet, Platform, SafeAreaView } from 'react-native'
-import DateTimePicker from "@react-native-community/datetimepicker"
-import React, { useMemo, useState } from 'react'
-import { DefaultWidthSize } from './types'
+import Moment from 'moment';
 import { useSelector } from 'react-redux'
+import React, { useMemo, useState } from 'react'
+
+import { DefaultWidthSize } from './types'
+
 import { RootState } from '@redux/types'
 import { useAppDispatch } from '@redux/hooks'
-import { setDateTimePickerValue } from '@redux/actions/global'
-import Moment from 'moment';
+
+import { View, StyleSheet, Platform, SafeAreaView, Text } from 'react-native'
+import DateTimePicker from "@react-native-community/datetimepicker"
+import DatePicker from 'react-native-modern-datepicker';
+
+import { setDateTimePickerValue, setShowDateTimePicker } from '@redux/actions/global'
+
+import Modal from './Modal';
 
 const createStyle = () => {
     return StyleSheet.create({
         main: {
             flex: 1,
-            alignItems: "center",
+            alignItems: "center"
         },
         container: {
             flex: 1,
@@ -23,6 +30,7 @@ const createStyle = () => {
                 },
                 native: {
                     width: "100%",
+                    height: "100%"
                 }
             })
         }
@@ -41,12 +49,13 @@ const BaseContainer: React.FC<Props> = ({
     const dispatch = useAppDispatch()
     const [date, setDate] = useState(new Date());
     const showDateTimePicker = useSelector((state: RootState) => state.global.showDateTimePicker)
+
     return (
         <SafeAreaView style={style.main}>
             <View style={style.container}>
                 {children}
             </View>
-            {showDateTimePicker && (
+            {showDateTimePicker && Platform.OS !== 'web' && (
                 <DateTimePicker
                     value={date}
                     mode='date'
@@ -56,6 +65,29 @@ const BaseContainer: React.FC<Props> = ({
                     display={Platform.OS === 'ios' ? 'inline' : 'default'}
                 />
             )}
+
+            <Modal
+                visible={showDateTimePicker && Platform.OS === 'web'}
+                onModalClose={() => {
+                    dispatch(setShowDateTimePicker({
+                        showDateTimePicker: false,
+                    }))
+                }}
+            >
+                <View style={{ width: 500, height: 500 }}>
+                    <DatePicker
+                        style={{ borderRadius: 20 }}
+                        mode="calendar"
+                        onDateChange={(dateString) =>
+                            dispatch(
+                                setDateTimePickerValue(
+                                    { dateTimePicker: Moment(new Date(dateString)).format("DD/MM/YYYY") }
+                                )
+                            )
+                        }
+                    ></DatePicker>
+                </View>
+            </Modal>
         </SafeAreaView>
     )
 }

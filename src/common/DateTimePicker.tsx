@@ -2,7 +2,7 @@ import { clearDateTimePicker, setShowDateTimePicker } from "@redux/actions/globa
 import { useAppDispatch } from "@redux/hooks"
 import { RootState } from "@redux/types"
 import { useState, useMemo, useEffect, useRef } from "react"
-import { View, TextInput, StyleSheet, Animated, Platform, KeyboardTypeOptions } from "react-native"
+import { View, TextInput, StyleSheet, Animated, Platform, KeyboardTypeOptions, Pressable, Text } from "react-native"
 import { useSelector } from "react-redux"
 import { Spacing } from "src/lib/ui/spacing"
 
@@ -14,7 +14,7 @@ type Props = {
     onFocus?: (state: boolean) => void
 }
 
-const FloatingInput: React.FC<Props> = ({
+const NativeDateTimePicker: React.FC<Props> = ({
     label,
     defaultValue,
     type,
@@ -32,8 +32,8 @@ const FloatingInput: React.FC<Props> = ({
         dateTimePicker
     } = useSelector((state: RootState) => state.global)
 
-    const style = useMemo(() => createStyle(type), [type])
-    const borderColor = useMemo(() => handleBorderColorChange(type, focus), [focus, type])
+    const borderColor = useMemo(() => handleBorderColorChange(focus), [focus])
+    const style = useMemo(() => createStyle(borderColor), [borderColor])
 
     const handleTopBasedOnPlatform = (): number[] => {
         switch (Platform.OS) {
@@ -61,14 +61,9 @@ const FloatingInput: React.FC<Props> = ({
     })
 
     function handleBorderColorChange(
-        type: "no-border" | undefined,
         focus: boolean
     ) {
-        if (!type) {
-            return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)"
-        } else {
-            return "transparent"
-        }
+        return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)"
     }
 
     useEffect(() => {
@@ -80,10 +75,16 @@ const FloatingInput: React.FC<Props> = ({
     }, [focus])
 
     useEffect(() => {
-        if (!showDateTimePicker && dateTimePicker) {
-            textInputRef.current?.blur()
-            setInputValue(dateTimePicker)
-            dispatch(clearDateTimePicker())
+        if (!showDateTimePicker) {
+            if (Platform.OS === 'web') {
+                setFocus(false)
+                onFocus && onFocus(false)
+            }
+            if (dateTimePicker) {
+                textInputRef.current?.blur()
+                setInputValue(dateTimePicker)
+                dispatch(clearDateTimePicker())
+            }
         }
     }, [showDateTimePicker])
 
@@ -104,36 +105,53 @@ const FloatingInput: React.FC<Props> = ({
             ]}>
                 {label}
             </Animated.Text>
-            <TextInput
-                ref={textInputRef}
-                style={[style.textInput, { borderColor: borderColor, outlineStyle: 'none' }]}
-                keyboardType={keyboardType}
-                onFocus={() => {
-                    setFocus(true)
-                    onFocus && onFocus(true)
-                    dispatch(setShowDateTimePicker({
-                        showDateTimePicker: true,
-                    }))
-                }}
-                onBlur={() => {
-                    setFocus(false)
-                    onFocus && onFocus(false)
-                    dispatch(setShowDateTimePicker({
-                        showDateTimePicker: false
-                    }))
-                }}
-                onChange={(state) => {
-                    setInputValue(state.nativeEvent.text)
-                }}
-                showSoftInputOnFocus={false}
-                defaultValue={inputValue}
-            />
+            { Platform.OS === 'web' ? (
+                <Pressable
+                    style={[style.textInput, style.textInputWeb]}
+                    onPress={() => {
+                        setFocus(true)
+                        onFocus && onFocus(true)
+                        dispatch(setShowDateTimePicker({
+                            showDateTimePicker: true,
+                        }))
+                    }}
+                >
+                    <Text>
+                        {inputValue}
+                    </Text>
+                </Pressable>
+            ) : (
+                <TextInput
+                    ref={textInputRef}
+                    style={style.textInput}
+                    keyboardType={keyboardType}
+                    onFocus={() => {
+                        setFocus(true)
+                        onFocus && onFocus(true)
+                        dispatch(setShowDateTimePicker({
+                            showDateTimePicker: true,
+                        }))
+                    }}
+                    onBlur={() => {
+                        setFocus(false)
+                        onFocus && onFocus(false)
+                        dispatch(setShowDateTimePicker({
+                            showDateTimePicker: false
+                        }))
+                    }}
+                    onChange={(state) => {
+                        setInputValue(state.nativeEvent.text)
+                    }}
+                    showSoftInputOnFocus={false}
+                    defaultValue={inputValue}
+                />
+            )}
         </View>
     )
 }
 
 const createStyle = (
-    type: "no-border" | undefined,
+    borderColor: string
 ) => {
     const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny
     return StyleSheet.create({
@@ -146,17 +164,19 @@ const createStyle = (
             left: 15
         },
         textInput: {
+            borderColor: borderColor,
+            outlineStyle: 'none',
             paddingHorizontal: textInputPaddingHorizontal,
             paddingTop: Platform.OS === 'android' ? 17 : 24,
             paddingBottom: Platform.OS === 'android' ? 4 : 8,
             position: 'relative',
-            outline: "none",
             borderWidth: 2,
-            ...(type === 'no-border' ? {} : {
-                borderRadius: 10
-            }),
+            borderRadius: 10
         },
+        textInputWeb: {
+            height: 52,
+        }
     })
 }
 
-export default FloatingInput
+export default NativeDateTimePicker

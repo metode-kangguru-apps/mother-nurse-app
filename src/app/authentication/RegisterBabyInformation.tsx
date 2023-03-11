@@ -34,7 +34,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                         <View style={style.inputContainer}>
                             <FloatingInput label="Nama" />
                         </View>
-                        <View style={style.inputContainer}>
+                        <View style={[style.inputContainer, {zIndex: 10}]}>
                             <DateTimePicker
                                 label="Tanggal Lahir"
                             />
@@ -106,7 +106,7 @@ const style = StyleSheet.create({
         marginBottom: Spacing.small
     },
     inputContainer: {
-        marginBottom: Spacing.tiny
+        marginBottom: Spacing.tiny,
     },
     addBaby: {
         display: 'flex',
