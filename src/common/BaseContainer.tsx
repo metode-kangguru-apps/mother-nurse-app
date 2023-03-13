@@ -7,7 +7,7 @@ import { DefaultWidthSize } from './types'
 import { RootState } from '@redux/types'
 import { useAppDispatch } from '@redux/hooks'
 
-import { View, StyleSheet, Platform, SafeAreaView, Text } from 'react-native'
+import { View, StyleSheet, Platform, SafeAreaView } from 'react-native'
 import DateTimePicker from "@react-native-community/datetimepicker"
 import DatePicker from 'react-native-modern-datepicker';
 
@@ -33,6 +33,10 @@ const createStyle = () => {
                     height: "100%"
                 }
             })
+        },
+        modalContentContainer: {
+            width: 350,
+            height: 350
         }
     })
 }
@@ -74,7 +78,7 @@ const BaseContainer: React.FC<Props> = ({
                     }))
                 }}
             >
-                <View style={{ width: 500, height: 500 }}>
+                <View style={style.modalContentContainer}>
                     <DatePicker
                         style={{ borderRadius: 20 }}
                         mode="calendar"

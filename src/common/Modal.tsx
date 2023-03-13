@@ -1,27 +1,37 @@
-import { StyleSheet, Text, Modal, View, Pressable} from "react-native"
+import { useMemo } from "react"
+import { StyleSheet, Modal, View, Pressable, Platform } from "react-native"
+import { DefaultWidthSize } from "./types"
 
 export type Props = {
     children?: React.ReactNode
     visible: boolean,
-    onModalClose: Function
+    onModalClose?: () => void,
+    onCompletelyShow?: () => void,
+    vertical?: 'flex-end' | 'center' | 'flex-start',
+    horizontal?: 'flex-end' | 'center' | 'flex-start'
 }
 
 const CustomModal: React.FC<Props> = ({
     children,
     visible,
-    onModalClose
+    onModalClose,
+    onCompletelyShow,
+    vertical = 'center',
+    horizontal = 'center'
 }) => {
+    const style = useMemo(() => createStyle(horizontal, vertical), [horizontal, vertical])
     return (
-        <Modal 
-            transparent={true} 
+        <Modal
+            transparent={true}
             visible={visible}
             animationType='fade'
+            onShow={() => onCompletelyShow && onCompletelyShow()}
         >
             <View style={style.modalContainer}>
-                <Pressable 
+                <Pressable
                     style={style.overlay}
                     onPress={() => {
-                        onModalClose()
+                        onModalClose && onModalClose()
                     }}
                 >
                 </Pressable>
@@ -33,18 +43,20 @@ const CustomModal: React.FC<Props> = ({
     )
 }
 
-const style = StyleSheet.create({
+const createStyle = (
+    contentHPoss: 'flex-end' | 'center' | 'flex-start',
+    contentVPoss: 'flex-end' | 'center' | 'flex-start'
+) => StyleSheet.create({
     modalContainer: {
         width: "100%",
         height: "100%",
         display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
+        justifyContent: contentVPoss,
+        alignItems: contentHPoss
     },
     overlay: {
+        flex: 1,
         position: 'absolute',
-        width: "100%",
-        height: "100%",
         backgroundColor: "rgba(0, 0, 0, 0.2)",
         left: 0,
         top: 0,
@@ -53,8 +65,16 @@ const style = StyleSheet.create({
         zIndex: 1,
     },
     modalContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
         position: 'relative',
-        zIndex: 2
+        width: "100%",
+        zIndex: 2,
+        ...(Platform.select({
+            web: {
+                maxWidth: DefaultWidthSize.mobile,
+            }
+        }))
     }
 })
 

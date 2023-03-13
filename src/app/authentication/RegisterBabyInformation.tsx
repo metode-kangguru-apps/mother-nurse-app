@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { AntDesign } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import DateTimePicker from "src/common/DateTimePicker"
+import PickerField from "src/common/PickerField"
 
 
 
@@ -34,7 +35,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                         <View style={style.inputContainer}>
                             <FloatingInput label="Nama" />
                         </View>
-                        <View style={[style.inputContainer, {zIndex: 10}]}>
+                        <View style={[style.inputContainer, { zIndex: 10 }]}>
                             <DateTimePicker
                                 label="Tanggal Lahir"
                             />
@@ -45,8 +46,14 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                         <View style={style.inputContainer}>
                             <FloatingInput label="Tinggi Badan (cm)" />
                         </View>
-                        <View style={style.inputContainer}>
-                            <FloatingInput label="Jenis Kelamin" />
+                        <View style={[style.inputContainer, { zIndex: 10 }]}>
+                            <PickerField
+                                label="Jenis Kelamin"
+                                items={[
+                                    {key: 'Laki Laki', value: 'laki_laki'},
+                                    {key: 'Perempuan', value: 'perempuan'},
+                                ]}
+                            />
                         </View>
                         <View style={style.addBaby}>
                             <Text>

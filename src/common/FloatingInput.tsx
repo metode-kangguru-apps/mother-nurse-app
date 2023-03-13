@@ -1,5 +1,13 @@
 import { useState, useMemo, useEffect, useRef } from "react"
-import { View, Text, TextInput, StyleSheet, Animated, Platform, KeyboardTypeOptions } from "react-native"
+import { 
+    View,
+    Text, 
+    TextInput, 
+    StyleSheet, 
+    Animated, 
+    Platform, 
+    KeyboardTypeOptions
+} from "react-native"
 import { Spacing } from "src/lib/ui/spacing"
 
 type Props = {
@@ -91,7 +99,7 @@ const FloatingInput: React.FC<Props> = ({
                 <Text style={style.statePrefix}>{statePrefix}</Text>
             }
             <TextInput
-                style={[style.textInput, { borderColor: borderColor, outlineStyle: 'none' }]}
+                style={[style.textInput, { borderColor: borderColor }]}
                 keyboardType={keyboardType}
                 onFocus={() => {
                     setFocus(true)
@@ -125,6 +133,7 @@ const createStyle = (
             left: 15
         },
         textInput: {
+            outlineStyle: 'none',
             paddingHorizontal: textInputPaddingHorizontal,
             paddingTop: Platform.OS === 'android' ? 17 : 24,
             paddingBottom: Platform.OS === 'android' ? 4 : 8,
