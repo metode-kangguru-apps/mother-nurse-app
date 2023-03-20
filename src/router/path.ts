@@ -1,31 +1,23 @@
 const linking = {
-    prefixes: ['https://localhost:8000/', 'myapps://'],
+    prefixes: ['localhost:19006/', 'myapps://'],
     config: {
       screens: {
         "auth": {
-          path: '',
+          path: "",
           screens: {
             "login": {
-              path: ''
-            },
-            "register-user-information": {
-              path: 'register-user-information',
+              path: "/"
             },
             "logout": {
-              path: 'logout'
+              path: "/logout"
             },
+            "register-user-information": {
+              path: "/register-user-information"
+            }
           }
         },
         "mother": {
-          path: 'mother',
-          screens: {
-            "list-note": {
-              path: ''
-            },
-            "add-note": {
-              path: 'add-note'
-            }
-          }
+
         }
       },
     },

@@ -4,6 +4,7 @@ import RegisterBabyInformationScreen from "@app/authentication/RegisterBabyInfor
 import RegisterUserInformationScreen from "@app/authentication/RegisterUserInformation";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { color } from "src/lib/ui/color";
 import { AuthStackParamList } from "./types";
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>()
@@ -13,14 +14,44 @@ const AuthRouter: React.FC<{}> = () => {
         <AuthStack.Navigator
             screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: 'white', flex: 1 },
+                contentStyle: {
+                    backgroundColor: color.surface,
+                    flex: 1,
+                    borderLeftWidth: 1,
+                    borderRightWidth: 1,
+                    borderColor: "rgba(0, 0, 0, 0.1)",
+                },
                 animation: 'none'
             }}
         >
-            <AuthStack.Screen name='login' component={LoginScreen} />
-            <AuthStack.Screen name='register-user-information' component={RegisterUserInformationScreen} />
-            <AuthStack.Screen name='register-baby-information' component={RegisterBabyInformationScreen}/>
-            <AuthStack.Screen name='logout' component={LogOutScreen} />
+            <AuthStack.Screen 
+                name='login' 
+                component={LoginScreen} 
+                options={{
+                    title: 'Login'
+                }}
+            />
+            <AuthStack.Screen
+                name='register-user-information'
+                component={RegisterUserInformationScreen}
+                options={{
+                    title: 'Register User Information'
+                }}
+            />
+            <AuthStack.Screen
+                name='register-baby-information'
+                component={RegisterBabyInformationScreen}
+                options={{
+                    title: 'Register Baby Information'
+                }}
+            />
+            <AuthStack.Screen
+                name='logout'
+                component={LogOutScreen}
+                options={{
+                    title: 'Logout'
+                }}
+            />
         </AuthStack.Navigator>
     )
 }

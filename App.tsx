@@ -17,6 +17,7 @@ import AuthRouter from 'src/router/auth'
 import { RootStackParamList } from 'src/router/types';
 import linking from 'src/router/path';
 import MotherRouter from 'src/router/mother';
+import { color } from 'src/lib/ui/color';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -52,7 +53,7 @@ const App: React.FC<{}> = () => {
             <Stack.Navigator
               screenOptions={{
                 headerShown: false,
-                contentStyle: { backgroundColor: 'white', flex: 1 },
+                contentStyle: { backgroundColor: color.surface, flex: 1 },
                 animation: 'none'
               }}
             >

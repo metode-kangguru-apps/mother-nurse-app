@@ -7,19 +7,22 @@ import { DefaultWidthSize } from './types'
 import { RootState } from '@redux/types'
 import { useAppDispatch } from '@redux/hooks'
 
-import { View, StyleSheet, Platform, SafeAreaView } from 'react-native'
+import { View, StyleSheet, Platform } from 'react-native'
 import DateTimePicker from "@react-native-community/datetimepicker"
 import DatePicker from 'react-native-modern-datepicker';
 
 import { setDateTimePickerValue, setShowDateTimePicker } from '@redux/actions/global'
 
 import Modal from './Modal';
+import { color } from 'src/lib/ui/color';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const createStyle = () => {
     return StyleSheet.create({
         main: {
             flex: 1,
-            alignItems: "center"
+            alignItems: "center",
+            backgroundColor: color.surface,
         },
         container: {
             flex: 1,
@@ -55,7 +58,7 @@ const BaseContainer: React.FC<Props> = ({
     const showDateTimePicker = useSelector((state: RootState) => state.global.showDateTimePicker)
 
     return (
-        <SafeAreaView style={style.main}>
+        <SafeAreaProvider style={[style.main]}>
             <View style={style.container}>
                 {children}
             </View>
@@ -92,7 +95,7 @@ const BaseContainer: React.FC<Props> = ({
                     ></DatePicker>
                 </View>
             </Modal>
-        </SafeAreaView>
+        </SafeAreaProvider>
     )
 }
 
