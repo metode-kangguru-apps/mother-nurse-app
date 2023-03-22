@@ -4,7 +4,15 @@ import { Image, StyleSheet, View } from "react-native"
 import { useAssets } from "expo-asset"
 import { Spacing } from "src/lib/ui/spacing"
 
-const PhoneNumberInput: React.FC<{}> = () => {
+interface Props {
+    defaultValue?: string,
+    onChange?: (value: string) => void
+}
+
+const PhoneNumberInput: React.FC<Props> = ({
+    defaultValue,
+    onChange
+}) => {
 
     const [assets, _] = useAssets([require('../../assets/indonesia-icon.png')])
     const [focus, setFocus] = useState(false)
@@ -31,6 +39,10 @@ const PhoneNumberInput: React.FC<{}> = () => {
                     type="no-border"
                     statePrefix="+62"
                     keyboardType="phone-pad"
+                    defaultValue={defaultValue}
+                    onChange={(value) => {
+                        onChange && onChange(value)
+                    }}
                     onFocus={(state) => setFocus(state)}
                 />
             </View>

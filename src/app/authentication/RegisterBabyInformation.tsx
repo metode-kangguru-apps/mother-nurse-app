@@ -26,6 +26,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
     const [assets, _] = useAssets([require('../../../assets/info-baby.png')])
     const insets = useSafeAreaInsets()
     const style = useMemo(() => createStyle(insets), [insets])
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -52,22 +53,49 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                         <View style={style.inputContainer}>
                             <FloatingInput label="Nama" />
                         </View>
+                        <View style={style.inputContainer}>
+                            <FloatingInput
+                                label="Usia Gestasi (minggu)"
+                                keyboardType={
+                                    Platform.select({
+                                        ios: "numbers-and-punctuation",
+                                        android: "decimal-pad",
+                                    })
+                                }
+                            />
+                        </View>
                         <View style={[style.inputContainer, { zIndex: 10 }]}>
                             <DateTimePicker
                                 label="Tanggal Lahir"
                             />
                         </View>
                         <View style={style.inputContainer}>
-                            <FloatingInput label="Berat (gram)" />
+                            <FloatingInput 
+                                label="Berat (gram)"
+                                keyboardType={
+                                    Platform.select({
+                                        ios: "numbers-and-punctuation",
+                                        android: "decimal-pad",
+                                    })
+                                }
+                            />
                         </View>
                         <View style={style.inputContainer}>
-                            <FloatingInput label="Tinggi Badan (cm)" />
+                            <FloatingInput 
+                                label="Tinggi Badan (cm)"
+                                keyboardType={
+                                    Platform.select({
+                                        ios: "numbers-and-punctuation",
+                                        android: "decimal-pad",
+                                    })
+                                }
+                            />
                         </View>
                         <View style={[style.inputContainer, { zIndex: 10 }]}>
                             <PickerField
                                 label="Jenis Kelamin"
                                 items={[
-                                    { key: 'Laki Laki', value: 'laki_laki' },
+                                    { key: 'Laki-laki', value: 'laki-laki' },
                                     { key: 'Perempuan', value: 'perempuan' },
                                 ]}
                             />
@@ -125,7 +153,7 @@ const createStyle = (
         welcomeImageContainer: {
             display: 'flex',
             alignItems: 'center',
-            marginVertical: Spacing.large / 2,
+            marginVertical: Spacing.xlarge / 2,
             padding: Spacing.small
         },
         welcomeImage: {

@@ -17,7 +17,10 @@ import { AntDesign } from '@expo/vector-icons';
 import { useAssets } from "expo-asset"
 
 import { useSafeAreaInsets, EdgeInsets } from 'react-native-safe-area-context';
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
+import { useAppDispatch } from "@redux/hooks"
+import { clearAuthenticationDataSuccess, fetchMotherSuccess } from "@redux/actions/authentication"
+import { Mother } from "@redux/actions/authentication/types"
 
 
 
@@ -26,14 +29,40 @@ interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-use
 const MEDIA_HEIGHT = Dimensions.get('window').height
 
 const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
-    const userState = useSelector((state: RootState) => state.user)
-    const [assets, _] = useAssets([require('../../../assets/info-mother.png')])
+    const [ assets, _ ] = useAssets([require('../../../assets/info-mother.png')])
+    const dispatch = useAppDispatch()
 
     const insets = useSafeAreaInsets();
-
     const style = useMemo(() => createStyle(insets), [insets])
 
-    if (userState.loading) return <Text>Loading...</Text>
+    const {
+        user,
+        mother,
+        loading
+    } = useSelector((state: RootState) => state.authentication)
+
+    const [ formField, setFormField ] = useState({
+        displayName: user?.displayName,
+        phoneNumber: mother?.phoneNumber,
+        babyRoomCode: mother?.babyRoomCode
+    })
+
+    function handlerGoToRegisterBaby() {
+        dispatch(fetchMotherSuccess({
+            phoneNumber: formField.phoneNumber,
+            babyRoomCode: formField.babyRoomCode
+        } as Mother))
+        navigation.navigate("register-baby-information")
+    }
+
+    function handlerGoBackToLogin() {
+        Promise.resolve(
+            dispatch(clearAuthenticationDataSuccess())
+        ).then(() => {
+            navigation.navigate('login')
+        })
+    }
+
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -61,21 +90,45 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
                                 <Text style={style.title}>Daftar</Text>
                             </View>
                             <View style={style.inputContainer}>
-                                <FloatingInput label="Nama Ibu" />
+                                <FloatingInput
+                                    label="Nama Ibu"
+                                    defaultValue={user?.displayName}
+                                    onChange={(value) => setFormField({
+                                        ...formField,
+                                        displayName: value
+                                    })}
+                                />
                             </View>
                             <View style={style.inputContainer}>
-                                <PhoneNumberInput />
+                                <PhoneNumberInput
+                                    defaultValue={mother?.phoneNumber}
+                                    onChange={(value) => {
+                                        setFormField({
+                                            ...formField,
+                                            phoneNumber: value
+                                        })
+                                    }}
+                                />
                             </View>
                             <View style={style.inputContainer}>
-                                <FloatingInput label="Kode Ruang Bayi" />
+                                <FloatingInput
+                                    label="Kode Ruang Bayi"
+                                    defaultValue={mother?.babyRoomCode}
+                                    onChange={(value) => {
+                                        setFormField({
+                                            ...formField,
+                                            babyRoomCode: value
+                                        })
+                                    }}
+                                />
                             </View>
                         </View>
                         <View style={style.buttonContainer}>
-                            <TouchableOpacity style={style.prevButton} onPress={() => navigation.goBack()}>
+                            <TouchableOpacity style={style.prevButton} onPress={handlerGoBackToLogin}>
                                 <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
                                 <Text style={style.prevButtonTitle}>Kembali</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={style.nextButton} onPress={() => navigation.push('register-baby-information')}>
+                            <TouchableOpacity style={style.nextButton} onPress={handlerGoToRegisterBaby}>
                                 <Text style={style.buttonTitle}>Selanjutnya</Text>
                             </TouchableOpacity>
                         </View>
@@ -107,7 +160,7 @@ const createStyle = (
         contentContainer: {
             width: "100%",
             height: (
-                (MEDIA_HEIGHT * 3 / 4) - Spacing.xlarge - 
+                (MEDIA_HEIGHT * 3 / 4) - Spacing.xlarge -
                 (2 * Spacing.small) - insets.top
             ),
             backgroundColor: color.lightneutral,

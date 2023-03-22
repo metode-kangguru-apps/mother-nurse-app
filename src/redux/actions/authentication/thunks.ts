@@ -1,5 +1,12 @@
 import { AnyAction } from 'redux';
-import { fetchUserRequest, fetchUserSuccess, fetchUserError, clearDataUserSuccess } from '.';
+import {
+    fetchAuthenticationRequest,
+    fetchUserSuccess,
+    fetchMotherSuccess,
+    fetchNurseSuccess,
+    clearAuthenticationDataSuccess,
+    fetchAutheticationError
+} from '.';
 import { auth, firestore } from '../../../../firebaseConfig';
 
 import { RootState } from '../../types'
@@ -8,6 +15,7 @@ import { signInAnonymously, signOut } from 'firebase/auth/react-native';
 
 import { signInWithCredential } from "firebase/auth";
 import { doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { User } from './types';
 
 export const loginUser = (
 ): ThunkAction<
@@ -17,7 +25,7 @@ export const loginUser = (
     AnyAction
 > =>
     async dispatch => {
-        dispatch(fetchUserRequest())
+        dispatch(fetchAuthenticationRequest())
         signInAnonymously(auth)
             .then((credential) => {
                 let userInformation: any
@@ -39,7 +47,7 @@ export const loginUser = (
             })
             .catch((error) => {
                 // save error message
-                dispatch(fetchUserError())
+                dispatch(fetchAutheticationError())
                 throw error
             })
     };
@@ -54,19 +62,19 @@ export const logOutUser = (): ThunkAction<
         const data: any[] = []
         try {
             // set loading for request
-            dispatch(fetchUserRequest())
+            dispatch(fetchAuthenticationRequest())
             // sign out account
             signOut(auth)
                 .then(() => {
                     // clear data from local storage
-                    dispatch(clearDataUserSuccess())
+                    dispatch(clearAuthenticationDataSuccess())
                 })
                 .catch((error) => {
                     throw error
                 })
         } catch (error) {
             // save error message
-            dispatch(fetchUserError());
+            dispatch(fetchAutheticationError());
         }
     };
 
@@ -80,31 +88,35 @@ export const loginWithGoogle = (
 > =>
     async dispatch => {
         // save fetch request loading
-        dispatch(fetchUserRequest())
+        dispatch(fetchAuthenticationRequest())
         await signInWithCredential(auth, credential)
             .then((result) => {
-                let userInformation: any
+                let userInformation: User = {
+                    displayName: result.user.displayName as string,
+                    email: result.user.email as string,
+                    userType: "guest",
+                    isAnonymous: false,
+                    userRole: "mother"
+                }
                 // get user based on user uid
                 onSnapshot(doc(firestore, 'users', result.user.uid), async (user) => {
                     // check is user exist
                     if (!user.exists()) {
                         // if not create new user
                         await setDoc(doc(firestore, 'users', result.user.uid), {
-                            displayName: result.user.displayName,
-                            email: result.user.email,
-                            userType: "mother",
+                            userInformation
                         })
                     } else {
                         // save userInformation data from cloud firestore
-                        userInformation = user.data()
+                        userInformation = { ...userInformation, ...user.data() }
                     }
                 })
                 // save user data to local storage
-                dispatch(fetchUserSuccess({ ...result.user, ...userInformation }))
+                dispatch(fetchUserSuccess({ ...result.user, ...userInformation } as User))
             })
             .catch((error) => {
                 // if error save error message
-                dispatch(fetchUserError(error))
+                dispatch(fetchAutheticationError(error))
             })
     }
 

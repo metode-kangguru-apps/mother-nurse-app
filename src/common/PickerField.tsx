@@ -1,7 +1,11 @@
 import { useState, useMemo, useEffect, useRef } from "react"
-import { View, Text, StyleSheet, Animated, Platform, Pressable } from "react-native"
+import { View, Text, StyleSheet, Animated, Platform, Pressable, FlatList, Touchable, TouchableOpacity } from "react-native"
+import { color } from "src/lib/ui/color"
+import { Font } from "src/lib/ui/font"
 import { Spacing } from "src/lib/ui/spacing"
+import { TextSize } from "src/lib/ui/textSize"
 import BottomSheet from "./BottomSheet"
+import Separator from "./Separator"
 import { Options } from "./types"
 
 
@@ -10,13 +14,15 @@ type Props = {
     items: Options[]
     defaultValue?: string,
     onFocus?: (state: boolean) => void
+    onChange?: (value: string) => string
 }
 
 const FloatingInput: React.FC<Props> = ({
     label,
     items,
     defaultValue,
-    onFocus
+    onFocus,
+    onChange
 }) => {
     const [focus, setFocus] = useState<boolean>(false)
     const [inputValue, setInputValue] = useState<string>(defaultValue || '')
@@ -52,6 +58,12 @@ const FloatingInput: React.FC<Props> = ({
 
     function handleBorderColorChange(focus: boolean) {
         return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)"
+    }
+
+    function handlerSelectedValue(item: Options) {
+        setInputValue(item.key)
+        onChange && onChange(item.value)
+        setModalVisible(false)
     }
 
     useEffect(() => {
@@ -99,7 +111,27 @@ const FloatingInput: React.FC<Props> = ({
                     onFocus && onFocus(false)
                 }}
             >
-                <Text>Hello World</Text>
+                <Text style={style.bottomSheetTitle}>{label}</Text>
+                <FlatList
+                    data={items}
+                    renderItem={(state) => (
+                        <TouchableOpacity
+                            onPress={() => handlerSelectedValue(state.item)}
+                            style={style.selectorItem}
+                        >
+                            <Text>{state.item.key}</Text>
+                        </TouchableOpacity>
+                    )}
+                    ItemSeparatorComponent={() => (
+                        <Separator spacing={1} color={color.surface}/>
+                    )}
+                    ListHeaderComponent={() => (
+                        <Separator spacing={1} color={color.surface}/>
+                    )}
+                    ListFooterComponent={() => (
+                        <Separator spacing={1} color={color.surface}/>
+                    )}
+                ></FlatList>
             </BottomSheet>
         </View>
     )
@@ -136,6 +168,14 @@ const style = StyleSheet.create({
         top: 60,
         zIndex: 10
     },
+    bottomSheetTitle: {
+        fontFamily: Font.Bold,
+        fontSize: TextSize.title,
+        marginBottom: Spacing.tiny 
+    },
+    selectorItem: {
+        padding: Spacing.extratiny
+    }
 })
 
 

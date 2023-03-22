@@ -1,5 +1,5 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack"
-import { logOutUser } from "@redux/actions/user/thunks"
+import { logOutUser } from "@redux/actions/authentication/thunks"
 import { useAppDispatch } from "@redux/hooks"
 import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native"
 import { Font } from "src/lib/ui/font"

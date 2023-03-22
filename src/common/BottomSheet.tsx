@@ -1,4 +1,4 @@
-import { useRef } from "react"
+import { useEffect, useRef } from "react"
 import { StyleSheet, PanResponder, Animated, Dimensions } from "react-native"
 import { Spacing } from "src/lib/ui/spacing"
 import CustomModal from "./Modal"
@@ -19,8 +19,7 @@ const BottomSheet: React.FC<Props> = ({
 
     const startPositionAnim = Animated.timing(panY, {
         toValue: 0,
-        duration: 400,
-        delay: 100,
+        duration: 200,
         useNativeDriver: true,
     });
 
@@ -60,6 +59,12 @@ const BottomSheet: React.FC<Props> = ({
             }
         })
     ).current
+
+    useEffect(() => {
+        if (!visible) {
+            handleDismiss()
+        }
+    }, [visible])
 
     return (
         <CustomModal

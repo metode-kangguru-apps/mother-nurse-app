@@ -3,8 +3,8 @@ import { persistReducer } from "redux-persist";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import notesReducer from "./actions/notes"
-import userReducer from "./actions/user"
 import globalReducer from "./actions/global"
+import authenticationReducer from "./actions/authentication"
 
 const notesPersistConfig = {
   key: "notes",
@@ -12,23 +12,23 @@ const notesPersistConfig = {
   whitelist: ["notes"],
 };
 
-const userPersistConfig = {
-  key: "user",
-  storage: AsyncStorage,
-  whitelist: ["user"],
-};
-
 const globalPersistConfig = {
   key: "global",
   storage: AsyncStorage,
+}
+
+const authenticationPersistConfig = {
+  key: "authentication",
+  storage: AsyncStorage,
+  whitelist: ["authentication"]
 }
 
 
 
 const rootReducer = combineReducers({
   notes: persistReducer(notesPersistConfig, notesReducer),
-  user: persistReducer(userPersistConfig, userReducer),
-  global: persistReducer(globalPersistConfig, globalReducer)
+  global: persistReducer(globalPersistConfig, globalReducer),
+  authentication: persistReducer(authenticationPersistConfig, authenticationReducer),
 });
 
 export default rootReducer;

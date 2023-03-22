@@ -4,12 +4,15 @@ import RegisterBabyInformationScreen from "@app/authentication/RegisterBabyInfor
 import RegisterUserInformationScreen from "@app/authentication/RegisterUserInformation";
 
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { RootState } from "@redux/types";
+import { useSelector } from "react-redux";
 import { color } from "src/lib/ui/color";
 import { AuthStackParamList } from "./types";
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>()
 
 const AuthRouter: React.FC<{}> = () => {
+    const { user } = useSelector((state: RootState) => state.authentication)
     return (
         <AuthStack.Navigator
             screenOptions={{
@@ -17,34 +20,48 @@ const AuthRouter: React.FC<{}> = () => {
                 contentStyle: {
                     backgroundColor: color.surface,
                     flex: 1,
-                    borderLeftWidth: 1,
-                    borderRightWidth: 1,
-                    borderColor: "rgba(0, 0, 0, 0.1)",
                 },
                 animation: 'none'
             }}
         >
-            <AuthStack.Screen 
-                name='login' 
-                component={LoginScreen} 
-                options={{
-                    title: 'Login'
-                }}
-            />
-            <AuthStack.Screen
-                name='register-user-information'
-                component={RegisterUserInformationScreen}
-                options={{
-                    title: 'Register User Information'
-                }}
-            />
-            <AuthStack.Screen
-                name='register-baby-information'
-                component={RegisterBabyInformationScreen}
-                options={{
-                    title: 'Register Baby Information'
-                }}
-            />
+            {!user && (
+                <AuthStack.Screen
+                    name='login'
+                    component={LoginScreen}
+                    options={{
+                        title: 'Login'
+                    }}
+                />
+            )}
+            {user?.userType === 'guest' &&
+                (<>
+                    <AuthStack.Screen
+                        name='register-user-information'
+                        component={RegisterUserInformationScreen}
+                        options={{
+                            title: 'Register User Information'
+                        }}
+                    />
+                    <AuthStack.Screen
+                        name='register-baby-information'
+                        component={RegisterBabyInformationScreen}
+                        options={{
+                            title: 'Register Baby Information'
+                        }}
+                    />
+                </>)
+            }
+            {user?.userType === 'member' &&
+                (<>
+                    <AuthStack.Screen
+                        name='logout'
+                        component={LogOutScreen}
+                        options={{
+                            title: 'Logout'
+                        }}
+                    />
+                </>)
+            }
             <AuthStack.Screen
                 name='logout'
                 component={LogOutScreen}

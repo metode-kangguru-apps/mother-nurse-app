@@ -6,8 +6,11 @@ import {
     StyleSheet, 
     Animated, 
     Platform, 
-    KeyboardTypeOptions
+    KeyboardTypeOptions,
+    NativeSyntheticEvent,
+    TextInputChangeEventData
 } from "react-native"
+
 import { Spacing } from "src/lib/ui/spacing"
 
 type Props = {
@@ -16,7 +19,8 @@ type Props = {
     type?: "no-border",
     keyboardType?: KeyboardTypeOptions,
     statePrefix?: string, 
-    onFocus?: (state: boolean) => void
+    onFocus?: (state: boolean) => void,
+    onChange?: (value: string) => void;
 }
 
 const FloatingInput: React.FC<Props> = ({
@@ -25,7 +29,8 @@ const FloatingInput: React.FC<Props> = ({
     type,
     keyboardType = "default",
     statePrefix,
-    onFocus
+    onFocus,
+    onChange
 }) => {
     const [focus, setFocus] = useState<boolean>(false)
     const [inputValue, setInputValue] = useState<string>(defaultValue || statePrefix || '')
@@ -111,6 +116,7 @@ const FloatingInput: React.FC<Props> = ({
                 }}
                 onChange={(state) => {
                     setInputValue(state.nativeEvent.text)
+                    onChange && onChange(state.nativeEvent.text)
                 }}
                 defaultValue={defaultValue}
             />
