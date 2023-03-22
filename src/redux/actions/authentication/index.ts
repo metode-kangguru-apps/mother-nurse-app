@@ -17,20 +17,20 @@ const authentication = createSlice({
       state.loading = true
     },
     fetchUserSuccess: (state, action: PayloadAction<any>) => {
-      // set mother state
-      state.user = action.payload
+      // set user state
+      state.user = {...state.user, ...action.payload}
       state.error = false;
       state.loading = false;
     },
     fetchMotherSuccess: (state, action: PayloadAction<any>) => {
       // set mother state
-      state.mother = action.payload
+      state.mother = {...state.mother, ...action.payload}
       state.error = false;
       state.loading = false;
     },
     fetchNurseSuccess: (state, action: PayloadAction<any>) => {
-      // set mother state
-      state.nurse = action.payload
+      // set nurse state
+      state.nurse = {...state.nurse, ...action.payload}
       state.error = false;
       state.loading = false;
     },

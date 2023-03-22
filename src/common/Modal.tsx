@@ -26,6 +26,8 @@ const CustomModal: React.FC<Props> = ({
             visible={visible}
             animationType='fade'
             onShow={() => onCompletelyShow && onCompletelyShow()}
+            hardwareAccelerated={false}
+
         >
             <View style={style.modalContainer}>
                 <Pressable

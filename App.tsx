@@ -13,11 +13,12 @@ import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from '@redux/store';
 
-import AuthRouter from 'src/router/auth'
-import { RootStackParamList } from 'src/router/types';
-import linking from 'src/router/path';
-import MotherRouter from 'src/router/mother';
 import { color } from 'src/lib/ui/color';
+import { RootStackParamList } from 'src/router/types';
+
+import linking from 'src/router/path';
+import AuthRouter from 'src/router/auth'
+import MotherRouter from 'src/router/mother';
 
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

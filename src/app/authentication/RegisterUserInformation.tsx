@@ -19,7 +19,7 @@ import { useAssets } from "expo-asset"
 import { useSafeAreaInsets, EdgeInsets } from 'react-native-safe-area-context';
 import { useMemo, useState } from "react"
 import { useAppDispatch } from "@redux/hooks"
-import { clearAuthenticationDataSuccess, fetchMotherSuccess } from "@redux/actions/authentication"
+import { clearAuthenticationDataSuccess, fetchMotherSuccess, fetchUserSuccess } from "@redux/actions/authentication"
 import { Mother } from "@redux/actions/authentication/types"
 
 
@@ -37,8 +37,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
 
     const {
         user,
-        mother,
-        loading
+        mother
     } = useSelector((state: RootState) => state.authentication)
 
     const [ formField, setFormField ] = useState({
@@ -48,6 +47,9 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
     })
 
     function handlerGoToRegisterBaby() {
+        dispatch(fetchUserSuccess({
+            displayName: formField.displayName
+        }))
         dispatch(fetchMotherSuccess({
             phoneNumber: formField.phoneNumber,
             babyRoomCode: formField.babyRoomCode

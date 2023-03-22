@@ -6,7 +6,7 @@ import { Spacing } from "src/lib/ui/spacing"
 import { TextSize } from "src/lib/ui/textSize"
 import { color } from "src/lib/ui/color"
 
-import { AuthStackParamList } from "src/router/types"
+import { AuthStackParamList, MotherStackParamList, RootStackParamList } from "src/router/types"
 import FloatingInput from "src/common/FloatingInput"
 
 import { AntDesign } from '@expo/vector-icons';
@@ -15,17 +15,65 @@ import DateTimePicker from "src/common/DateTimePicker"
 import PickerField from "src/common/PickerField"
 import { useAssets } from "expo-asset"
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context"
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
+import { Baby, Authetication, Mother, AutheticationPayload } from "@redux/actions/authentication/types"
+import { useSelector } from "react-redux"
+import { RootState } from "@redux/types"
+import { useAppDispatch } from "@redux/hooks"
+import { loginUser } from "@redux/actions/authentication/thunks"
+import { CompositeScreenProps } from "@react-navigation/native"
 
 
 const MEDIA_HEIGHT = Dimensions.get('window').height
 
-interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-baby-information'> { }
+interface Props extends CompositeScreenProps<
+    NativeStackScreenProps<AuthStackParamList, 'register-baby-information'>,
+    NativeStackScreenProps<RootStackParamList>
+> { }
 
 const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
-    const [assets, _] = useAssets([require('../../../assets/info-baby.png')])
+    const dispatch = useAppDispatch()
     const insets = useSafeAreaInsets()
+    const [formField, setFormField] = useState<Baby>({})
     const style = useMemo(() => createStyle(insets), [insets])
+    const { user, mother } = useSelector((state: RootState) => state.authentication)
+    const [assets, _] = useAssets([require('../../../assets/info-baby.png')])
+
+
+    function handlerRegisterAccount() {
+        if (user?.isAnonymous) {
+            const newUserObj: AutheticationPayload = {
+                user: {
+                    displayName: user?.displayName,
+                    userType: "member",
+                    userRole: "mother",
+                    isAnonymous: true,
+                },
+                mother: {
+                    phoneNumber: mother?.phoneNumber,
+                    babyRoomCode: mother?.babyRoomCode,
+                    babyCollection: [
+                        {
+                            displayName: formField.displayName,
+                            gestationAge: formField.gestationAge,
+                            birthDate: formField.birthDate,
+                            weight: formField.weight,
+                            length: formField.length,
+                            gender: formField.gender,
+                        }
+                    ]
+                },
+                nurse: undefined,
+            }
+            Promise.resolve(
+                dispatch(loginUser(newUserObj))
+            ).then(() => {
+                navigation.navigate('mother', {
+                    screen: 'select-baby'
+                })
+            })
+        }
+    }
 
     return (
         <KeyboardAvoidingView
@@ -51,7 +99,15 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                             <Text style={style.title}>Daftar Bayi</Text>
                         </View>
                         <View style={style.inputContainer}>
-                            <FloatingInput label="Nama" />
+                            <FloatingInput
+                                label="Nama"
+                                onChange={(value) => {
+                                    setFormField({
+                                        ...formField,
+                                        displayName: value
+                                    })
+                                }}
+                            />
                         </View>
                         <View style={style.inputContainer}>
                             <FloatingInput
@@ -62,15 +118,27 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                                         android: "decimal-pad",
                                     })
                                 }
+                                onChange={(value) => {
+                                    setFormField({
+                                        ...formField,
+                                        gestationAge: value
+                                    })
+                                }}
                             />
                         </View>
                         <View style={[style.inputContainer, { zIndex: 10 }]}>
                             <DateTimePicker
                                 label="Tanggal Lahir"
+                                onChange={(value) => {
+                                    setFormField({
+                                        ...formField,
+                                        birthDate: value
+                                    })
+                                }}
                             />
                         </View>
                         <View style={style.inputContainer}>
-                            <FloatingInput 
+                            <FloatingInput
                                 label="Berat (gram)"
                                 keyboardType={
                                     Platform.select({
@@ -78,10 +146,16 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                                         android: "decimal-pad",
                                     })
                                 }
+                                onChange={(value) => {
+                                    setFormField({
+                                        ...formField,
+                                        weight: parseInt(value)
+                                    })
+                                }}
                             />
                         </View>
                         <View style={style.inputContainer}>
-                            <FloatingInput 
+                            <FloatingInput
                                 label="Tinggi Badan (cm)"
                                 keyboardType={
                                     Platform.select({
@@ -89,6 +163,12 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                                         android: "decimal-pad",
                                     })
                                 }
+                                onChange={(value) => {
+                                    setFormField({
+                                        ...formField,
+                                        length: parseInt(value)
+                                    })
+                                }}
                             />
                         </View>
                         <View style={[style.inputContainer, { zIndex: 10 }]}>
@@ -98,6 +178,12 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                                     { key: 'Laki-laki', value: 'laki-laki' },
                                     { key: 'Perempuan', value: 'perempuan' },
                                 ]}
+                                onChange={(value) => {
+                                    setFormField({
+                                        ...formField,
+                                        gender: value
+                                    })
+                                }}
                             />
                         </View>
                         <View style={style.addBaby}>
@@ -112,7 +198,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                                 <AntDesign name="arrowleft" size={TextSize.h6} color={color.accent2} />
                                 <Text style={style.prevButtonTitle}>Kembali</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity style={style.nextButton}>
+                            <TouchableOpacity style={style.nextButton} onPress={handlerRegisterAccount}>
                                 <Text style={style.buttonTitle}>Selanjutnya</Text>
                             </TouchableOpacity>
                         </View>
@@ -139,7 +225,7 @@ const createStyle = (
             borderTopRightRadius: Spacing.xlarge / 2,
             justifyContent: 'space-between',
             minHeight: (
-                MEDIA_HEIGHT * 3 / 4 - (Spacing.base - Spacing.extratiny) - 
+                MEDIA_HEIGHT * 3 / 4 - (Spacing.base - Spacing.extratiny) -
                 Spacing.xlarge - insets.top
             ),
             ...(Platform.select({

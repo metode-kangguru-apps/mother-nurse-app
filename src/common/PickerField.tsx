@@ -14,7 +14,7 @@ type Props = {
     items: Options[]
     defaultValue?: string,
     onFocus?: (state: boolean) => void
-    onChange?: (value: string) => string
+    onChange?: (value: string) => void
 }
 
 const FloatingInput: React.FC<Props> = ({

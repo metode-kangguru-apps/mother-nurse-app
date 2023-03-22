@@ -15,18 +15,20 @@ export type User = {
 }
 
 export type Mother = {
+    id?: string
     phoneNumber?: string
     babyRoomCode?: string
-    babyCollection?: Baby[]
+    babyRefs?: string[]
 }
 
 export type Baby = {
+    id?: string
     displayName?: string
     gestationAge?: string
     birthDate?: string
     weight?: number
     length?: number
-    gender?: "laki-laki" | "perempuan"
+    gender?: "laki-laki" | "perempuan" | string
 }
 
 export type Nurse = {
@@ -37,6 +39,14 @@ export type Authetication = {
     user: User | undefined
     mother: Mother | undefined
     nurse: Nurse | undefined
-    loading: boolean
-    error: boolean
+    loading?: boolean
+    error?: boolean
+}
+
+export interface MotherPayload extends Mother {
+    babyCollection: Baby[]
+}
+
+export interface AutheticationPayload extends Authetication {
+    mother: MotherPayload | undefined
 }

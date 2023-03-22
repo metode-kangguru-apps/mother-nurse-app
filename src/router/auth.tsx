@@ -33,7 +33,7 @@ const AuthRouter: React.FC<{}> = () => {
                     }}
                 />
             )}
-            {user?.userType === 'guest' &&
+            {user && user?.userType === 'guest' &&
                 (<>
                     <AuthStack.Screen
                         name='register-user-information'
@@ -51,7 +51,7 @@ const AuthRouter: React.FC<{}> = () => {
                     />
                 </>)
             }
-            {user?.userType === 'member' &&
+            {user && user?.userType === 'member' &&
                 (<>
                     <AuthStack.Screen
                         name='logout'
@@ -62,13 +62,6 @@ const AuthRouter: React.FC<{}> = () => {
                     />
                 </>)
             }
-            <AuthStack.Screen
-                name='logout'
-                component={LogOutScreen}
-                options={{
-                    title: 'Logout'
-                }}
-            />
         </AuthStack.Navigator>
     )
 }

@@ -14,10 +14,11 @@ import { ThunkAction } from 'redux-thunk'
 import { signInAnonymously, signOut } from 'firebase/auth/react-native';
 
 import { signInWithCredential } from "firebase/auth";
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { User } from './types';
+import { doc, onSnapshot, setDoc, addDoc, collection, getDoc } from 'firebase/firestore';
+import { AutheticationPayload, User } from './types';
 
 export const loginUser = (
+    payload: AutheticationPayload
 ): ThunkAction<
     void,
     RootState,
@@ -28,22 +29,47 @@ export const loginUser = (
         dispatch(fetchAuthenticationRequest())
         signInAnonymously(auth)
             .then((credential) => {
-                let userInformation: any
+                let userInformation: AutheticationPayload = payload
                 // get user data from firestore cloud
                 onSnapshot(doc(firestore, 'users', credential.user.uid), async (user) => {
                     // check if user exist
                     if (!user.exists()) {
                         // if not exist create new user
-                        await setDoc(doc(firestore, 'users', credential.user.uid), {
-                            userType: "mother",
-                        })
-                    } else {
-                        // if exist save user information
-                        userInformation = user.data()
+                        await setDoc(doc(firestore, 'users', credential.user.uid), payload.user)
+                        // set new baby ref for mother
+                        const babyRefDocs: any[] = []
+                        if (userInformation.mother?.babyCollection) {
+                            for (const baby of userInformation.mother?.babyCollection) {
+                                // add new baby
+                                const newBabyRef = await addDoc(
+                                    collection(firestore, 'babies'), baby
+                                )
+                                const newBabyId = newBabyRef.id;
+                                babyRefDocs.push(newBabyId);
+                            }
+                            // add mother with baby collections
+                            const motherDocRef = doc(firestore, 'mothers', credential.user.uid)
+                            const data = {
+                                phoneNumber: userInformation.mother.phoneNumber,
+                                babyRoomCode: userInformation.mother.babyRoomCode,
+                                babyRefs: babyRefDocs
+                            }
+                            await setDoc(motherDocRef, data)
+                        }
+
+                        // get mother data
+                        const ref = doc(firestore, 'mothers', credential.user.uid)
+                        const mother = await getDoc(ref)
+
+                        // set user data
+                        dispatch(fetchUserSuccess(userInformation.user));
+                        dispatch(
+                            fetchMotherSuccess(
+                                { ...mother.data() }
+                            )
+                        )
                     }
                 })
-                // set user data
-                dispatch(fetchUserSuccess({ ...credential.user, ...userInformation }));
             })
             .catch((error) => {
                 // save error message

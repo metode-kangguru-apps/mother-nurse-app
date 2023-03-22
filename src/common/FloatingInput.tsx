@@ -7,8 +7,6 @@ import {
     Animated, 
     Platform, 
     KeyboardTypeOptions,
-    NativeSyntheticEvent,
-    TextInputChangeEventData
 } from "react-native"
 
 import { Spacing } from "src/lib/ui/spacing"
@@ -119,6 +117,7 @@ const FloatingInput: React.FC<Props> = ({
                     onChange && onChange(state.nativeEvent.text)
                 }}
                 defaultValue={defaultValue}
+                returnKeyType='next'
             />
         </View>
     )

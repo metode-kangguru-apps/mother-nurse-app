@@ -1,36 +1,29 @@
-import { clearDateTimePicker, setShowDateTimePicker } from "@redux/actions/global"
+import Moment from 'moment'
 import { useAppDispatch } from "@redux/hooks"
-import { RootState } from "@redux/types"
 import { useState, useMemo, useEffect, useRef } from "react"
 import { View, TextInput, StyleSheet, Animated, Platform, KeyboardTypeOptions, Pressable, Text } from "react-native"
-import { useSelector } from "react-redux"
 import { Spacing } from "src/lib/ui/spacing"
+
+import CustomModal from "./Modal"
+import DatePicker from 'react-native-modern-datepicker';
 
 type Props = {
     label: string,
     defaultValue?: string,
-    type?: "no-border",
-    keyboardType?: KeyboardTypeOptions,
     onFocus?: (state: boolean) => void
+    onChange?: (value: string) => void
 }
 
 const NativeDateTimePicker: React.FC<Props> = ({
     label,
     defaultValue,
-    type,
-    keyboardType = "default",
-    onFocus
+    onFocus,
+    onChange
 }) => {
-    const dispatch = useAppDispatch()
     const [focus, setFocus] = useState<boolean>(false)
     const [inputValue, setInputValue] = useState<string>(defaultValue || '')
+    const [showDateTimePicker, setShowDateTimePicker] = useState<boolean>(false)
     const isFocusedAnimated = useRef(new Animated.Value(0)).current;
-    const textInputRef = useRef(null)
-
-    const {
-        showDateTimePicker,
-        dateTimePicker
-    } = useSelector((state: RootState) => state.global)
 
     const borderColor = useMemo(() => handleBorderColorChange(focus), [focus])
     const style = useMemo(() => createStyle(borderColor), [borderColor])
@@ -76,15 +69,8 @@ const NativeDateTimePicker: React.FC<Props> = ({
 
     useEffect(() => {
         if (!showDateTimePicker) {
-            if (Platform.OS === 'web') {
-                setFocus(false)
-                onFocus && onFocus(false)
-            }
-            if (dateTimePicker) {
-                textInputRef.current?.blur()
-                setInputValue(dateTimePicker)
-                dispatch(clearDateTimePicker())
-            }
+            setFocus(false)
+            onFocus && onFocus(false)
         }
     }, [showDateTimePicker])
 
@@ -105,47 +91,37 @@ const NativeDateTimePicker: React.FC<Props> = ({
             ]}>
                 {label}
             </Animated.Text>
-            { Platform.OS === 'web' ? (
-                <Pressable
-                    style={[style.textInput, style.textInputWeb]}
-                    onPress={() => {
-                        setFocus(true)
-                        onFocus && onFocus(true)
-                        dispatch(setShowDateTimePicker({
-                            showDateTimePicker: true,
-                        }))
-                    }}
-                >
-                    <Text>
-                        {inputValue}
-                    </Text>
-                </Pressable>
-            ) : (
-                <TextInput
-                    ref={textInputRef}
-                    style={style.textInput}
-                    keyboardType={keyboardType}
-                    onFocus={() => {
-                        setFocus(true)
-                        onFocus && onFocus(true)
-                        dispatch(setShowDateTimePicker({
-                            showDateTimePicker: true,
-                        }))
-                    }}
-                    onBlur={() => {
-                        setFocus(false)
-                        onFocus && onFocus(false)
-                        dispatch(setShowDateTimePicker({
-                            showDateTimePicker: false
-                        }))
-                    }}
-                    onChange={(state) => {
-                        setInputValue(state.nativeEvent.text)
-                    }}
-                    showSoftInputOnFocus={false}
-                    defaultValue={inputValue}
-                />
-            )}
+            <Pressable
+                style={style.textInput}
+                onPress={() => {
+                    setFocus(true)
+                    onFocus && onFocus(true)
+                    setShowDateTimePicker(true)
+                }}
+            >
+                <Text>
+                    {inputValue}
+                </Text>
+            </Pressable>
+            <CustomModal
+                visible={showDateTimePicker}
+                onModalClose={() => {
+                    setShowDateTimePicker(false)
+                }}
+            >
+                <View style={style.modalContentContainer}>
+                    <DatePicker
+                        style={{ borderRadius: 20 }}
+                        mode="calendar"
+                        onDateChange={(dateString) => {
+                            const resultString = Moment(new Date(dateString)).format("DD/MM/YYYY")
+                            setShowDateTimePicker(false)
+                            setInputValue(resultString)
+                            onChange && onChange(resultString)
+                        }}
+                    ></DatePicker>
+                </View>
+            </CustomModal>
         </View>
     )
 }
@@ -167,14 +143,16 @@ const createStyle = (
             borderColor: borderColor,
             outlineStyle: 'none',
             paddingHorizontal: textInputPaddingHorizontal,
-            paddingTop: Platform.OS === 'android' ? 17 : 24,
+            paddingTop: Platform.OS === 'android' ? 22 : 24,
             paddingBottom: Platform.OS === 'android' ? 4 : 8,
             position: 'relative',
             borderWidth: 2,
-            borderRadius: 10
+            borderRadius: 10,
+            height: 52
         },
-        textInputWeb: {
-            height: 52,
+        modalContentContainer: {
+            width: 350,
+            height: 350
         }
     })
 }

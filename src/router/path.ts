@@ -17,7 +17,15 @@ const linking = {
           }
         },
         "mother": {
-
+          path:"/mother",
+          screens: {
+            "select-baby": {
+              path: "/select-baby"
+            },
+            "home": {
+              path: "/:baby-id"
+            }
+          }
         }
       },
     },
