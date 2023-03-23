@@ -1,32 +1,32 @@
-import React, { useCallback, useEffect } from 'react'
+import React, { useCallback, useEffect } from "react";
 
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import { useFonts } from 'expo-font'
-import { customFont } from './src/lib/ui/font';
+import { useFonts } from "expo-font";
+import { customFont } from "./src/lib/ui/font";
 
-import * as SplashScreen from 'expo-splash-screen';
-import BaseContainer from './src/common/BaseContainer';
+import * as SplashScreen from "expo-splash-screen";
+import BaseContainer from "./src/common/BaseContainer";
 
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import { persistor, store } from '@redux/store';
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "@redux/store";
 
-import { color } from 'src/lib/ui/color';
-import { RootStackParamList } from 'src/router/types';
+import { color } from "src/lib/ui/color";
+import { RootStackParamList } from "src/router/types";
 
-import linking from 'src/router/path';
-import AuthRouter from 'src/router/auth'
-import MotherRouter from 'src/router/mother';
-
+import linking from "src/router/path";
+import AuthRouter from "src/router/auth";
+import MotherRouter from "src/router/mother";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: React.FC<{}> = () => {
+  // load fonts
+  const [isAppReady] = useFonts(customFont);
 
-  const [isAppReady] = useFonts(customFont)
-
+  // prepare splash screen
   useEffect(() => {
     async function prepare() {
       await SplashScreen.preventAutoHideAsync();
@@ -36,7 +36,7 @@ const App: React.FC<{}> = () => {
 
   const onLayoutRootView = useCallback(async () => {
     if (isAppReady) {
-      await new Promise(resolve => setTimeout(resolve, 3000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       await SplashScreen.hideAsync();
     }
   }, [isAppReady]);
@@ -45,6 +45,8 @@ const App: React.FC<{}> = () => {
     return null;
   }
 
+  // load userState
+  const { user: userState } = store.getState().authentication;
 
   return (
     <NavigationContainer linking={linking} onReady={onLayoutRootView}>
@@ -55,17 +57,21 @@ const App: React.FC<{}> = () => {
               screenOptions={{
                 headerShown: false,
                 contentStyle: { backgroundColor: color.surface, flex: 1 },
-                animation: 'none'
+                animation: "none",
               }}
             >
-              <Stack.Screen name='auth' component={AuthRouter} />
-              <Stack.Screen name='mother' component={MotherRouter} />
+              <Stack.Screen name="auth" component={AuthRouter} />
+              {userState &&
+                userState.userType === "member" &&
+                userState.userRole == "mother" && (
+                  <Stack.Screen name="mother" component={MotherRouter} />
+                )}
             </Stack.Navigator>
           </BaseContainer>
         </PersistGate>
       </Provider>
     </NavigationContainer>
   );
-}
+};
 
-export default App
+export default App;

@@ -1,31 +1,31 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState = {
   showDateTimePicker: false,
-  dateTimePicker: ''
+  dateTimePicker: "",
 };
 
 const global = createSlice({
-  name: 'global',
+  name: "global",
   initialState,
   reducers: {
     setShowDateTimePicker: (state, action: PayloadAction<any>) => {
-        state.showDateTimePicker = action.payload.showDateTimePicker;
+      state.showDateTimePicker = action.payload.showDateTimePicker;
     },
     setDateTimePickerValue: (state, action: PayloadAction<any>) => {
-        state.dateTimePicker = action.payload.dateTimePicker;
-        state.showDateTimePicker = false;
+      state.dateTimePicker = action.payload.dateTimePicker;
+      state.showDateTimePicker = false;
     },
     clearDateTimePicker: (state) => {
-        state.dateTimePicker = ''
-    }
+      state.dateTimePicker = "";
+    },
   },
 });
 
 export const {
-    setShowDateTimePicker,
-    setDateTimePickerValue,
-    clearDateTimePicker
+  setShowDateTimePicker,
+  setDateTimePickerValue,
+  clearDateTimePicker,
 } = global.actions;
 
 export default global.reducer;
