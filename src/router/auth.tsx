@@ -24,15 +24,13 @@ const AuthRouter: React.FC<{}> = () => {
         animation: "none",
       }}
     >
-      {!user && (
-        <AuthStack.Screen
-          name="login"
-          component={LoginScreen}
-          options={{
-            title: "Login",
-          }}
-        />
-      )}
+      <AuthStack.Screen
+        name="login"
+        component={LoginScreen}
+        options={{
+          title: "Login",
+        }}
+      />
       {user && user?.userType === "guest" && (
         <>
           <AuthStack.Screen
@@ -47,17 +45,6 @@ const AuthRouter: React.FC<{}> = () => {
             component={RegisterBabyInformationScreen}
             options={{
               title: "Register Baby Information",
-            }}
-          />
-        </>
-      )}
-      {user && user?.userType === "member" && (
-        <>
-          <AuthStack.Screen
-            name="logout"
-            component={LogOutScreen}
-            options={{
-              title: "Logout",
             }}
           />
         </>

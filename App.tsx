@@ -1,8 +1,5 @@
 import React, { useCallback, useEffect } from "react";
 
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
 import { useFonts } from "expo-font";
 import { customFont } from "./src/lib/ui/font";
 
@@ -13,14 +10,9 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@redux/store";
 
-import { color } from "src/lib/ui/color";
-import { RootStackParamList } from "src/router/types";
+import RootRouter from "src/router";
 
-import linking from "src/router/path";
-import AuthRouter from "src/router/auth";
-import MotherRouter from "src/router/mother";
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App: React.FC<{}> = () => {
   // load fonts
@@ -49,28 +41,15 @@ const App: React.FC<{}> = () => {
   const { user: userState } = store.getState().authentication;
 
   return (
-    <NavigationContainer linking={linking} onReady={onLayoutRootView}>
-      <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
-          <BaseContainer>
-            <Stack.Navigator
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: color.surface, flex: 1 },
-                animation: "none",
-              }}
-            >
-              <Stack.Screen name="auth" component={AuthRouter} />
-              {userState &&
-                userState.userType === "member" &&
-                userState.userRole == "mother" && (
-                  <Stack.Screen name="mother" component={MotherRouter} />
-                )}
-            </Stack.Navigator>
-          </BaseContainer>
-        </PersistGate>
-      </Provider>
-    </NavigationContainer>
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <BaseContainer>
+          <RootRouter
+            onLayoutRootView={onLayoutRootView}
+          />
+        </BaseContainer>
+      </PersistGate>
+    </Provider>
   );
 };
 

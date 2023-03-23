@@ -1,11 +1,12 @@
 import { AnyAction } from "redux";
 import {
   fetchAuthenticationRequest,
-  fetchUserSuccess,
-  fetchMotherSuccess,
-  fetchNurseSuccess,
+  setUserData,
+  setMotherData,
+  setNurseData,
   clearAuthenticationDataSuccess,
   fetchAutheticationError,
+  fetchAutheticationSuccess,
 } from ".";
 import { auth, firestore } from "../../../../firebaseConfig";
 
@@ -80,12 +81,13 @@ export const loginUser =
 
               // set user data
               dispatch(
-                fetchUserSuccess({
+                setUserData({
                   ...userInformation.user,
                   uid: credential.user.uid,
                 })
               );
-              dispatch(fetchMotherSuccess({ ...mother.data() }));
+              dispatch(setMotherData({ ...mother.data() }));
+              dispatch(fetchAutheticationSuccess());
             }
           }
         );
@@ -108,6 +110,7 @@ export const logOutUser =
         .then(() => {
           // clear data from local storage
           dispatch(clearAuthenticationDataSuccess());
+          dispatch(fetchAutheticationSuccess());
         })
         .catch((error) => {
           throw error;
@@ -136,7 +139,7 @@ export const loginWithGoogle =
               doc(firestore, "users", result.user.uid)
             );
             // save user data to local storage
-            dispatch(fetchUserSuccess(userRef.data()));
+            dispatch(setUserData(userRef.data()));
 
             // fetch user based on userRole
             const userRole = userRef.get("userRole");
@@ -144,7 +147,7 @@ export const loginWithGoogle =
               const motherRef = await getDoc(
                 doc(firestore, "mothers", result.user.uid)
               );
-              dispatch(fetchMotherSuccess(motherRef.data()));
+              dispatch(setMotherData(motherRef.data()));
             }
           } else {
             const userGoogleInitialData: User = {
@@ -157,12 +160,13 @@ export const loginWithGoogle =
             );
             // set new baby ref for mother
             dispatch(
-              fetchUserSuccess({
+              setUserData({
                 ...userGoogleInitialData,
                 uid: result.user.uid,
               })
             );
           }
+          dispatch(fetchAutheticationSuccess());
         });
       })
       .catch((error) => {
@@ -178,45 +182,50 @@ export const signUpMotherWithGoogle =
   async (dispatch) => {
     // save fetch request loading
     dispatch(fetchAuthenticationRequest());
-    if (payload.user && payload.user.uid) {
-      await setDoc(doc(firestore, "users", payload.user.uid), {
-        displayName: payload.user.displayName,
-        userRole: payload.user.userRole,
-        userType: payload.user.userType,
-        isAnonymous: payload.user.isAnonymous,
-      });
-      // set new baby ref for mother
-      const babyRefDocs: any[] = [];
-      if (payload.mother?.babyCollection) {
-        for (const baby of payload.mother?.babyCollection) {
-          // add new baby
-          const newBabyRef = await addDoc(
-            collection(firestore, "babies"),
-            baby
-          );
-          const newBabyId = newBabyRef.id;
-          babyRefDocs.push(newBabyId);
+    try {
+      if (payload.user && payload.user.uid) {
+        await setDoc(doc(firestore, "users", payload.user.uid), {
+          displayName: payload.user.displayName,
+          userRole: payload.user.userRole,
+          userType: payload.user.userType,
+          isAnonymous: payload.user.isAnonymous,
+        });
+        // set new baby ref for mother
+        const babyRefDocs: any[] = [];
+        if (payload.mother?.babyCollection) {
+          for (const baby of payload.mother?.babyCollection) {
+            // add new baby
+            const newBabyRef = await addDoc(
+              collection(firestore, "babies"),
+              baby
+            );
+            const newBabyId = newBabyRef.id;
+            babyRefDocs.push(newBabyId);
+          }
+          // add mother with baby collections
+          const motherDocRef = doc(firestore, "mothers", payload.user.uid);
+          const data = {
+            phoneNumber: payload.mother.phoneNumber,
+            babyRoomCode: payload.mother.babyRoomCode,
+            babyRefs: babyRefDocs,
+          };
+          await setDoc(motherDocRef, data);
         }
-        // add mother with baby collections
-        const motherDocRef = doc(firestore, "mothers", payload.user.uid);
-        const data = {
-          phoneNumber: payload.mother.phoneNumber,
-          babyRoomCode: payload.mother.babyRoomCode,
-          babyRefs: babyRefDocs,
-        };
-        await setDoc(motherDocRef, data);
+
+        // get mother data
+        const ref = doc(firestore, "mothers", payload.user.uid);
+        const mother = await getDoc(ref);
+
+        // set user data
+        dispatch(
+          setUserData({
+            ...payload.user,
+          })
+        );
+        dispatch(setMotherData({ ...mother.data() }));
+        dispatch(fetchAutheticationSuccess());
       }
-
-      // get mother data
-      const ref = doc(firestore, "mothers", payload.user.uid);
-      const mother = await getDoc(ref);
-
-      // set user data
-      dispatch(
-        fetchUserSuccess({
-          ...payload.user,
-        })
-      );
-      dispatch(fetchMotherSuccess({ ...mother.data() }));
+    } catch {
+      dispatch(fetchAutheticationError());
     }
   };

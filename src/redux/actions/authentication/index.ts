@@ -16,45 +16,42 @@ const authentication = createSlice({
     fetchAuthenticationRequest: (state) => {
       state.loading = true;
     },
-    fetchUserSuccess: (state, action: PayloadAction<any>) => {
+    setUserData: (state, action: PayloadAction<any>) => {
       // set user state
-      state.user = { ...state.user, ...action.payload };
-      state.error = false;
-      state.loading = false;
+      state.user = { ...state.user, ...action.payload }
     },
-    fetchMotherSuccess: (state, action: PayloadAction<any>) => {
+    setMotherData: (state, action: PayloadAction<any>) => {
       // set mother state
-      state.mother = { ...state.mother, ...action.payload };
-      state.error = false;
-      state.loading = false;
+      state.mother = { ...state.mother, ...action.payload }
     },
-    fetchNurseSuccess: (state, action: PayloadAction<any>) => {
+    setNurseData: (state, action: PayloadAction<any>) => {
       // set nurse state
-      state.nurse = { ...state.nurse, ...action.payload };
-      state.error = false;
-      state.loading = false;
+      state.nurse = { ...state.nurse, ...action.payload }
+    },
+    fetchAutheticationSuccess: (state) => {
+      state.loading = false
+      state.error = false
     },
     clearAuthenticationDataSuccess: (state) => {
-      state.mother = undefined;
-      state.user = undefined;
-      state.nurse = undefined;
-      state.loading = false;
-      state.error = false;
+      state.mother = undefined
+      state.user = undefined
+      state.nurse = undefined
     },
     fetchAutheticationError: (state) => {
-      state.error = true;
-      state.loading = false;
+      state.error = true
+      state.loading = false
     },
   },
 });
 
 export const {
+  setUserData,
+  setMotherData,
+  setNurseData,
   fetchAuthenticationRequest,
-  fetchUserSuccess,
-  fetchMotherSuccess,
-  fetchNurseSuccess,
-  clearAuthenticationDataSuccess,
+  fetchAutheticationSuccess,
   fetchAutheticationError,
+  clearAuthenticationDataSuccess,
 } = authentication.actions;
 
 export default authentication.reducer;

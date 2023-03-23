@@ -5,13 +5,13 @@ export type MotherStackParamList = {
     "baby-id": string;
   };
   "select-baby": undefined;
+  logout: undefined;
 };
 
 export type AuthStackParamList = {
   login: undefined;
   "register-user-information": undefined;
   "register-baby-information": undefined;
-  logout: undefined;
 };
 
 export type RootStackParamList = {

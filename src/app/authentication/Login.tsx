@@ -18,7 +18,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Google from "expo-auth-session/providers/google";
 import { color } from "src/lib/ui/color";
 import { User } from "@redux/actions/authentication/types";
-import { fetchUserSuccess } from "@redux/actions/authentication";
+import { setUserData } from "@redux/actions/authentication";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { CompositeScreenProps } from "@react-navigation/native";
@@ -40,26 +40,32 @@ const Login: React.FC<Props> = ({ navigation }) => {
     clientId: FIREBASE_WEB_CLIENT_ID,
   });
 
-  const { user } = useSelector((state: RootState) => state.authentication);
+  const { user, loading } = useSelector(
+    (state: RootState) => state.authentication
+  );
 
   // handle if user login with oAuth google
   useEffect(() => {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      Promise.resolve(dispatch(loginWithGoogle(credential))).then(() => {
-        if (user?.userType === "guest") {
-          navigation.navigate("register-user-information");
-        } else {
-          if (user?.userRole === "mother") {
-            navigation.navigate("mother", {
-              screen: "select-baby",
-            });
-          }
-        }
-      });
+      dispatch(loginWithGoogle(credential));
     }
-  }, [response]);
+  }, [response, dispatch]);
+
+  useEffect(() => {
+    if (!loading) {
+      if (user?.userType === "guest") {
+        navigation.navigate("register-user-information");
+      } else {
+        if (user?.userRole === "mother") {
+          navigation.navigate("mother", {
+            screen: "select-baby",
+          });
+        }
+      }
+    }
+  }, [user, loading])
 
   // handle if user sign-up anonymous
   const handleLoginUserAnonymously = async () => {
@@ -69,7 +75,7 @@ const Login: React.FC<Props> = ({ navigation }) => {
         userType: "guest",
       };
       await Promise.resolve(
-        dispatch(fetchUserSuccess(userAnonymousInitialData))
+        dispatch(setUserData(userAnonymousInitialData))
       ).then(() => navigation.navigate("register-user-information"));
     } catch {
       return;

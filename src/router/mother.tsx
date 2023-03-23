@@ -3,6 +3,7 @@ import { MotherStackParamList } from "./types";
 
 import SelectBabyPage from "@app/mother/SelectedBabyPage";
 import HomePage from "@app/mother/HomePage";
+import LogOut from "@app/authentication/Logout";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -27,6 +28,13 @@ const MotherRouter: React.FC<{}> = () => {
         component={HomePage}
         options={{
           title: "PMK Apps",
+        }}
+      />
+      <MotherStack.Screen
+        name="logout"
+        component={LogOut}
+        options={{
+          title: "Mother Logout"
         }}
       />
     </MotherStack.Navigator>

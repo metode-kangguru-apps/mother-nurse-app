@@ -8,9 +8,6 @@ const linking = {
           login: {
             path: "/",
           },
-          logout: {
-            path: "/logout",
-          },
           "register-user-information": {
             path: "/register-user-information",
           },
@@ -24,6 +21,9 @@ const linking = {
           },
           home: {
             path: "/:baby-id",
+          },
+          logout: {
+            path: "/logout",
           },
         },
       },

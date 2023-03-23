@@ -31,8 +31,8 @@ import { useMemo, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import {
   clearAuthenticationDataSuccess,
-  fetchMotherSuccess,
-  fetchUserSuccess,
+  setMotherData,
+  setUserData,
 } from "@redux/actions/authentication";
 import { Mother } from "@redux/actions/authentication/types";
 
@@ -63,12 +63,12 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
 
   function handlerGoToRegisterBaby() {
     dispatch(
-      fetchUserSuccess({
+      setUserData({
         displayName: formField.displayName,
       })
     );
     dispatch(
-      fetchMotherSuccess({
+      setMotherData({
         phoneNumber: formField.phoneNumber,
         babyRoomCode: formField.babyRoomCode,
       } as Mother)
