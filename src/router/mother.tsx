@@ -1,25 +1,45 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import { MotherStackParamList } from "./types"
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { MotherStackParamList } from "./types";
 
-import ListNoteScreen from "@app/mother/ListNote"
-import AddNoteScreen from "@app/mother/AddNote"
+import SelectBabyPage from "@app/mother/SelectedBabyPage";
+import HomePage from "@app/mother/HomePage";
+import LogOut from "@app/authentication/Logout";
+import { color } from "src/lib/ui/color";
 
-
-const MotherStack = createNativeStackNavigator<MotherStackParamList>()
+const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
 const MotherRouter: React.FC<{}> = () => {
   return (
     <MotherStack.Navigator
-        screenOptions={{ 
+      screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: 'white', flex: 1 },
-        animation: 'none'
-        }}
+        contentStyle: { backgroundColor: color.surface, flex: 1 },
+        animation: "none",
+      }}
     >
-      <MotherStack.Screen name='list-note' component={ListNoteScreen} />
-      <MotherStack.Screen name='add-note' component={AddNoteScreen} />
+      <MotherStack.Screen
+        name="select-baby"
+        component={SelectBabyPage}
+        options={{
+          title: "Pilih Bayi",
+        }}
+      />
+      <MotherStack.Screen
+        name="home"
+        component={HomePage}
+        options={{
+          title: "PMK Apps",
+        }}
+      />
+      <MotherStack.Screen
+        name="logout"
+        component={LogOut}
+        options={{
+          title: "Mother Logout"
+        }}
+      />
     </MotherStack.Navigator>
-  )
-}
+  );
+};
 
-export default MotherRouter
+export default MotherRouter;
