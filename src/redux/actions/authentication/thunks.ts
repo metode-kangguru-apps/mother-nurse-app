@@ -27,7 +27,7 @@ import {
   collection,
   getDoc,
 } from "firebase/firestore";
-import { Authetication, User } from "./types";
+import { Authetication, Baby, BabyCollection, User } from "./types";
 
 export const loginUser =
   (payload: Authetication): ThunkAction<void, RootState, unknown, AnyAction> =>
@@ -65,9 +65,16 @@ export const loginUser =
                   "mothers",
                   credential.user.uid
                 );
+                const newBabyCollection: BabyCollection[] = [];
+                for (let idx = 0; idx < babyRefDocs.length; idx++) {
+                  newBabyCollection[idx] = {
+                    babyID: babyRefDocs[idx],
+                    babyObj: userInformation.mother.babyCollection[idx] as Baby,
+                  };
+                }
                 const data = {
                   ...userInformation.mother,
-                  babyRefs: babyRefDocs,
+                  babyCollection: newBabyCollection,
                 };
                 await setDoc(motherDocRef, data);
               }
@@ -204,9 +211,16 @@ export const signUpMotherWithGoogle =
           }
           // add mother with baby collections
           const motherDocRef = doc(firestore, "mothers", payload.user.uid);
+          const newBabyCollection: BabyCollection[] = [];
+          for (let idx = 0; idx < babyRefDocs.length; idx++) {
+            newBabyCollection.push({
+              babyID: babyRefDocs[idx],
+              babyObj: payload.mother.babyCollection[0] as Baby,
+            });
+          }
           const data = {
             ...payload.mother,
-            babyRefs: babyRefDocs,
+            babyCollection: newBabyCollection,
           };
           await setDoc(motherDocRef, data);
         }
@@ -234,13 +248,13 @@ export const signUpMotherWithGoogle =
 export const getMotherData =
   (motherId: string): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
-    dispatch(fetchAuthenticationRequest())
+    dispatch(fetchAuthenticationRequest());
     try {
-      const request = await getDoc(doc(firestore, 'mothers', motherId))
-      const motherData = request.data()
-      dispatch(setMotherData(motherData))
-      dispatch(fetchAutheticationSuccess())
+      const request = await getDoc(doc(firestore, "mothers", motherId));
+      const motherData = request.data();
+      dispatch(setMotherData(motherData));
+      dispatch(fetchAutheticationSuccess());
     } catch {
-      dispatch(fetchAutheticationError())
+      dispatch(fetchAutheticationError());
     }
   };

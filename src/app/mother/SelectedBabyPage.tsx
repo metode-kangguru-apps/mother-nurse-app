@@ -22,7 +22,7 @@ import { EvilIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import { getMotherData } from "@redux/actions/authentication/thunks";
-import { Baby } from "@redux/actions/authentication/types";
+import { Baby, BabyCollection } from "@redux/actions/authentication/types";
 import moment from "moment";
 
 interface Props
@@ -46,8 +46,8 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
     }
   }, [mother]);
 
-  const renderItemList: ListRenderItem<Baby> = ({ item, index }) => {
-    const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
+  const renderItemList: ListRenderItem<BabyCollection> = ({ item, index }) => {
+    const dateBirthFormat = moment(item.babyObj.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
     );
     return (
@@ -68,7 +68,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
                 <Image
                   style={style.image}
                   source={{
-                    uri: assets[item.gender === "laki-laki" ? 0 : 1]
+                    uri: assets[Number(item.babyObj.gender === "laki-laki")]
                       .localUri as string,
                   }}
                 />
@@ -76,13 +76,15 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             </View>
             <View>
               <Text style={style.babyBirthDate}>{dateBirthFormat}</Text>
-              <Text style={style.babyName}>{item.displayName}</Text>
+              <Text style={style.babyName}>{item.babyObj.displayName}</Text>
             </View>
           </View>
           <View style={style.babyInfo}>
-            <Text style={style.babyWeight}>Berat {item.weight} gr</Text>
+            <Text style={style.babyWeight}>Berat {item.babyObj.weight} gr</Text>
             <View style={style.devider}></View>
-            <Text style={style.babyLength}>Panjang {item.weight} cm</Text>
+            <Text style={style.babyLength}>
+              Panjang {item.babyObj.weight} cm
+            </Text>
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -92,13 +94,20 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
     <View style={style.container}>
       <Text style={style.title}>Pilih Bayi</Text>
       <View style={style.babiesWrapper}>
-        <FlatList data={mother?.babyCollection} renderItem={renderItemList} />
+        <FlatList
+          data={mother?.babyCollection as BabyCollection[]}
+          renderItem={renderItemList}
+        />
       </View>
       <TouchableWithoutFeedback
         onPress={() => {
-          if (selectedBaby !== undefined && mother?.babyRefs?.[selectedBaby]) {
+          if (
+            selectedBaby !== undefined &&
+            mother?.babyCollection?.[selectedBaby]
+          ) {
+            const baby = mother.babyCollection[selectedBaby] as BabyCollection
             navigation.navigate("home", {
-              "baby-id": mother.babyRefs[selectedBaby],
+              "baby-id": baby.babyID,
             });
           }
         }}

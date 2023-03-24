@@ -19,23 +19,20 @@ interface Props
 
 const LogOut: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { user, loading } = useSelector((state: RootState) => state.authentication)
+  const { user, loading } = useSelector(
+    (state: RootState) => state.authentication
+  );
   const handleLogOutUser = () => {
-    dispatch(logOutUser())
-    if (!loading) {
-      navigation.navigate('auth', {
-        screen: 'login'
-      });
-    }
+    dispatch(logOutUser());
   };
 
   useEffect(() => {
     if (!loading && !user) {
-      navigation.navigate('auth', {
-        screen: 'login'
+      navigation.navigate("auth", {
+        screen: "login",
       });
     }
-  }, [loading, user])
+  }, [loading, user]);
 
   return (
     <View style={style.container}>

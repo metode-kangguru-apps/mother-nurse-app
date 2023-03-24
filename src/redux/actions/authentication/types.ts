@@ -6,12 +6,16 @@ export type User = {
   userRole?: "mother" | "nurse";
 };
 
+export type BabyCollection = {
+  babyID: string
+  babyObj: Baby
+};
+
 export type Mother = {
   id?: string;
   phoneNumber?: string;
   babyRoomCode?: string;
-  babyRefs?: string[];
-  babyCollection: Baby[] | undefined;
+  babyCollection: BabyCollection[] | Baby[] | undefined;
 };
 
 export type Baby = {

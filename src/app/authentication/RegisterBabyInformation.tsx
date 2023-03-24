@@ -56,15 +56,15 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
   const [assets, _] = useAssets([require("../../../assets/info-baby.png")]);
 
   useEffect(() => {
-    if (mother && mother.babyRefs) {
-      if (mother.babyRefs.length > 1) {
+    if (mother && mother.babyCollection) {
+      if (mother.babyCollection.length > 1) {
         navigation.navigate("mother", {
           screen: "select-baby",
         });
       } else {
         navigation.navigate("mother", {
           screen: "home",
-          params: { "baby-id": mother.babyRefs[0] },
+          params: { "baby-id": Object.keys(mother.babyCollection[0])[0] },
         });
       }
     }
@@ -77,7 +77,6 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
         userType: "member",
         userRole: "mother",
         isAnonymous: true,
-        uid: user?.uid,
       },
       mother: {
         phoneNumber: mother?.phoneNumber,
@@ -98,8 +97,15 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
     if (user?.isAnonymous) {
       dispatch(loginUser(newUserObj as Authetication));
     } else {
-      newUserObj.user.isAnonymous = false;
-      dispatch(signUpMotherWithGoogle(newUserObj as Authetication));
+      const newGoogleUserObj = {
+        ...newUserObj,
+        user: {
+          ...newUserObj.user,
+          uid: user?.uid,
+          isAnonymous: false
+        }
+      }
+      dispatch(signUpMotherWithGoogle(newGoogleUserObj as Authetication));
     }
   }
 
