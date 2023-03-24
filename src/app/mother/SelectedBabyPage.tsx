@@ -23,6 +23,7 @@ import { useEffect, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import { getMotherData } from "@redux/actions/authentication/thunks";
 import { Baby, BabyCollection } from "@redux/actions/authentication/types";
+import { setSelectedTerapiBaby } from "@redux/actions/global";
 import moment from "moment";
 
 interface Props
@@ -105,10 +106,17 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             selectedBaby !== undefined &&
             mother?.babyCollection?.[selectedBaby]
           ) {
-            const baby = mother.babyCollection[selectedBaby] as BabyCollection
-            navigation.navigate("home", {
-              "baby-id": baby.babyID,
-            });
+            // navigate to selected baby
+            // navigation.navigate("home", {
+            //   "baby-id": (mother.babyCollection[selectedBaby] as BabyCollection)
+            //     .babyID,
+            // });
+            dispatch(
+              setSelectedTerapiBaby(
+                (mother.babyCollection[selectedBaby] as BabyCollection).babyID
+              )
+            );
+            navigation.navigate("profile");
           }
         }}
       >

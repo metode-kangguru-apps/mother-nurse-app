@@ -7,4 +7,6 @@ export enum color {
   neutral = "#666666",
   surface = "#F3F3F3",
   lightneutral = "#FFFFFF",
+  rose = "#F8D7DA",
+  apple = "#84202A"
 }

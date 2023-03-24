@@ -6,6 +6,7 @@ export type MotherStackParamList = {
   };
   "select-baby": undefined;
   logout: undefined;
+  profile: undefined
 };
 
 export type AuthStackParamList = {

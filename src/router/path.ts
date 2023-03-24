@@ -25,6 +25,9 @@ const linking = {
           home: {
             path: "/:baby-id",
           },
+          profile: {
+            path: "/profile"
+          },
           logout: {
             path: "/logout",
           },
