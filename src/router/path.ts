@@ -11,6 +11,9 @@ const linking = {
           "register-user-information": {
             path: "/register-user-information",
           },
+          "register-baby-information": {
+            path: "/register-baby-information",
+          },
         },
       },
       mother: {

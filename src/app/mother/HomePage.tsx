@@ -1,6 +1,4 @@
-import { RootState } from "@redux/types";
-import { useSelector } from "react-redux";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { Font } from "src/lib/ui/font";
@@ -11,13 +9,7 @@ import { MotherStackParamList } from "src/router/types";
 interface Props extends NativeStackScreenProps<MotherStackParamList, "home"> {}
 
 const HomePage: React.FC<Props> = ({ navigation }) => {
-  const { user } = useSelector((state: RootState) => state.authentication);
-  return (
-    <View style={style.container}>
-      <Text style={style.title}>Hello {user?.displayName}</Text>
-      <Button title="mantap"></Button>
-    </View>
-  );
+  return <View style={style.container}>Hello World</View>;
 };
 
 const style = StyleSheet.create({
@@ -29,6 +21,10 @@ const style = StyleSheet.create({
     fontSize: TextSize.title,
     textAlign: "center",
     marginBottom: Spacing.extratiny,
+  },
+  image: {
+    width: 38,
+    height: 38,
   },
 });
 

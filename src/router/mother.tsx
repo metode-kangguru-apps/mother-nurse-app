@@ -4,6 +4,7 @@ import { MotherStackParamList } from "./types";
 import SelectBabyPage from "@app/mother/SelectedBabyPage";
 import HomePage from "@app/mother/HomePage";
 import LogOut from "@app/authentication/Logout";
+import { color } from "src/lib/ui/color";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -12,7 +13,7 @@ const MotherRouter: React.FC<{}> = () => {
     <MotherStack.Navigator
       screenOptions={{
         headerShown: false,
-        contentStyle: { backgroundColor: "white", flex: 1 },
+        contentStyle: { backgroundColor: color.surface, flex: 1 },
         animation: "none",
       }}
     >

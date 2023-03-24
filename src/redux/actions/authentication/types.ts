@@ -11,6 +11,7 @@ export type Mother = {
   phoneNumber?: string;
   babyRoomCode?: string;
   babyRefs?: string[];
+  babyCollection: Baby[] | undefined;
 };
 
 export type Baby = {
@@ -32,11 +33,3 @@ export type Authetication = {
   loading?: boolean;
   error?: boolean;
 };
-
-export interface MotherPayload extends Mother {
-  babyCollection: Baby[] | undefined;
-}
-
-export interface AutheticationPayload extends Authetication {
-  mother: MotherPayload | undefined;
-}

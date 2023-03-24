@@ -31,7 +31,7 @@ const AuthRouter: React.FC<{}> = () => {
           title: "Login",
         }}
       />
-      {user && user?.userType === "guest" && (
+      {user && user.userType === "guest" && (
         <>
           <AuthStack.Screen
             name="register-user-information"

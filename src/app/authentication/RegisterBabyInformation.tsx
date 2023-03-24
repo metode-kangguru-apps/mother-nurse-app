@@ -25,11 +25,8 @@ import DateTimePicker from "src/common/DateTimePicker";
 import PickerField from "src/common/PickerField";
 import { useAssets } from "expo-asset";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useMemo, useState } from "react";
-import {
-  Baby,
-  AutheticationPayload,
-} from "@redux/actions/authentication/types";
+import { useEffect, useMemo, useState } from "react";
+import { Baby, Authetication } from "@redux/actions/authentication/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { useAppDispatch } from "@redux/hooks";
@@ -38,6 +35,7 @@ import {
   signUpMotherWithGoogle,
 } from "@redux/actions/authentication/thunks";
 import { CompositeScreenProps } from "@react-navigation/native";
+import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
@@ -56,6 +54,21 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
     (state: RootState) => state.authentication
   );
   const [assets, _] = useAssets([require("../../../assets/info-baby.png")]);
+
+  useEffect(() => {
+    if (mother && mother.babyRefs) {
+      if (mother.babyRefs.length > 1) {
+        navigation.navigate("mother", {
+          screen: "select-baby",
+        });
+      } else {
+        navigation.navigate("mother", {
+          screen: "home",
+          params: { "baby-id": mother.babyRefs[0] },
+        });
+      }
+    }
+  }, [mother])
 
   function handlerRegisterAccount() {
     const newUserObj = {
@@ -83,40 +96,10 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
       nurse: undefined,
     };
     if (user?.isAnonymous) {
-      Promise.resolve(
-        dispatch(loginUser(newUserObj as AutheticationPayload))
-      ).then(() => {
-        if (mother && mother.babyRefs) {
-          if (mother.babyRefs.length > 1) {
-            navigation.navigate("mother", {
-              screen: "select-baby",
-            });
-          } else {
-            navigation.navigate("mother", {
-              screen: "home",
-              params: { "baby-id": mother.babyRefs[0] },
-            });
-          }
-        }
-      });
+      dispatch(loginUser(newUserObj as Authetication));
     } else {
       newUserObj.user.isAnonymous = false;
-      Promise.resolve(
-        dispatch(signUpMotherWithGoogle(newUserObj as AutheticationPayload))
-      ).then(() => {
-        if (mother && mother.babyRefs) {
-          if (mother.babyRefs.length > 1) {
-            navigation.navigate("mother", {
-              screen: "select-baby",
-            });
-          } else {
-            navigation.navigate("mother", {
-              screen: "home",
-              params: { "baby-id": mother.babyRefs[0] },
-            });
-          }
-        }
-      });
+      dispatch(signUpMotherWithGoogle(newUserObj as Authetication));
     }
   }
 
@@ -237,7 +220,17 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
             <View style={style.buttonContainer}>
               <TouchableOpacity
                 style={style.prevButton}
-                onPress={() => navigation.goBack()}
+                onPress={() => {
+                  if (navigation.canGoBack()) {
+                    navigation.goBack();
+                  } else {
+                    Promise.resolve(
+                      dispatch(clearAuthenticationDataSuccess())
+                    ).then(() => {
+                      navigation.navigate("login");
+                    });
+                  }
+                }}
               >
                 <AntDesign
                   name="arrowleft"

@@ -27,7 +27,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { useAssets } from "expo-asset";
 
 import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import {
   clearAuthenticationDataSuccess,
@@ -73,8 +73,14 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
         babyRoomCode: formField.babyRoomCode,
       } as Mother)
     );
-    navigation.navigate("register-baby-information");
   }
+
+  // redierect to new page if field mother already filled
+  useEffect(() => {
+    if (mother) {
+      navigation.navigate('register-baby-information')
+    }
+  }, [mother])
 
   function handlerGoBackToLogin() {
     Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {

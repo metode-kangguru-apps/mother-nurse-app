@@ -27,17 +27,15 @@ import {
   collection,
   getDoc,
 } from "firebase/firestore";
-import { AutheticationPayload, User } from "./types";
+import { Authetication, User } from "./types";
 
 export const loginUser =
-  (
-    payload: AutheticationPayload
-  ): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (payload: Authetication): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     signInAnonymously(auth)
       .then((credential) => {
-        let userInformation: AutheticationPayload = payload;
+        let userInformation: Authetication = payload;
         // get user data from firestore cloud
         onSnapshot(
           doc(firestore, "users", credential.user.uid),
@@ -52,7 +50,7 @@ export const loginUser =
               // set new baby ref for mother
               const babyRefDocs: any[] = [];
               if (userInformation.mother?.babyCollection) {
-                for (const baby of userInformation.mother?.babyCollection) {
+                for (const baby of userInformation.mother.babyCollection) {
                   // add new baby
                   const newBabyRef = await addDoc(
                     collection(firestore, "babies"),
@@ -68,8 +66,7 @@ export const loginUser =
                   credential.user.uid
                 );
                 const data = {
-                  phoneNumber: userInformation.mother.phoneNumber,
-                  babyRoomCode: userInformation.mother.babyRoomCode,
+                  ...userInformation.mother,
                   babyRefs: babyRefDocs,
                 };
                 await setDoc(motherDocRef, data);
@@ -139,7 +136,12 @@ export const loginWithGoogle =
               doc(firestore, "users", result.user.uid)
             );
             // save user data to local storage
-            dispatch(setUserData(userRef.data()));
+            dispatch(
+              setUserData({
+                ...userRef.data(),
+                uid: result.user.uid,
+              })
+            );
 
             // fetch user based on userRole
             const userRole = userRef.get("userRole");
@@ -176,9 +178,7 @@ export const loginWithGoogle =
   };
 
 export const signUpMotherWithGoogle =
-  (
-    payload: AutheticationPayload
-  ): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (payload: Authetication): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     // save fetch request loading
     dispatch(fetchAuthenticationRequest());
@@ -205,8 +205,7 @@ export const signUpMotherWithGoogle =
           // add mother with baby collections
           const motherDocRef = doc(firestore, "mothers", payload.user.uid);
           const data = {
-            phoneNumber: payload.mother.phoneNumber,
-            babyRoomCode: payload.mother.babyRoomCode,
+            ...payload.mother,
             babyRefs: babyRefDocs,
           };
           await setDoc(motherDocRef, data);
@@ -224,8 +223,24 @@ export const signUpMotherWithGoogle =
         );
         dispatch(setMotherData({ ...mother.data() }));
         dispatch(fetchAutheticationSuccess());
+      } else {
+        throw new Error();
       }
     } catch {
       dispatch(fetchAutheticationError());
+    }
+  };
+
+export const getMotherData =
+  (motherId: string): ThunkAction<void, RootState, unknown, AnyAction> =>
+  async (dispatch) => {
+    dispatch(fetchAuthenticationRequest())
+    try {
+      const request = await getDoc(doc(firestore, 'mothers', motherId))
+      const motherData = request.data()
+      dispatch(setMotherData(motherData))
+      dispatch(fetchAutheticationSuccess())
+    } catch {
+      dispatch(fetchAutheticationError())
     }
   };
