@@ -95,6 +95,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
     <View style={style.container}>
       <Text style={style.title}>Pilih Bayi</Text>
       <View style={style.babiesWrapper}>
+        {/* TODO: @muhammadhafizm implement loading */}
         <FlatList
           data={mother?.babyCollection as BabyCollection[]}
           renderItem={renderItemList}
@@ -113,7 +114,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             // });
             dispatch(
               setSelectedTerapiBaby(
-                (mother.babyCollection[selectedBaby] as BabyCollection).babyID
+                (mother.babyCollection[selectedBaby] as BabyCollection)
               )
             );
             navigation.navigate("profile");

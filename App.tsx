@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
-import { useFonts } from "expo-font";
+import * as Font from "expo-font";
 import { customFont } from "./src/lib/ui/font";
 
 import * as SplashScreen from "expo-splash-screen";
@@ -11,42 +11,41 @@ import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@redux/store";
 
 import RootRouter from "src/router";
-
-
+import { cacheImages } from "src/lib/utils/cacheAssets";
+import { localImages } from "src/lib/ui/images";
 
 const App: React.FC<{}> = () => {
-  // load fonts
-  const [isAppReady] = useFonts(customFont);
+  const [appIsReady, setAppIsReady] = useState<boolean>(false);
 
-  // prepare splash screen
   useEffect(() => {
-    async function prepare() {
-      await SplashScreen.preventAutoHideAsync();
+    async function loadResourcesAndDataAsync() {
+      try {
+        SplashScreen.preventAutoHideAsync();
+        const fontAssets = Font.loadAsync(customFont);
+        const imageAssets = cacheImages(localImages);
+
+        await Promise.all([...imageAssets, fontAssets]);
+      } catch (e) {
+        // You might want to provide this error information to an error reporting service
+        console.warn(e);
+      } finally {
+        setAppIsReady(true);
+        SplashScreen.hideAsync();
+      }
     }
-    prepare();
+
+    loadResourcesAndDataAsync();
   }, []);
 
-  const onLayoutRootView = useCallback(async () => {
-    if (isAppReady) {
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-      await SplashScreen.hideAsync();
-    }
-  }, [isAppReady]);
-
-  if (!isAppReady) {
+  if (!appIsReady) {
     return null;
   }
-
-  // load userState
-  const { user: userState } = store.getState().authentication;
 
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <BaseContainer>
-          <RootRouter
-            onLayoutRootView={onLayoutRootView}
-          />
+          <RootRouter />
         </BaseContainer>
       </PersistGate>
     </Provider>

@@ -113,7 +113,7 @@ export const logOutUser =
       signOut(auth)
         .then(() => {
           // clear data from local storage
-          dispatch(clearAuthenticationDataSuccess());
+          dispatch({type: "CLEAR_SESSION"});
           dispatch(fetchAutheticationSuccess());
         })
         .catch((error) => {

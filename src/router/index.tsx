@@ -12,14 +12,12 @@ import { RootState } from "@redux/types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-interface Props {
-  onLayoutRootView: () => void;
-}
+interface Props {}
 
-const RootRouter: React.FC<Props> = ({ onLayoutRootView }) => {
+const RootRouter: React.FC<Props> = () => {
   const { user } = useSelector((state: RootState) => state.authentication);
   return (
-    <NavigationContainer linking={linking} onReady={onLayoutRootView}>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
         screenOptions={{
           headerShown: false,

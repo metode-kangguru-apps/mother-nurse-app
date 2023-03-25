@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootState } from "@redux/types";
-import { Text, View } from "react-native";
+import { Button, View } from "react-native";
 import { useSelector } from "react-redux";
 import Header from "src/common/Header";
 import Info from "src/common/Info";
@@ -32,6 +32,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
         message="Akun Anda tidak terhubung dengan Google sehingga data tidak akan
                 tersimpan"
       ></Info>
+      <Button title="logout" onPress={() => navigation.navigate("logout")} />
     </View>
   );
 };
