@@ -5,7 +5,6 @@ export type MotherStackParamList = {
     "baby-id": string;
   };
   "select-baby": undefined;
-  logout: undefined;
   profile: undefined
 };
 

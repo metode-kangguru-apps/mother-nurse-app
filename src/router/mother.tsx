@@ -3,7 +3,6 @@ import { MotherStackParamList } from "./types";
 
 import SelectBabyPage from "@app/mother/SelectedBabyPage";
 import HomePage from "@app/mother/HomePage";
-import LogOut from "@app/authentication/Logout";
 import { color } from "src/lib/ui/color";
 import ProfilePage from "@app/mother/ProfilePage";
 
@@ -37,13 +36,6 @@ const MotherRouter: React.FC<{}> = () => {
         component={ProfilePage}
         options={{
           title: "Profil",
-        }}
-      />
-      <MotherStack.Screen
-        name="logout"
-        component={LogOut}
-        options={{
-          title: "Keluar"
         }}
       />
     </MotherStack.Navigator>

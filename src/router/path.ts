@@ -26,10 +26,7 @@ const linking = {
             path: "/:baby-id",
           },
           profile: {
-            path: "/profile"
-          },
-          logout: {
-            path: "/logout",
+            path: "/profile",
           },
         },
       },
