@@ -7,8 +7,8 @@ export type User = {
 };
 
 export type BabyCollection = {
-  babyID: string
-  babyObj: Baby
+  babyID: string;
+  babyObj: Baby;
 };
 
 export type Mother = {
@@ -25,7 +25,7 @@ export type Baby = {
   birthDate?: string;
   weight?: number;
   length?: number;
-  gender?: "laki-laki" | "perempuan" | string;
+  gender?: "laki-laki" | "perempuan";
 };
 
 export type Nurse = {};

@@ -209,7 +209,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    gender: value,
+                    gender: value as Baby['gender'],
                   });
                 }}
               />

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
+import { Platform, StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
@@ -15,11 +15,17 @@ interface Props {
 const createStyle = (insets: EdgeInsets) => {
   return StyleSheet.create({
     container: {
-      paddingTop: insets.top,
       paddingHorizontal: Spacing.xsmall - Spacing.extratiny / 2,
       paddingBottom: Spacing.xsmall - Spacing.extratiny / 2,
       flexDirection: "row",
       alignItems: "center",
+      ...(Platform.select({
+        native: {
+          paddingTop: insets.top,
+        }, web: {
+          paddingTop: Spacing.small
+        }
+      }))
     },
     title: {
       fontFamily: Font.Regular,
