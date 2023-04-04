@@ -3,8 +3,8 @@ import { MotherStackParamList } from "./types";
 
 import SelectBabyPage from "@app/mother/SelectedBabyPage";
 import HomePage from "@app/mother/HomePage";
-import LogOut from "@app/authentication/Logout";
 import { color } from "src/lib/ui/color";
+import ProfilePage from "@app/mother/ProfilePage";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -28,14 +28,14 @@ const MotherRouter: React.FC<{}> = () => {
         name="home"
         component={HomePage}
         options={{
-          title: "PMK Apps",
+          title: "Perawatan Metode Kangguru",
         }}
       />
       <MotherStack.Screen
-        name="logout"
-        component={LogOut}
+        name="profile"
+        component={ProfilePage}
         options={{
-          title: "Mother Logout"
+          title: "Profil",
         }}
       />
     </MotherStack.Navigator>

@@ -22,6 +22,7 @@ import { setUserData } from "@redux/actions/authentication";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { CompositeScreenProps } from "@react-navigation/native";
+import GoogleIcon from "src/lib/ui/icons/google";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -33,8 +34,6 @@ interface Props
 
 const Login: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-
-  const [assets, _] = useAssets([require("../../../assets/google-icons.png")]);
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: FIREBASE_WEB_CLIENT_ID,
@@ -65,7 +64,7 @@ const Login: React.FC<Props> = ({ navigation }) => {
         }
       }
     }
-  }, [user, loading])
+  }, [user, loading]);
 
   // handle if user sign-up anonymous
   const handleLoginUserAnonymously = async () => {
@@ -99,14 +98,15 @@ const Login: React.FC<Props> = ({ navigation }) => {
         onPress={() => promptAsync({})}
       >
         <View style={style.googleIcon}>
-          {assets && (
+          {/* {assets && (
             <Image
               style={style.image}
               source={{
                 uri: assets[0].localUri as string,
               }}
             />
-          )}
+          )} */}
+          <GoogleIcon width={20} height={20} viewBox="2.5 2.5 20 20" />
         </View>
         <Text style={style.googleButtonTitle}>Google</Text>
       </TouchableOpacity>
@@ -138,9 +138,6 @@ const style = StyleSheet.create({
     width: Spacing.small + Spacing.extratiny,
     height: Spacing.small + Spacing.extratiny,
     marginRight: Spacing.tiny,
-  },
-  image: {
-    flex: 1,
   },
   anonymousContainer: {
     display: "flex",

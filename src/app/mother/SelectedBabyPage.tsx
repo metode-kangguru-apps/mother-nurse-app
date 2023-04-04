@@ -2,7 +2,6 @@ import { RootState } from "@redux/types";
 import { useSelector } from "react-redux";
 import {
   FlatList,
-  Image,
   ListRenderItem,
   StyleSheet,
   Text,
@@ -15,15 +14,16 @@ import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 import { MotherStackParamList } from "src/router/types";
-import { useAssets } from "expo-asset";
 import { color } from "src/lib/ui/color";
 
 import { EvilIcons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import { getMotherData } from "@redux/actions/authentication/thunks";
-import { Baby, BabyCollection } from "@redux/actions/authentication/types";
+import { BabyCollection } from "@redux/actions/authentication/types";
+import { setSelectedTerapiBaby } from "@redux/actions/global";
 import moment from "moment";
+import BabyIcon from "src/lib/ui/icons/baby";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
@@ -36,10 +36,6 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
   const [selectedBaby, setSelectedBaby] = useState<number | undefined>(
     undefined
   );
-  const [assets, _] = useAssets([
-    require("../../../assets/baby-girl.png"),
-    require("../../../assets/baby-boy.png"),
-  ]);
   useEffect(() => {
     if (!mother && user?.uid) {
       dispatch(getMotherData(user?.uid));
@@ -64,15 +60,13 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         >
           <View style={style.babyContent}>
             <View style={style.babyIcon}>
-              {assets && (
-                <Image
-                  style={style.image}
-                  source={{
-                    uri: assets[Number(item.babyObj.gender === "laki-laki")]
-                      .localUri as string,
-                  }}
-                />
-              )}
+              <BabyIcon
+                color={
+                  item.babyObj.gender === "laki-laki"
+                    ? color.primary
+                    : color.secondary
+                }
+              ></BabyIcon>
             </View>
             <View>
               <Text style={style.babyBirthDate}>{dateBirthFormat}</Text>
@@ -94,6 +88,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
     <View style={style.container}>
       <Text style={style.title}>Pilih Bayi</Text>
       <View style={style.babiesWrapper}>
+        {/* TODO: @muhammadhafizm implement loading */}
         <FlatList
           data={mother?.babyCollection as BabyCollection[]}
           renderItem={renderItemList}
@@ -105,10 +100,17 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             selectedBaby !== undefined &&
             mother?.babyCollection?.[selectedBaby]
           ) {
-            const baby = mother.babyCollection[selectedBaby] as BabyCollection
-            navigation.navigate("home", {
-              "baby-id": baby.babyID,
-            });
+            // navigate to selected baby
+            // navigation.navigate("home", {
+            //   "baby-id": (mother.babyCollection[selectedBaby] as BabyCollection)
+            //     .babyID,
+            // });
+            dispatch(
+              setSelectedTerapiBaby(
+                mother.babyCollection[selectedBaby] as BabyCollection
+              )
+            );
+            navigation.navigate("profile");
           }
         }}
       >

@@ -68,7 +68,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
         });
       }
     }
-  }, [mother])
+  }, [mother]);
 
   function handlerRegisterAccount() {
     const newUserObj = {
@@ -102,9 +102,9 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
         user: {
           ...newUserObj.user,
           uid: user?.uid,
-          isAnonymous: false
-        }
-      }
+          isAnonymous: false,
+        },
+      };
       dispatch(signUpMotherWithGoogle(newGoogleUserObj as Authetication));
     }
   }
@@ -209,7 +209,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    gender: value,
+                    gender: value as Baby['gender'],
                   });
                 }}
               />
