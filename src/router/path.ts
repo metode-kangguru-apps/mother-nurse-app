@@ -19,11 +19,11 @@ const linking = {
       mother: {
         path: "/mother",
         screens: {
+          home: {
+            path: "/",
+          },
           "select-baby": {
             path: "/select-baby",
-          },
-          home: {
-            path: "/:baby-id",
           },
           profile: {
             path: "/profile",

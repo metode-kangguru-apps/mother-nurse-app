@@ -100,17 +100,12 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             selectedBaby !== undefined &&
             mother?.babyCollection?.[selectedBaby]
           ) {
-            // navigate to selected baby
-            // navigation.navigate("home", {
-            //   "baby-id": (mother.babyCollection[selectedBaby] as BabyCollection)
-            //     .babyID,
-            // });
             dispatch(
               setSelectedTerapiBaby(
                 mother.babyCollection[selectedBaby] as BabyCollection
               )
             );
-            navigation.navigate("profile");
+            navigation.navigate("home");
           }
         }}
       >
@@ -138,7 +133,7 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontFamily: Font.Black,
+    fontFamily: Font.Bold,
     fontSize: TextSize.h5,
     textAlign: "center",
     marginBottom: Spacing.base,

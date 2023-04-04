@@ -82,7 +82,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
             navigation.goBack();
           } else {
             selectedTerapiBaby &&
-              navigation.navigate("home", { "baby-id": selectedTerapiBaby });
+              navigation.navigate("home");
           }
         }}
       />
@@ -175,7 +175,7 @@ const style = StyleSheet.create({
     width: "100%",
   },
   titleBabyProfile: {
-    fontFamily: Font.Black,
+    fontFamily: Font.Bold,
     fontSize: TextSize.h5,
   },
   header: {

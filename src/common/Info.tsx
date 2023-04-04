@@ -47,7 +47,7 @@ const createStyle = (type: string) => {
       top: -Spacing.extratiny / 2,
     },
     contentHeader: {
-      fontFamily: Font.Black,
+      fontFamily: Font.Bold,
       marginBottom: Spacing.extratiny,
       ...typeBasedStyle.contentHeader,
     },

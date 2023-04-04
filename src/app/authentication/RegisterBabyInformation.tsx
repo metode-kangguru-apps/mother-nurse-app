@@ -301,7 +301,7 @@ const createStyle = (insets: EdgeInsets) =>
       alignItems: "center",
     },
     title: {
-      fontFamily: Font.Black,
+      fontFamily: Font.Bold,
       fontSize: TextSize.h5,
       marginBottom: Spacing.small,
     },

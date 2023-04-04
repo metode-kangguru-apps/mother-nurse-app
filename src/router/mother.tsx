@@ -18,17 +18,17 @@ const MotherRouter: React.FC<{}> = () => {
       }}
     >
       <MotherStack.Screen
-        name="select-baby"
-        component={SelectBabyPage}
-        options={{
-          title: "Pilih Bayi",
-        }}
-      />
-      <MotherStack.Screen
         name="home"
         component={HomePage}
         options={{
           title: "Perawatan Metode Kangguru",
+        }}
+      />
+      <MotherStack.Screen
+        name="select-baby"
+        component={SelectBabyPage}
+        options={{
+          title: "Pilih Bayi",
         }}
       />
       <MotherStack.Screen

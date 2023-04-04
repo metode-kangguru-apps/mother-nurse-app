@@ -121,7 +121,7 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   googleButtonTitle: {
-    fontFamily: Font.Bold,
+    fontFamily: Font.Medium,
     fontSize: TextSize.title,
     textAlign: "center",
   },
@@ -151,7 +151,7 @@ const style = StyleSheet.create({
     marginBottom: Spacing.xlarge,
   },
   title: {
-    fontFamily: Font.Black,
+    fontFamily: Font.Bold,
     fontSize: TextSize.h4,
     textAlign: "center",
     color: "white",
