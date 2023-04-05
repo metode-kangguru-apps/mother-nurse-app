@@ -1,70 +1,261 @@
-import { useSelector } from "react-redux"
+import { useSelector } from "react-redux";
 
-import { RootState } from "@redux/types"
-import { Button, StyleSheet, Text, View } from "react-native"
-import { NativeStackScreenProps } from "@react-navigation/native-stack"
+import { RootState } from "@redux/types";
+import {
+  Dimensions,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
-import { Font } from "src/lib/ui/font"
-import { Spacing } from "src/lib/ui/spacing"
-import { TextSize } from "src/lib/ui/textSize"
+import { Font } from "src/lib/ui/font";
+import { color } from "src/lib/ui/color";
+import { Spacing } from "src/lib/ui/spacing";
+import { TextSize } from "src/lib/ui/textSize";
 
-import { AuthStackParamList } from "src/router/types"
-import FloatingInput from "src/common/FloatingInput"
+import { AuthStackParamList } from "src/router/types";
+import FloatingInput from "src/common/FloatingInput";
+import PhoneNumberInput from "src/common/PhoneNumberInput";
 
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign } from "@expo/vector-icons";
+import { useAssets } from "expo-asset";
 
-interface Props extends NativeStackScreenProps<AuthStackParamList, 'register-user-information'> {}
+import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
+import { useEffect, useMemo, useState } from "react";
+import { useAppDispatch } from "@redux/hooks";
+import {
+  clearAuthenticationDataSuccess,
+  setMotherData,
+  setUserData,
+} from "@redux/actions/authentication";
+import { Mother } from "@redux/actions/authentication/types";
+
+interface Props
+  extends NativeStackScreenProps<
+    AuthStackParamList,
+    "register-user-information"
+  > {}
+
+const MEDIA_HEIGHT = Dimensions.get("window").height;
 
 const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
-    const userState = useSelector((state: RootState) => state.user)
-    if(userState.loading) return <Text>Loading...</Text>
-    return (
-        <View style={style.container}>
-            <View style={style.welcomeImageContainer}>
-                <View style={style.welcomeImage}>
-                    <Ionicons name="md-images-outline" size={64} color="gray" />
-                </View>
-            </View>
-            <View style={style.formRegistration}>
-                <Text style={style.title}>Daftarkan data diri</Text>
-                <FloatingInput label="Nama Panggilan"></FloatingInput>
-                <FloatingInput label="Alamat Email"></FloatingInput>
-                <FloatingInput label="Status Mother"></FloatingInput>
-            </View>
-            <Button title="Logout" onPress={() => navigation.navigate('logout')}></Button>
-        </View>
-    )
-}
+  const [assets, _] = useAssets([require("../../../assets/info-mother.png")]);
+  const dispatch = useAppDispatch();
 
-const style = StyleSheet.create({
+  const insets = useSafeAreaInsets();
+  const style = useMemo(() => createStyle(insets), [insets]);
+
+  const { user, mother } = useSelector(
+    (state: RootState) => state.authentication
+  );
+
+  const [formField, setFormField] = useState({
+    displayName: user?.displayName,
+    phoneNumber: mother?.phoneNumber,
+    babyRoomCode: mother?.babyRoomCode,
+  });
+
+  function handlerGoToRegisterBaby() {
+    dispatch(
+      setUserData({
+        displayName: formField.displayName,
+      })
+    );
+    dispatch(
+      setMotherData({
+        phoneNumber: formField.phoneNumber,
+        babyRoomCode: formField.babyRoomCode,
+      } as Mother)
+    );
+  }
+
+  // redierect to new page if field mother already filled
+  useEffect(() => {
+    if (mother) {
+      navigation.navigate('register-baby-information')
+    }
+  }, [mother])
+
+  function handlerGoBackToLogin() {
+    Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
+      navigation.navigate("login");
+    });
+  }
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1, paddingTop: insets.top }}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={style.container}>
+          <View style={style.welcomeImageContainer}>
+            <View style={style.welcomeImage}>
+              {assets && (
+                <Image
+                  style={{ flex: 1 }}
+                  source={{
+                    uri: assets[0].localUri as string,
+                  }}
+                />
+              )}
+            </View>
+          </View>
+          <View style={style.contentContainer}>
+            <View style={style.formRegistration}>
+              <View style={style.titleContainer}>
+                <Text style={style.title}>Daftar</Text>
+              </View>
+              <View style={style.inputContainer}>
+                <FloatingInput
+                  label="Nama Ibu"
+                  defaultValue={user?.displayName}
+                  onChange={(value) =>
+                    setFormField({
+                      ...formField,
+                      displayName: value,
+                    })
+                  }
+                />
+              </View>
+              <View style={style.inputContainer}>
+                <PhoneNumberInput
+                  defaultValue={mother?.phoneNumber}
+                  onChange={(value) => {
+                    setFormField({
+                      ...formField,
+                      phoneNumber: value,
+                    });
+                  }}
+                />
+              </View>
+              <View style={style.inputContainer}>
+                <FloatingInput
+                  label="Kode Ruang Bayi"
+                  defaultValue={mother?.babyRoomCode}
+                  onChange={(value) => {
+                    setFormField({
+                      ...formField,
+                      babyRoomCode: value,
+                    });
+                  }}
+                />
+              </View>
+            </View>
+            <View style={style.buttonContainer}>
+              <TouchableOpacity
+                style={style.prevButton}
+                onPress={handlerGoBackToLogin}
+              >
+                <AntDesign
+                  name="arrowleft"
+                  size={TextSize.h6}
+                  color={color.accent2}
+                />
+                <Text style={style.prevButtonTitle}>Kembali</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={style.nextButton}
+                onPress={handlerGoToRegisterBaby}
+              >
+                <Text style={style.buttonTitle}>Selanjutnya</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+};
+
+const createStyle = (insets: EdgeInsets) =>
+  StyleSheet.create({
     container: {
-        flex: 1,
-        paddingTop: Spacing.base,
-        alignItems: 'center'
+      flex: 1,
+      justifyContent: "space-between",
     },
     welcomeImageContainer: {
-        width: "90%",
-        height: "30%",
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: Spacing.xlarge,
+      display: "flex",
+      alignItems: "center",
+      marginVertical: Spacing.xlarge / 2,
+      padding: Spacing.small,
     },
     welcomeImage: {
-        width: "100%",
-        height: "100%",
-        backgroundColor: 'rgb(206, 206, 206)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center'
+      width: MEDIA_HEIGHT / 4,
+      height: MEDIA_HEIGHT / 4,
+    },
+    contentContainer: {
+      width: "100%",
+      height:
+        (MEDIA_HEIGHT * 3) / 4 -
+        Spacing.xlarge -
+        2 * Spacing.small -
+        insets.top,
+      backgroundColor: color.lightneutral,
+      padding: Spacing.base - Spacing.extratiny,
+      borderTopLeftRadius: Spacing.xlarge / 2,
+      borderTopRightRadius: Spacing.xlarge / 2,
+      justifyContent: "space-between",
+      ...Platform.select({
+        native: {
+          paddingBottom: insets.top,
+        },
+        web: {
+          paddingBottom: Spacing.base,
+        },
+      }),
     },
     formRegistration: {
-        width: "90%",
+      width: "100%",
+    },
+    titleContainer: {
+      width: "100%",
+      alignItems: "center",
     },
     title: {
-        fontFamily: Font.Bold,
-        fontSize: TextSize.title,
-        marginBottom: Spacing.extratiny
+      fontFamily: Font.Black,
+      fontSize: TextSize.h5,
+      marginBottom: Spacing.small,
     },
-})
+    inputContainer: {
+      position: "relative",
+      marginBottom: Spacing.tiny,
+      zIndex: 1,
+    },
+    buttonContainer: {
+      display: "flex",
+      width: "100%",
+      flexDirection: "row",
+      justifyContent: "space-between",
+    },
+    nextButton: {
+      paddingVertical: Spacing.xsmall,
+      paddingHorizontal: Spacing.large,
+      backgroundColor: color.secondary,
+      borderRadius: Spacing.xlarge,
+    },
+    buttonTitle: {
+      fontFamily: Font.Bold,
+      fontSize: TextSize.body,
+      color: color.lightneutral,
+    },
+    prevButton: {
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    prevButtonTitle: {
+      color: color.accent2,
+      fontSize: TextSize.body,
+      fontFamily: Font.Bold,
+      paddingLeft: Spacing.small,
+    },
+  });
 
-export default RegisterUserInformation
+export default RegisterUserInformation;

@@ -1,27 +1,36 @@
-import { combineReducers } from "redux";
+import { AnyAction, combineReducers, Reducer } from "redux";
 import { persistReducer } from "redux-persist";
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import notesReducer from "./actions/notes"
-import userReducer from "./actions/user"
+import globalReducer from "./actions/global";
+import authenticationReducer from "./actions/authentication";
+import { RootState } from "./types";
 
-const notesPersistConfig = {
-  key: "notes",
+const globalPersistConfig = {
+  key: "global",
   storage: AsyncStorage,
-  whitelist: ["notes"],
 };
 
-const userPersistConfig = {
-  key: "user",
+const authenticationPersistConfig = {
+  key: "authentication",
   storage: AsyncStorage,
-  whitelist: ["user"],
+  whitelist: ["authentication"],
 };
 
-
-
-const rootReducer = combineReducers({
-  notes: persistReducer(notesPersistConfig, notesReducer),
-  user: persistReducer(userPersistConfig, userReducer),
+const appReducer = combineReducers({
+  global: persistReducer(globalPersistConfig, globalReducer),
+  authentication: persistReducer(
+    authenticationPersistConfig,
+    authenticationReducer
+  ),
 });
+
+const rootReducer: Reducer = (state: RootState, action: AnyAction) => {
+  if (action.type === "CLEAR_SESSION") {
+    const initialState = {} as RootState;
+    return appReducer(initialState, action);
+  }
+  return appReducer(state, action);
+};
 
 export default rootReducer;

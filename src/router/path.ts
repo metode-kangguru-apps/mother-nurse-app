@@ -1,34 +1,37 @@
 const linking = {
-    prefixes: ['https://localhost:8000/', 'myapps://'],
-    config: {
-      screens: {
-        "auth": {
-          path: '',
-          screens: {
-            "login": {
-              path: ''
-            },
-            "register-user-information": {
-              path: 'register-user-information',
-            },
-            "logout": {
-              path: 'logout'
-            },
-          }
+  prefixes: ["localhost:19006/", "myapps://"],
+  config: {
+    screens: {
+      auth: {
+        path: "",
+        screens: {
+          login: {
+            path: "/",
+          },
+          "register-user-information": {
+            path: "/register-user-information",
+          },
+          "register-baby-information": {
+            path: "/register-baby-information",
+          },
         },
-        "mother": {
-          path: 'mother',
-          screens: {
-            "list-note": {
-              path: ''
-            },
-            "add-note": {
-              path: 'add-note'
-            }
-          }
-        }
+      },
+      mother: {
+        path: "/mother",
+        screens: {
+          "select-baby": {
+            path: "/select-baby",
+          },
+          home: {
+            path: "/:baby-id",
+          },
+          profile: {
+            path: "/profile",
+          },
+        },
       },
     },
-  };
+  },
+};
 
-export default linking
+export default linking;

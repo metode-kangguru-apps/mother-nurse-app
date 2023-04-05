@@ -1,49 +1,41 @@
+import Moment from "moment";
+import { useAppDispatch } from "@redux/hooks";
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   Animated,
   Platform,
   KeyboardTypeOptions,
+  Pressable,
+  Text,
 } from "react-native";
-
 import { Spacing } from "src/lib/ui/spacing";
+
+import CustomModal from "./Modal";
+import DatePicker from "react-native-modern-datepicker";
 
 type Props = {
   label: string;
   defaultValue?: string;
-  type?: "no-border";
-  keyboardType?: KeyboardTypeOptions;
-  statePrefix?: string;
   onFocus?: (state: boolean) => void;
   onChange?: (value: string) => void;
 };
 
-const FloatingInput: React.FC<Props> = ({
+const NativeDateTimePicker: React.FC<Props> = ({
   label,
   defaultValue,
-  type,
-  keyboardType = "default",
-  statePrefix,
   onFocus,
   onChange,
 }) => {
   const [focus, setFocus] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>(
-    defaultValue || statePrefix || ""
-  );
+  const [inputValue, setInputValue] = useState<string>(defaultValue || "");
+  const [showDateTimePicker, setShowDateTimePicker] = useState<boolean>(false);
   const isFocusedAnimated = useRef(new Animated.Value(0)).current;
 
-  const style = useMemo(
-    () => createStyle(type, !!statePrefix),
-    [type, statePrefix]
-  );
-  const borderColor = useMemo(
-    () => handleBorderColorChange(type, focus),
-    [focus, type]
-  );
+  const borderColor = useMemo(() => handleBorderColorChange(focus), [focus]);
+  const style = useMemo(() => createStyle(borderColor), [borderColor]);
 
   const handleTopBasedOnPlatform = (): number[] => {
     switch (Platform.OS) {
@@ -69,27 +61,27 @@ const FloatingInput: React.FC<Props> = ({
     outputRange: Platform.OS === "web" ? [1, 0.9] : [1, 0.9],
   });
 
-  function handleBorderColorChange(
-    type: "no-border" | undefined,
-    focus: boolean
-  ) {
-    if (!type) {
-      return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)";
-    } else {
-      return "transparent";
-    }
+  function handleBorderColorChange(focus: boolean) {
+    return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)";
   }
 
   useEffect(() => {
     Animated.timing(isFocusedAnimated, {
-      toValue: focus || inputValue !== "" || statePrefix ? 1 : 0,
+      toValue: focus || inputValue !== "" ? 1 : 0,
       duration: 200,
       useNativeDriver: true,
     }).start();
   }, [focus]);
 
+  useEffect(() => {
+    if (!showDateTimePicker) {
+      setFocus(false);
+      onFocus && onFocus(false);
+    }
+  }, [showDateTimePicker]);
+
   return (
-    <View>
+    <View style={{ width: "100%" }}>
       <Animated.Text
         style={[
           style.labelStyle,
@@ -108,30 +100,42 @@ const FloatingInput: React.FC<Props> = ({
       >
         {label}
       </Animated.Text>
-      {statePrefix && <Text style={style.statePrefix}>{statePrefix}</Text>}
-      <TextInput
-        style={[style.textInput, { borderColor: borderColor }]}
-        keyboardType={keyboardType}
-        onFocus={() => {
+      <Pressable
+        style={style.textInput}
+        onPress={() => {
           setFocus(true);
           onFocus && onFocus(true);
+          setShowDateTimePicker(true);
         }}
-        onBlur={() => {
-          setFocus(false);
-          onFocus && onFocus(false);
+      >
+        <Text>{inputValue}</Text>
+      </Pressable>
+      <CustomModal
+        visible={showDateTimePicker}
+        onModalClose={() => {
+          setShowDateTimePicker(false);
         }}
-        onChange={(state) => {
-          setInputValue(state.nativeEvent.text);
-          onChange && onChange(state.nativeEvent.text);
-        }}
-        defaultValue={defaultValue}
-        returnKeyType="next"
-      />
+      >
+        <View style={style.modalContentContainer}>
+          <DatePicker
+            style={{ borderRadius: 20 }}
+            mode="calendar"
+            onDateChange={(dateString) => {
+              const resultString = Moment(new Date(dateString)).format(
+                "DD/MM/YYYY"
+              );
+              setShowDateTimePicker(false);
+              setInputValue(resultString);
+              onChange && onChange(resultString);
+            }}
+          ></DatePicker>
+        </View>
+      </CustomModal>
     </View>
   );
 };
 
-const createStyle = (type: "no-border" | undefined, isStatePrefix: boolean) => {
+const createStyle = (borderColor: string) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
     labelStyle: {
@@ -143,24 +147,21 @@ const createStyle = (type: "no-border" | undefined, isStatePrefix: boolean) => {
       left: 15,
     },
     textInput: {
+      borderColor: borderColor,
       outlineStyle: "none",
       paddingHorizontal: textInputPaddingHorizontal,
-      paddingTop: Platform.OS === "android" ? 17 : 24,
+      paddingTop: Platform.OS === "android" ? 22 : 24,
       paddingBottom: Platform.OS === "android" ? 4 : 8,
       position: "relative",
       borderWidth: 2,
-      ...(type === "no-border"
-        ? {}
-        : {
-            borderRadius: 10,
-          }),
-      ...(isStatePrefix && {
-        paddingLeft:
-          textInputPaddingHorizontal +
-          (Spacing.small * 2 - Spacing.extratiny / 2),
-      }),
+      borderRadius: 10,
+      height: 52,
+    },
+    modalContentContainer: {
+      width: 350,
+      height: 350,
     },
   });
 };
 
-export default FloatingInput;
+export default NativeDateTimePicker;
