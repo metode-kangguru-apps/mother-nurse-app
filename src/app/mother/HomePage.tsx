@@ -10,6 +10,12 @@ import LengthBaby from "src/lib/ui/icons/lengthBaby";
 import BabyIcon from "src/lib/ui/icons/baby";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
+import ProfileIcon from "src/lib/ui/icons/profile";
+import HistoryIcon from "src/lib/ui/icons/history";
+import AddNoteIcon from "src/lib/ui/icons/addNote";
+import ModuleIcon from "src/lib/ui/icons/module";
+import { Dimension } from "src/lib/ui/unit";
+import { Dimensions } from "react-native";
 
 interface Props extends NativeStackScreenProps<MotherStackParamList, "home"> {}
 
@@ -66,21 +72,34 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
       <View style={style.menuWrapper}>
         <View style={style.menuList}>
           <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}></View>
-            <View style={style.menuTitle}></View>
+            <View style={style.menuIcon}>
+              <ProfileIcon/>
+            </View>
+            <Text style={style.menuTitle}>Profil</Text>
           </View>
           <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}></View>
-            <View style={style.menuTitle}></View>
+            <View style={style.menuIcon}>
+              <HistoryIcon/>
+            </View>
+            <Text style={style.menuTitle}>Riwayat</Text>
           </View>
           <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}></View>
-            <View style={style.menuTitle}></View>
+            <View style={style.menuIcon}>
+              <AddNoteIcon/>
+            </View>
+            <Text style={style.menuTitle}>Pencatatan</Text>
           </View>
           <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}></View>
-            <View style={style.menuTitle}></View>
+            <View style={style.menuIcon}>
+              <ModuleIcon/>
+            </View>
+            <Text style={style.menuTitle}>Modul</Text>
           </View>
+        </View>
+      </View>
+      <View style={style.buttonStartContainer}>
+        <View style={style.buttonStart}>
+          <Text style={style.buttonStartTitle}>Mulai Sesi PMK</Text>
         </View>
       </View>
     </View>
@@ -91,6 +110,8 @@ const style = StyleSheet.create({
   container: {
     flex: 1,
     overflow: "hidden",
+    height: Dimensions.get("screen").height,
+    position: "relative"
   },
   header: {
     minHeight: 240,
@@ -155,8 +176,7 @@ const style = StyleSheet.create({
     backgroundColor: color.lightneutral,
     borderBottomEndRadius: 30,
     borderBottomStartRadius: 30,
-    position: "relative",
-    top: -80,
+    marginTop: -80,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
     shadowRadius: 3,
@@ -205,17 +225,45 @@ const style = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "space-between",
-    position: "relative",
-    top: -70,
   },
   menuItemsWrapper: {
+    display: "flex",
+    alignItems: "center",
+  },
+  menuIcon: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     width: 52,
     height: 52,
     backgroundColor: "rgba(244, 139, 136, .2)",
     borderRadius: 8,
   },
-  menuIcon: {},
-  menuTitle: {},
+  menuTitle: {
+    fontFamily: Font.Medium,
+    fontSize: TextSize.overline,
+    marginTop: Spacing.extratiny
+  },
+  buttonStartContainer: {
+    position: "absolute",
+    bottom: Spacing.base,
+    width: "100%",
+    paddingHorizontal: Spacing.xlarge / 2,
+  },
+  buttonStart: {
+    width: "100%",
+    paddingVertical: Spacing.base,
+    backgroundColor: color.secondary,
+    borderRadius: 30,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "flex-end"
+  },
+  buttonStartTitle: {
+    fontFamily: Font.Medium,
+    color: color.lightneutral
+  }
 });
 
 export default HomePage;
