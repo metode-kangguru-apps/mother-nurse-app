@@ -9,6 +9,7 @@ import { RootState } from "./types";
 const globalPersistConfig = {
   key: "global",
   storage: AsyncStorage,
+  whitelist: ["selectedTerapiBaby"]
 };
 
 const authenticationPersistConfig = {

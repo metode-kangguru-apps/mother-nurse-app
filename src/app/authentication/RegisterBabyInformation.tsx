@@ -64,7 +64,6 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
       } else {
         navigation.navigate("mother", {
           screen: "home",
-          params: { "baby-id": Object.keys(mother.babyCollection[0])[0] },
         });
       }
     }

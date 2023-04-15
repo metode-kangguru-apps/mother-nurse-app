@@ -1,9 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { BabyCollection } from "../authentication/types";
+import { Baby, BabyCollection } from "../authentication/types";
 import { GlobalState } from "./type";
 
 const initialState: GlobalState = {
-  selectedTerapiBaby: undefined
+  selectedTerapiBaby: {
+    babyID: '',
+    babyObj: undefined
+  }
 };
 
 const global = createSlice({

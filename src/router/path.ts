@@ -28,6 +28,9 @@ const linking = {
           profile: {
             path: "/profile",
           },
+          monitoring: {
+            path: "/monitoring"
+          }
         },
       },
     },

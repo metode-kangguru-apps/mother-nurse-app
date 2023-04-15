@@ -5,6 +5,7 @@ import SelectBabyPage from "@app/mother/SelectedBabyPage";
 import HomePage from "@app/mother/HomePage";
 import { color } from "src/lib/ui/color";
 import ProfilePage from "@app/mother/ProfilePage";
+import MonitoringPage from "@app/mother/MonitoringPage";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -14,16 +15,8 @@ const MotherRouter: React.FC<{}> = () => {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: color.surface, flex: 1 },
-        animation: "none",
       }}
     >
-      <MotherStack.Screen
-        name="home"
-        component={HomePage}
-        options={{
-          title: "Perawatan Metode Kangguru",
-        }}
-      />
       <MotherStack.Screen
         name="select-baby"
         component={SelectBabyPage}
@@ -32,10 +25,25 @@ const MotherRouter: React.FC<{}> = () => {
         }}
       />
       <MotherStack.Screen
+        name="home"
+        component={HomePage}
+        options={{
+          title: "Perawatan Metode Kangguru",
+        }}
+      />
+      <MotherStack.Screen
         name="profile"
         component={ProfilePage}
         options={{
           title: "Profil",
+        }}
+      />
+      <MotherStack.Screen
+        name="monitoring"
+        component={MonitoringPage}
+        options={{
+          title: "Monitoring",
+          animation: "simple_push"
         }}
       />
     </MotherStack.Navigator>

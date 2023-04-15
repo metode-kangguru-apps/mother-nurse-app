@@ -1,8 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootState } from "@redux/types";
 import {
-  FlatList,
-  ListRenderItem,
   ScrollView,
   StyleSheet,
   Text,
@@ -10,6 +8,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import moment from "moment";
 import { useSelector } from "react-redux";
 import Header from "src/common/Header";
 import Info from "src/common/Info";
@@ -23,13 +22,12 @@ import { AntDesign } from "@expo/vector-icons";
 
 import ProfileCard from "./ProfileCard";
 import BabyCard from "./BabyCard";
+
 import { useAppDispatch } from "@redux/hooks";
 import { logOutUser } from "@redux/actions/authentication/thunks";
 import { useEffect } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { BabyCollection } from "@redux/actions/authentication/types";
-import moment from "moment";
-
 interface Props
   extends CompositeScreenProps<
     NativeStackScreenProps<MotherStackParamList, "profile">,
@@ -49,21 +47,23 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     dispatch(logOutUser());
   };
 
-  const renderBabyItem: ListRenderItem<BabyCollection> = ({ item }) => {
-    const dateBirthFormat = moment(item.babyObj.birthDate, "DD/MM/YYYY").format(
-      "DD MMMM YYYY"
-    );
+  function renderBabyItem(item: BabyCollection) {
+    const dateBirthFormat = moment(
+      item.babyObj?.birthDate,
+      "DD/MM/YYYY"
+    ).format("DD MMMM YYYY");
     return (
       <BabyCard
         birthDate={dateBirthFormat}
         gender={item.babyObj?.gender}
-        name={item.babyObj.displayName}
-        weight={item.babyObj.weight}
-        length={item.babyObj.length}
+        name={item.babyObj?.displayName}
+        weight={item.babyObj?.weight}
+        length={item.babyObj?.length}
         isSelectedBaby={selectedTerapiBaby.babyID === item.babyID}
+        key={item.babyID}
       ></BabyCard>
     );
-  };
+  }
 
   useEffect(() => {
     if (!loading && !user) {
@@ -81,8 +81,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
           if (navigation.canGoBack()) {
             navigation.goBack();
           } else {
-            selectedTerapiBaby &&
-              navigation.navigate("home");
+            selectedTerapiBaby && navigation.navigate("home");
           }
         }}
       />
@@ -126,10 +125,9 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
             </View>
           </TouchableWithoutFeedback>
           <View>
-            <FlatList
-              data={mother.babyCollection}
-              renderItem={renderBabyItem}
-            ></FlatList>
+            {mother.babyCollection.map((baby: BabyCollection, _: any) =>
+              renderBabyItem(baby)
+            )}
           </View>
         </View>
         <TouchableOpacity style={style.logoutButton} onPress={handleLogOutUser}>

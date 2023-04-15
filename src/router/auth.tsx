@@ -1,5 +1,4 @@
 import LoginScreen from "@app/authentication/Login";
-import LogOutScreen from "@app/authentication/Logout";
 import RegisterBabyInformationScreen from "@app/authentication/RegisterBabyInformation";
 import RegisterUserInformationScreen from "@app/authentication/RegisterUserInformation";
 
