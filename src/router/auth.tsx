@@ -1,5 +1,4 @@
 import LoginScreen from "@app/authentication/Login";
-import LogOutScreen from "@app/authentication/Logout";
 import RegisterBabyInformationScreen from "@app/authentication/RegisterBabyInformation";
 import RegisterUserInformationScreen from "@app/authentication/RegisterUserInformation";
 
@@ -21,7 +20,7 @@ const AuthRouter: React.FC<{}> = () => {
           backgroundColor: color.surface,
           flex: 1,
         },
-        animation: "none",
+        animation: "slide_from_right",
       }}
     >
       <AuthStack.Screen

@@ -43,7 +43,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
   }, [mother]);
 
   const renderItemList: ListRenderItem<BabyCollection> = ({ item, index }) => {
-    const dateBirthFormat = moment(item.babyObj.birthDate, "DD/MM/YYYY").format(
+    const dateBirthFormat = moment(item.babyObj?.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
     );
     return (
@@ -62,7 +62,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View style={style.babyIcon}>
               <BabyIcon
                 color={
-                  item.babyObj.gender === "laki-laki"
+                  item.babyObj?.gender === "laki-laki"
                     ? color.primary
                     : color.secondary
                 }
@@ -70,14 +70,14 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             </View>
             <View>
               <Text style={style.babyBirthDate}>{dateBirthFormat}</Text>
-              <Text style={style.babyName}>{item.babyObj.displayName}</Text>
+              <Text style={style.babyName}>{item.babyObj?.displayName}</Text>
             </View>
           </View>
           <View style={style.babyInfo}>
-            <Text style={style.babyWeight}>Berat {item.babyObj.weight} gr</Text>
+            <Text style={style.babyWeight}>Berat {item.babyObj?.weight} gr</Text>
             <View style={style.devider}></View>
             <Text style={style.babyLength}>
-              Panjang {item.babyObj.weight} cm
+              Panjang {item.babyObj?.weight} cm
             </Text>
           </View>
         </View>
@@ -100,17 +100,12 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             selectedBaby !== undefined &&
             mother?.babyCollection?.[selectedBaby]
           ) {
-            // navigate to selected baby
-            // navigation.navigate("home", {
-            //   "baby-id": (mother.babyCollection[selectedBaby] as BabyCollection)
-            //     .babyID,
-            // });
             dispatch(
               setSelectedTerapiBaby(
                 mother.babyCollection[selectedBaby] as BabyCollection
               )
             );
-            navigation.navigate("profile");
+            navigation.navigate("home");
           }
         }}
       >
@@ -138,7 +133,7 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   title: {
-    fontFamily: Font.Black,
+    fontFamily: Font.Bold,
     fontSize: TextSize.h5,
     textAlign: "center",
     marginBottom: Spacing.base,
@@ -174,7 +169,7 @@ const style = StyleSheet.create({
   },
   babyBirthDate: {
     color: color.neutral,
-    fontFamily: Font.Bold,
+    fontFamily: Font.Medium,
   },
   babyName: {
     fontSize: TextSize.h6,

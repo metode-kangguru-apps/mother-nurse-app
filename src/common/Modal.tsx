@@ -5,6 +5,7 @@ import { DefaultWidthSize } from "./types";
 export type Props = {
   children?: React.ReactNode;
   visible: boolean;
+  modalClosable?: boolean;
   onModalClose?: () => void;
   onCompletelyShow?: () => void;
   vertical?: "flex-end" | "center" | "flex-start";
@@ -16,6 +17,7 @@ const CustomModal: React.FC<Props> = ({
   visible,
   onModalClose,
   onCompletelyShow,
+  modalClosable = true,
   vertical = "center",
   horizontal = "center",
 }) => {
@@ -32,12 +34,17 @@ const CustomModal: React.FC<Props> = ({
       hardwareAccelerated={false}
     >
       <View style={style.modalContainer}>
-        <Pressable
-          style={style.overlay}
-          onPress={() => {
-            onModalClose && onModalClose();
-          }}
-        ></Pressable>
+        {modalClosable ? (
+          <Pressable
+            style={style.overlay}
+            onPress={() => {
+              onModalClose && onModalClose();
+            }}
+          />
+        ) : (
+          <View style={style.overlay} />
+        )}
+
         <View style={style.modalContent}>{children}</View>
       </View>
     </Modal>

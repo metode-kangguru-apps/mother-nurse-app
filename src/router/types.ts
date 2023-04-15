@@ -1,11 +1,10 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
 
 export type MotherStackParamList = {
-  home: {
-    "baby-id": string;
-  };
+  home: undefined
   "select-baby": undefined;
   profile: undefined
+  monitoring: undefined
 };
 
 export type AuthStackParamList = {

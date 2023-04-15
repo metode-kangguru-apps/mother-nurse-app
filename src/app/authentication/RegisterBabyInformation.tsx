@@ -64,7 +64,6 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
       } else {
         navigation.navigate("mother", {
           screen: "home",
-          params: { "baby-id": Object.keys(mother.babyCollection[0])[0] },
         });
       }
     }
@@ -301,7 +300,7 @@ const createStyle = (insets: EdgeInsets) =>
       alignItems: "center",
     },
     title: {
-      fontFamily: Font.Black,
+      fontFamily: Font.Bold,
       fontSize: TextSize.h5,
       marginBottom: Spacing.small,
     },

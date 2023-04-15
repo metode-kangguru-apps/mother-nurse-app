@@ -8,7 +8,7 @@ export type User = {
 
 export type BabyCollection = {
   babyID: string;
-  babyObj: Baby;
+  babyObj: Baby | undefined;
 };
 
 export type Mother = {
