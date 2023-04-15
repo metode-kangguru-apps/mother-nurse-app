@@ -81,7 +81,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
                 height={40}
                 viewBox={Platform.select({
                   web: "0 10 24 10",
-                  ios: "0 2.5 24 10",
+                  native: "0 2.5 24 10",
                 })}
               />
             </View>
@@ -222,16 +222,17 @@ const createStyle = (insets: EdgeInsets) =>
       shadowRadius: 3,
     },
     babyInformationWrapper: {
+      paddingHorizontal: Spacing.small,
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
       flexDirection: "row",
       position: "relative",
-      left: -20,
     },
     weekOldBabyContainer: {
-      display: "flex",
+      flex: 0.5,
       flexDirection: "row",
+      justifyContent: "flex-end"
     },
     babyInformatonIcon: {
       marginRight: Spacing.small,
@@ -248,9 +249,10 @@ const createStyle = (insets: EdgeInsets) =>
       opacity: 0.3,
     },
     lengthBabyContainer: {
-      display: "flex",
+      flex: 0.5,
       flexDirection: "row",
       alignItems: "center",
+      justifyContent: "flex-start"
     },
     babyInformationContent: {
       color: color.neutral,

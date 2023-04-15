@@ -30,11 +30,6 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
     <View style={style.container}>
       <View style={style.timerContainer}>
         {/* TODO: @muhammadhafizmm logic timer */}
-        {/* <Text style={style.timer}>01:35</Text>
-        <View style={style.timerInformationWrapper}>
-          <Text style={style.timerInformation}>jam</Text>
-          <Text style={style.timerInformation}>menit</Text>
-        </View> */}
         <Text style={style.timer}>01:35</Text>
         <View style={style.timerInformationWrapper}>
           <Text style={style.timerInformation}>jam</Text>

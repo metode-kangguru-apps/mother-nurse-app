@@ -20,7 +20,7 @@ const AuthRouter: React.FC<{}> = () => {
           backgroundColor: color.surface,
           flex: 1,
         },
-        animation: "none",
+        animation: "slide_from_right",
       }}
     >
       <AuthStack.Screen

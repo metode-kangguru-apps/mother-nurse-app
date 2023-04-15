@@ -15,6 +15,7 @@ const MotherRouter: React.FC<{}> = () => {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: color.surface, flex: 1 },
+        animation: "slide_from_right",
       }}
     >
       <MotherStack.Screen
@@ -29,6 +30,7 @@ const MotherRouter: React.FC<{}> = () => {
         component={HomePage}
         options={{
           title: "Perawatan Metode Kangguru",
+          animation: "simple_push"
         }}
       />
       <MotherStack.Screen
