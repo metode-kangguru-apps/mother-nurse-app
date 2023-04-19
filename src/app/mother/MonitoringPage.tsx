@@ -14,7 +14,7 @@ import { TextSize } from "src/lib/ui/textSize";
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import CustomModal from "src/common/Modal";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "monitoring"> {}
@@ -25,6 +25,19 @@ interface Timer {
   seconds: string;
 }
 
+const BABY_CARE_LIST: string[] = [
+  "Semakin sering ibu menyusui bayi, produksi ASI akan terus bertambah.",
+  "Memberikan ASIi, artinya memberikan nutrisi terbaik bagi bayi.",
+  "Bayi yang dilakukan PMK memiliki durasi menyusu yang lebih lama.",
+  "Melalui perawatan metode kanguru, ikatan batin ibu dengan bayi menjadi semakin erat.",
+  "Kontak kulit ibu ke kulit bayi bisa menyalurkan kehangatan sehingga bayi tidak mudah kedinginan.",
+  "Saat melakukan PMK, kehangatan tubuh ibu bisa tersalur ke tubuh bayi, sehingga bayi tidak mudah kedinginan.",
+  "Perawatan Metode Kanguru terbukti memberikan dampak positif bagi frekuensi napas bayi.",
+  "Melakukan PMK pada bayi bermanfaat untuk menurunkan rasa nyeri.",
+  "Riset membuktikan bahwa bayi yang dilakukan PMK memiliki frekuensi pernapasan lebih stabil.",
+  "Mengajak bicara bayi sejak dini berarti melatih bayi berkomunikasi.",
+];
+
 const MonitoringPage: React.FC<Props> = ({ navigation }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [second, setSecond] = useState<number>(0);
@@ -34,6 +47,7 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
     seconds: "00",
   });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const randomIndex = useRef<number>(Math.floor(Math.random() * BABY_CARE_LIST.length));
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -56,7 +70,7 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
     setTimer({
       hours: paddedHours,
       minutes: paddedMinutes,
-      seconds: paddedSeconds
+      seconds: paddedSeconds,
     });
   }
 
@@ -68,7 +82,6 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={style.container}>
       <View style={style.timerContainer}>
-        {/* TODO: @muhammadhafizmm logic timer */}
         <View style={style.timerWrapper}>
           <Text style={style.timer}>{timer.hours}</Text>
           <Text style={style.timerInformation}>jam</Text>
@@ -100,7 +113,7 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
       {/* TODO: @muhammadhafizmm logic baby care */}
       <View style={style.babyCareWrapper}>
         <Text style={style.babyCareContent}>
-          Bayi baru lahir rata-rata tidur 18-22 jam sehari
+          {BABY_CARE_LIST[randomIndex.current]}
         </Text>
       </View>
       <CustomModal visible={openModal} modalClosable={false}>
@@ -268,4 +281,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default MonitoringPage;
+export default memo(MonitoringPage);
