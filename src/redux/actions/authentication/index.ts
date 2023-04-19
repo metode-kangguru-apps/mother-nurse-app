@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Authetication } from "./types";
+import { Authentication } from "./types";
 
-const initialState: Authetication = {
+const initialState: Authentication = {
   mother: undefined,
   user: undefined,
   nurse: undefined,
@@ -28,7 +28,7 @@ const authentication = createSlice({
       // set nurse state
       state.nurse = { ...state.nurse, ...action.payload }
     },
-    fetchAutheticationSuccess: (state) => {
+    fetchAuthenticationSuccess: (state) => {
       state.loading = false
       state.error = false
     },
@@ -37,7 +37,7 @@ const authentication = createSlice({
       state.user = undefined
       state.nurse = undefined
     },
-    fetchAutheticationError: (state) => {
+    fetchAuthenticationError: (state) => {
       state.error = true
       state.loading = false
     },
@@ -49,8 +49,8 @@ export const {
   setMotherData,
   setNurseData,
   fetchAuthenticationRequest,
-  fetchAutheticationSuccess,
-  fetchAutheticationError,
+  fetchAuthenticationSuccess,
+  fetchAuthenticationError,
   clearAuthenticationDataSuccess,
 } = authentication.actions;
 

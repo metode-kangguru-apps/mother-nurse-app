@@ -114,7 +114,7 @@ const createStyle = (insets: EdgeInsets) =>
           bottom: Spacing.base,
         },
         native: {
-          bottom: Spacing.small + insets.bottom,
+          bottom: Spacing.base + insets.bottom / 2,
         },
       }),
     },

@@ -21,7 +21,7 @@ export type Mother = {
 export type Baby = {
   id?: string;
   displayName?: string;
-  gestationAge?: string;
+  gestationAge?: number;
   birthDate?: string;
   weight?: number;
   length?: number;
@@ -30,7 +30,7 @@ export type Baby = {
 
 export type Nurse = {};
 
-export type Authetication = {
+export type Authentication = {
   user: User | undefined;
   mother: Mother | undefined;
   nurse: Nurse | undefined;

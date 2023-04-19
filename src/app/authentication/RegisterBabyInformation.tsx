@@ -26,7 +26,7 @@ import PickerField from "src/common/PickerField";
 import { useAssets } from "expo-asset";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
-import { Baby, Authetication } from "@redux/actions/authentication/types";
+import { Baby, Authentication } from "@redux/actions/authentication/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { useAppDispatch } from "@redux/hooks";
@@ -94,7 +94,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
       nurse: undefined,
     };
     if (user?.isAnonymous) {
-      dispatch(loginUser(newUserObj as Authetication));
+      dispatch(loginUser(newUserObj as Authentication));
     } else {
       const newGoogleUserObj = {
         ...newUserObj,
@@ -104,7 +104,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
           isAnonymous: false,
         },
       };
-      dispatch(signUpMotherWithGoogle(newGoogleUserObj as Authetication));
+      dispatch(signUpMotherWithGoogle(newGoogleUserObj as Authentication));
     }
   }
 
@@ -152,7 +152,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    gestationAge: value,
+                    gestationAge: parseInt(value),
                   });
                 }}
               />

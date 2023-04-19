@@ -111,12 +111,14 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             </View>
             <Text style={style.menuTitle}>Riwayat</Text>
           </View>
-          <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}>
-              <AddNoteIcon />
+          <TouchableOpacity onPress={() => navigation.navigate("add-progress")}>
+            <View style={style.menuItemsWrapper}>
+              <View style={style.menuIcon}>
+                <AddNoteIcon />
+              </View>
+              <Text style={style.menuTitle}>Pencatatan</Text>
             </View>
-            <Text style={style.menuTitle}>Pencatatan</Text>
-          </View>
+          </TouchableOpacity>
           <View style={style.menuItemsWrapper}>
             <View style={style.menuIcon}>
               <ModuleIcon />

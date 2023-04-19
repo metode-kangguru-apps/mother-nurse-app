@@ -3,10 +3,8 @@ import {
   fetchAuthenticationRequest,
   setUserData,
   setMotherData,
-  setNurseData,
-  clearAuthenticationDataSuccess,
-  fetchAutheticationError,
-  fetchAutheticationSuccess,
+  fetchAuthenticationError,
+  fetchAuthenticationSuccess,
 } from ".";
 import { auth, firestore } from "../../../../firebaseConfig";
 
@@ -27,15 +25,15 @@ import {
   collection,
   getDoc,
 } from "firebase/firestore";
-import { Authetication, Baby, BabyCollection, User } from "./types";
+import { Authentication, Baby, BabyCollection, User } from "./types";
 
 export const loginUser =
-  (payload: Authetication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     signInAnonymously(auth)
       .then((credential) => {
-        let userInformation: Authetication = payload;
+        let userInformation: Authentication = payload;
         // get user data from firestore cloud
         onSnapshot(
           doc(firestore, "users", credential.user.uid),
@@ -91,21 +89,20 @@ export const loginUser =
                 })
               );
               dispatch(setMotherData({ ...mother.data() }));
-              dispatch(fetchAutheticationSuccess());
+              dispatch(fetchAuthenticationSuccess());
             }
           }
         );
       })
       .catch((error) => {
         // save error message
-        dispatch(fetchAutheticationError());
+        dispatch(fetchAuthenticationError());
         throw error;
       });
   };
 
 export const logOutUser =
   (): ThunkAction<void, RootState, unknown, AnyAction> => async (dispatch) => {
-    const data: any[] = [];
     try {
       // set loading for request
       dispatch(fetchAuthenticationRequest());
@@ -114,14 +111,14 @@ export const logOutUser =
         .then(() => {
           // clear data from local storage
           dispatch({type: "CLEAR_SESSION"});
-          dispatch(fetchAutheticationSuccess());
+          dispatch(fetchAuthenticationSuccess());
         })
         .catch((error) => {
           throw error;
         });
     } catch (error) {
       // save error message
-      dispatch(fetchAutheticationError());
+      dispatch(fetchAuthenticationError());
     }
   };
 
@@ -175,17 +172,17 @@ export const loginWithGoogle =
               })
             );
           }
-          dispatch(fetchAutheticationSuccess());
+          dispatch(fetchAuthenticationSuccess());
         });
       })
       .catch((error) => {
         // if error save error message
-        dispatch(fetchAutheticationError(error));
+        dispatch(fetchAuthenticationError(error));
       });
   };
 
 export const signUpMotherWithGoogle =
-  (payload: Authetication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     // save fetch request loading
     dispatch(fetchAuthenticationRequest());
@@ -236,12 +233,12 @@ export const signUpMotherWithGoogle =
           })
         );
         dispatch(setMotherData({ ...mother.data() }));
-        dispatch(fetchAutheticationSuccess());
+        dispatch(fetchAuthenticationSuccess());
       } else {
         throw new Error();
       }
     } catch {
-      dispatch(fetchAutheticationError());
+      dispatch(fetchAuthenticationError());
     }
   };
 
@@ -253,8 +250,8 @@ export const getMotherData =
       const request = await getDoc(doc(firestore, "mothers", motherId));
       const motherData = request.data();
       dispatch(setMotherData(motherData));
-      dispatch(fetchAutheticationSuccess());
+      dispatch(fetchAuthenticationSuccess());
     } catch {
-      dispatch(fetchAutheticationError());
+      dispatch(fetchAuthenticationError());
     }
   };
