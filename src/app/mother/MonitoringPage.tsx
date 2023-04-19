@@ -14,26 +14,78 @@ import { TextSize } from "src/lib/ui/textSize";
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import CustomModal from "src/common/Modal";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "monitoring"> {}
 
+interface Timer {
+  hours: string;
+  minutes: string;
+  seconds: string;
+}
+
 const MonitoringPage: React.FC<Props> = ({ navigation }) => {
   const [openModal, setOpenModal] = useState<boolean>(false);
+  const [second, setSecond] = useState<number>(0);
+  const [timer, setTimer] = useState<Timer>({
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  });
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setSecond((prev) => {
+        formatTime(prev + 1);
+        return prev + 1;
+      });
+    }, 1000);
+  }, []);
+
+  function formatTime(time: number) {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = Math.floor(time % 60);
+
+    const paddedHours = hours.toString().padStart(2, "0");
+    const paddedMinutes = minutes.toString().padStart(2, "0");
+    const paddedSeconds = seconds.toString().padStart(2, "0");
+
+    setTimer({
+      hours: paddedHours,
+      minutes: paddedMinutes,
+      seconds: paddedSeconds
+    });
+  }
+
+  function handleStopSession() {
+    setOpenModal(true);
+    clearInterval(intervalRef.current!);
+  }
 
   return (
     <View style={style.container}>
       <View style={style.timerContainer}>
         {/* TODO: @muhammadhafizmm logic timer */}
-        <Text style={style.timer}>01:35</Text>
-        <View style={style.timerInformationWrapper}>
+        <View style={style.timerWrapper}>
+          <Text style={style.timer}>{timer.hours}</Text>
           <Text style={style.timerInformation}>jam</Text>
+        </View>
+        <Text style={style.timer}>:</Text>
+        <View style={style.timerWrapper}>
+          <Text style={style.timer}>{timer.minutes}</Text>
           <Text style={style.timerInformation}>menit</Text>
+        </View>
+        <Text style={style.timer}>:</Text>
+        <View style={style.timerWrapper}>
+          <Text style={style.timer}>{timer.seconds}</Text>
+          <Text style={style.timerInformation}>detik</Text>
         </View>
       </View>
       <View style={style.contentContainer}>
-        <TouchableOpacity onPress={() => setOpenModal(true)}>
+        <TouchableOpacity onPress={() => handleStopSession()}>
           <View style={style.stopButton}>
             <Text style={style.stopButtonTitle}>Hentikan Sesi</Text>
           </View>
@@ -90,18 +142,21 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   timerContainer: {
+    display: "flex",
+    flexDirection: "row",
+
     marginBottom: Spacing.large,
   },
   timer: {
     fontSize: TextSize.h3,
     fontFamily: Font.Bold,
     color: color.lightneutral,
+    textAlign: "center",
+    marginHorizontal: Spacing.extratiny,
   },
-  timerInformationWrapper: {
+  timerWrapper: {
     display: "flex",
-    paddingHorizontal: Spacing.small,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
   },
   timerInformation: {
     color: color.lightneutral,

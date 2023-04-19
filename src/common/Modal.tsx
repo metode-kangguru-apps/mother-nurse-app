@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { StyleSheet, Modal, View, Pressable, Platform } from "react-native";
 import { DefaultWidthSize } from "./types";
 
@@ -87,4 +87,4 @@ const createStyle = (
     },
   });
 
-export default CustomModal;
+export default memo(CustomModal);
