@@ -1,10 +1,14 @@
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { MotherStackParamList } from "src/router/types";
 
-import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
 import { color } from "src/lib/ui/color";
 import { TextSize } from "src/lib/ui/textSize";
 import { Font } from "src/lib/ui/font";
@@ -16,15 +20,7 @@ interface Props
   extends NativeStackScreenProps<MotherStackParamList, "monitoring"> {}
 
 const MonitoringPage: React.FC<Props> = ({ navigation }) => {
-  const selectedTerapiBaby = useSelector(
-    (state: RootState) => state.global.selectedTerapiBaby
-  );
   const [openModal, setOpenModal] = useState<boolean>(false);
-
-  function handleModalClose() {
-    setOpenModal(false);
-    navigation.navigate("home");
-  }
 
   return (
     <View style={style.container}>
@@ -61,10 +57,22 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
           <Text style={style.modalMessage}>
             Jangan lupa nanti lanjutkan PMK lagi ya!
           </Text>
-          <View style={style.buttonAddProgress}>
-            <Text style={style.addProgressTitle}>Catat Pertumbuhan</Text>
-          </View>
-          <TouchableOpacity onPress={handleModalClose}>
+          <TouchableOpacity
+            onPress={() => {
+              setOpenModal(false);
+              navigation.replace("add-progress");
+            }}
+          >
+            <View style={style.buttonAddProgress}>
+              <Text style={style.addProgressTitle}>Catat Pertumbuhan</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setOpenModal(false);
+              navigation.replace("home");
+            }}
+          >
             <Text style={style.closeMonitoring}>Tutup</Text>
           </TouchableOpacity>
         </View>
@@ -164,17 +172,17 @@ const style = StyleSheet.create({
     paddingVertical: Spacing.base,
     backgroundColor: color.lightneutral,
     borderRadius: 30,
-    ...(Platform.select({
+    ...Platform.select({
       web: {
         paddingHorizontal: Spacing.large,
       },
       native: {
-        paddingHorizontal: Spacing.xlarge / 2
-      }
-    }))
+        paddingHorizontal: Spacing.xlarge / 2,
+      },
+    }),
   },
   modalTitle: {
-    width: "90%",
+    width: "70%",
     fontFamily: Font.Bold,
     fontSize: TextSize.h5,
     textAlign: "center",
