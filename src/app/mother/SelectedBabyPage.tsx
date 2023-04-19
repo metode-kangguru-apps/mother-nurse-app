@@ -28,7 +28,7 @@ import BabyIcon from "src/lib/ui/icons/baby";
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
 
-const HomePage: React.FC<Props> = ({ navigation }) => {
+const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { user, mother } = useSelector(
     (state: RootState) => state.authentication
@@ -214,4 +214,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default HomePage;
+export default SelectedBabyPage;

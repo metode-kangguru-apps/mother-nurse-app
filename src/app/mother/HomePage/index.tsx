@@ -23,6 +23,7 @@ import ModuleIcon from "src/lib/ui/icons/module";
 import { Dimensions } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
+import Milestone from "./Milestone";
 
 interface Props extends NativeStackScreenProps<MotherStackParamList, "home"> {}
 
@@ -45,7 +46,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
           </View>
           {/* TODO: @muhammadhafizm baby milestone */}
           <View style={style.babyMilestone}>
-            <Text>Hello World</Text>
+            <Milestone/>
           </View>
           <View style={style.babyWeightWrapper}>
             <Text style={style.babyWeight}>
@@ -190,6 +191,7 @@ const createStyle = (insets: EdgeInsets) =>
       marginTop: Spacing.small,
     },
     babyMilestone: {
+      width: "100%",
       paddingVertical: Spacing.xlarge / 2,
     },
     babyWeightWrapper: {
