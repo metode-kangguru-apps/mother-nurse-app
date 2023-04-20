@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Authentication, Mother } from "./types";
+import { Authentication, Baby, Mother } from "./types";
 
 const initialState: Authentication = {
   mother: undefined,
@@ -18,28 +18,37 @@ const authentication = createSlice({
     },
     setUserData: (state, action: PayloadAction<any>) => {
       // set user state
-      state.user = { ...state.user, ...action.payload }
+      state.user = { ...state.user, ...action.payload };
     },
     setMotherData: (state, action: PayloadAction<Mother>) => {
       // set mother state
-      state.mother = { ...state.mother, ...action.payload }
+      state.mother = { ...state.mother, ...action.payload };
+    },
+    updateMotherBabyCollectionData: (state, action: PayloadAction<Baby>) => {
+      // update baby based on indexes
+      const idx = state.mother?.babyCollection?.findIndex(
+        (babyDocument) => babyDocument.id === action.payload.id
+      );
+      if (idx !== undefined && state.mother?.babyCollection?.[idx]) {
+        state.mother.babyCollection[idx] = action.payload;
+      }
     },
     setNurseData: (state, action: PayloadAction<any>) => {
       // set nurse state
-      state.nurse = { ...state.nurse, ...action.payload }
+      state.nurse = { ...state.nurse, ...action.payload };
     },
     fetchAuthenticationSuccess: (state) => {
-      state.loading = false
-      state.error = false
+      state.loading = false;
+      state.error = false;
     },
     clearAuthenticationDataSuccess: (state) => {
-      state.mother = undefined
-      state.user = undefined
-      state.nurse = undefined
+      state.mother = undefined;
+      state.user = undefined;
+      state.nurse = undefined;
     },
     fetchAuthenticationError: (state) => {
-      state.error = true
-      state.loading = false
+      state.error = true;
+      state.loading = false;
     },
   },
 });
@@ -47,6 +56,7 @@ const authentication = createSlice({
 export const {
   setUserData,
   setMotherData,
+  updateMotherBabyCollectionData,
   setNurseData,
   fetchAuthenticationRequest,
   fetchAuthenticationSuccess,

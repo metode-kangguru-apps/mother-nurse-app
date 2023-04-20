@@ -22,13 +22,14 @@ import {
 import { BabyProgressPayload, Progress } from "./types";
 import { setSelectedTerapiBaby } from "../global";
 import { Baby } from "../authentication/types";
+import { updateMotherBabyCollectionData } from "../authentication";
 
 export const addProgressBaby =
   (
     payload: BabyProgressPayload
   ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
-    fetchBabyRequest();
+    dispatch(fetchBabyRequest());
     try {
       const progressList: Progress[] = [];
       const babyRefDocs = doc(firestore, "babies", payload.babyID);
@@ -44,12 +45,19 @@ export const addProgressBaby =
           await updateDoc(babyRefDocs, {
             currentWeight: payload.weight,
             currentLength: payload.length,
-          }).then(async () => {
-            const babyUpdated = await getDoc(babyRefDocs);
-            dispatch(setSelectedTerapiBaby(babyUpdated.data() as Baby));
-          }).catch(() => {
-            throw new Error()
-          });
+          })
+            .then(async () => {
+              const babyUpdated = await getDoc(babyRefDocs);
+              const babyDocument = {
+                id: babyRefDocs.id,
+                ...babyUpdated.data(),
+              } as Baby;
+              dispatch(setSelectedTerapiBaby(babyDocument));
+              dispatch(updateMotherBabyCollectionData(babyDocument));
+            })
+            .catch(() => {
+              throw new Error();
+            });
           // get progress list baby and set to redux
           await getDocs(progressRef)
             .then((querySnapshot) => {
@@ -57,7 +65,7 @@ export const addProgressBaby =
                 progressList.push(doc.data() as Progress);
               });
               dispatch(setBabyProgress(progressList));
-              fetchBabySuccess();
+              dispatch(fetchBabySuccess());
             })
             .catch(() => {
               throw new Error();
@@ -67,6 +75,6 @@ export const addProgressBaby =
           throw new Error();
         });
     } catch {
-      fetchBabyError();
+      dispatch(fetchBabyError());
     }
   };
