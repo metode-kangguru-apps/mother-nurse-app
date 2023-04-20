@@ -24,7 +24,6 @@ import moment from "moment";
 import BabyIcon from "src/lib/ui/icons/baby";
 import { weekDifference } from "src/lib/utils/calculate";
 import { Baby } from "@redux/actions/authentication/types";
-import { logOutUser } from "@redux/actions/authentication/thunks";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
@@ -94,11 +93,9 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
         ...mother.babyCollection[selectedBaby],
         currentWeek
       };
-      // console.log(weekDiff, currentWeek)
       dispatch(setSelectedTerapiBaby(selectedBabyDocument));
       navigation.navigate("home");
     }
-    // dispatch(logOutUser());
   };
   return (
     <View style={style.container}>
