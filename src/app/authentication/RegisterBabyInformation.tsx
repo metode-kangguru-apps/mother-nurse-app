@@ -87,6 +87,8 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
             birthDate: formField.birthDate,
             weight: formField.weight,
             length: formField.length,
+            currentWeight: formField.weight,
+            currentLength: formField.length,
             gender: formField.gender,
           },
         ],

@@ -21,27 +21,43 @@ import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo, useState } from "react";
 import { color } from "src/lib/ui/color";
 import { useAppDispatch } from "@redux/hooks";
+import { useSelector } from "react-redux";
+import { RootState } from "@redux/types";
+import { addProgressBaby } from "@redux/actions/baby/thunks";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "add-progress"> {}
 
 type FormField = {
-  weight?: number;
-  length?: number;
-  temperature?: number;
+  weight: number;
+  length: number;
+  temperature: number;
 };
 
 const AddProgressPage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   const [assets, _] = useAssets([require("../../../assets/baby-report.png")]);
-  const [formField, setFormField] = useState<FormField>({});
+  const [formField, setFormField] = useState<FormField>({
+    weight: 0,
+    length: 0,
+    temperature: 0,
+  });
+  const { selectedTerapiBaby } = useSelector(
+    (state: RootState) => state.global
+  );
   const style = useMemo(() => createStyle(insets), [insets]);
 
   const dispatch = useAppDispatch();
-
   function handleProgressSubmit() {
-    
+    dispatch(
+      addProgressBaby({
+        babyID: selectedTerapiBaby.id,
+        weight: formField.weight,
+        length: formField.length,
+        temperature: formField.temperature,
+      })
+    );
     navigation.replace("pmk-care");
   }
   return (
@@ -121,7 +137,7 @@ const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      height: Dimensions.get("window").height,
+      minHeight: Dimensions.get("window").height,
     },
     content: {
       display: "flex",

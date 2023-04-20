@@ -27,7 +27,7 @@ import { useAppDispatch } from "@redux/hooks";
 import { logOutUser } from "@redux/actions/authentication/thunks";
 import { useEffect } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
-import { BabyCollection } from "@redux/actions/authentication/types";
+import { Baby } from "@redux/actions/authentication/types";
 interface Props
   extends CompositeScreenProps<
     NativeStackScreenProps<MotherStackParamList, "profile">,
@@ -47,20 +47,19 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     dispatch(logOutUser());
   };
 
-  function renderBabyItem(item: BabyCollection) {
-    const dateBirthFormat = moment(
-      item.babyObj?.birthDate,
-      "DD/MM/YYYY"
-    ).format("DD MMMM YYYY");
+  function renderBabyItem(item: Baby) {
+    const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
+      "DD MMMM YYYY"
+    );
     return (
       <BabyCard
         birthDate={dateBirthFormat}
-        gender={item.babyObj?.gender}
-        name={item.babyObj?.displayName}
-        weight={item.babyObj?.weight}
-        length={item.babyObj?.length}
-        isSelectedBaby={selectedTerapiBaby.babyID === item.babyID}
-        key={item.babyID}
+        gender={item.gender}
+        name={item.displayName}
+        weight={item.currentWeight}
+        length={item.currentLength}
+        isSelectedBaby={selectedTerapiBaby.id === item.id}
+        key={item.id}
       ></BabyCard>
     );
   }
@@ -127,7 +126,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 </View>
               </TouchableWithoutFeedback>
               <View>
-                {mother.babyCollection.map((baby: BabyCollection, _: any) =>
+                {mother.babyCollection.map((baby: Baby, _: any) =>
                   renderBabyItem(baby)
                 )}
               </View>

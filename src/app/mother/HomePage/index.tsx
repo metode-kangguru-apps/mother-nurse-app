@@ -40,7 +40,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         <View style={style.ellipsContent}>
           <View style={style.babyNameWrapper}>
             <Text style={style.babyName}>
-              {selectedTerapiBaby.babyObj?.displayName}
+              {selectedTerapiBaby.displayName}
             </Text>
             <View style={style.babyNameBottomLine} />
           </View>
@@ -50,7 +50,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
           </View>
           <View style={style.babyWeightWrapper}>
             <Text style={style.babyWeight}>
-              {selectedTerapiBaby.babyObj?.weight}
+              {selectedTerapiBaby.currentWeight}
             </Text>
             <Text style={style.babyWeightMesurement}>gram</Text>
           </View>
@@ -70,7 +70,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View>
               <Text style={style.babyInformationTitle}>Usia</Text>
               <Text style={style.babyInformationContent}>
-                {selectedTerapiBaby.babyObj?.gestationAge} Minggu
+                {selectedTerapiBaby.currentWeek} Minggu
               </Text>
             </View>
           </View>
@@ -89,7 +89,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View>
               <Text style={style.babyInformationTitle}>Panjang</Text>
               <Text style={style.babyInformationContent}>
-                {selectedTerapiBaby.babyObj?.length} cm
+                {selectedTerapiBaby.currentLength} cm
               </Text>
             </View>
           </View>

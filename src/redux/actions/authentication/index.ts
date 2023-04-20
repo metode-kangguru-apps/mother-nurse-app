@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Authentication } from "./types";
+import { Authentication, Mother } from "./types";
 
 const initialState: Authentication = {
   mother: undefined,
@@ -20,7 +20,7 @@ const authentication = createSlice({
       // set user state
       state.user = { ...state.user, ...action.payload }
     },
-    setMotherData: (state, action: PayloadAction<any>) => {
+    setMotherData: (state, action: PayloadAction<Mother>) => {
       // set mother state
       state.mother = { ...state.mother, ...action.payload }
     },

@@ -1,5 +1,5 @@
-import { BabyCollection } from '../authentication/types'
+import { Baby } from '../authentication/types'
 
 export type GlobalState = {
-    selectedTerapiBaby: BabyCollection | undefined
+    selectedTerapiBaby: Baby | undefined
 }
