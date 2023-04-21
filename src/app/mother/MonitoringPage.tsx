@@ -1,43 +1,92 @@
-import { Platform, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { MotherStackParamList } from "src/router/types";
 
-import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
 import { color } from "src/lib/ui/color";
 import { TextSize } from "src/lib/ui/textSize";
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import CustomModal from "src/common/Modal";
-import { useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
+import { BABY_CARE_LIST } from "./constant";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "monitoring"> {}
 
-const MonitoringPage: React.FC<Props> = ({ navigation }) => {
-  const selectedTerapiBaby = useSelector(
-    (state: RootState) => state.global.selectedTerapiBaby
-  );
-  const [openModal, setOpenModal] = useState<boolean>(false);
+interface Timer {
+  hours: string;
+  minutes: string;
+  seconds: string;
+}
 
-  function handleModalClose() {
-    setOpenModal(false);
-    navigation.navigate("home");
+const MonitoringPage: React.FC<Props> = ({ navigation }) => {
+  const [openModal, setOpenModal] = useState<boolean>(false);
+  const [second, setSecond] = useState<number>(0);
+  const [timer, setTimer] = useState<Timer>({
+    hours: "00",
+    minutes: "00",
+    seconds: "00",
+  });
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const randomIndex = useRef<number>(Math.floor(Math.random() * BABY_CARE_LIST.length));
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => {
+      setSecond((prev) => {
+        formatTime(prev + 1);
+        return prev + 1;
+      });
+    }, 1000);
+  }, []);
+
+  function formatTime(time: number) {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = Math.floor(time % 60);
+
+    const paddedHours = hours.toString().padStart(2, "0");
+    const paddedMinutes = minutes.toString().padStart(2, "0");
+    const paddedSeconds = seconds.toString().padStart(2, "0");
+
+    setTimer({
+      hours: paddedHours,
+      minutes: paddedMinutes,
+      seconds: paddedSeconds,
+    });
+  }
+
+  function handleStopSession() {
+    setOpenModal(true);
+    clearInterval(intervalRef.current!);
   }
 
   return (
     <View style={style.container}>
       <View style={style.timerContainer}>
-        {/* TODO: @muhammadhafizmm logic timer */}
-        <Text style={style.timer}>01:35</Text>
-        <View style={style.timerInformationWrapper}>
+        <View style={style.timerWrapper}>
+          <Text style={style.timer}>{timer.hours}</Text>
           <Text style={style.timerInformation}>jam</Text>
+        </View>
+        <Text style={style.timer}>:</Text>
+        <View style={style.timerWrapper}>
+          <Text style={style.timer}>{timer.minutes}</Text>
           <Text style={style.timerInformation}>menit</Text>
+        </View>
+        <Text style={style.timer}>:</Text>
+        <View style={style.timerWrapper}>
+          <Text style={style.timer}>{timer.seconds}</Text>
+          <Text style={style.timerInformation}>detik</Text>
         </View>
       </View>
       <View style={style.contentContainer}>
-        <TouchableOpacity onPress={() => setOpenModal(true)}>
+        <TouchableOpacity onPress={() => handleStopSession()}>
           <View style={style.stopButton}>
             <Text style={style.stopButtonTitle}>Hentikan Sesi</Text>
           </View>
@@ -52,7 +101,7 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
       {/* TODO: @muhammadhafizmm logic baby care */}
       <View style={style.babyCareWrapper}>
         <Text style={style.babyCareContent}>
-          Bayi baru lahir rata-rata tidur 18-22 jam sehari
+          {BABY_CARE_LIST[randomIndex.current]}
         </Text>
       </View>
       <CustomModal visible={openModal} modalClosable={false}>
@@ -61,10 +110,22 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
           <Text style={style.modalMessage}>
             Jangan lupa nanti lanjutkan PMK lagi ya!
           </Text>
-          <View style={style.buttonAddProgress}>
-            <Text style={style.addProgressTitle}>Catat Pertumbuhan</Text>
-          </View>
-          <TouchableOpacity onPress={handleModalClose}>
+          <TouchableOpacity
+            onPress={() => {
+              setOpenModal(false);
+              navigation.replace("add-progress");
+            }}
+          >
+            <View style={style.buttonAddProgress}>
+              <Text style={style.addProgressTitle}>Catat Pertumbuhan</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              setOpenModal(false);
+              navigation.replace("home");
+            }}
+          >
             <Text style={style.closeMonitoring}>Tutup</Text>
           </TouchableOpacity>
         </View>
@@ -82,18 +143,21 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   timerContainer: {
+    display: "flex",
+    flexDirection: "row",
+
     marginBottom: Spacing.large,
   },
   timer: {
     fontSize: TextSize.h3,
     fontFamily: Font.Bold,
     color: color.lightneutral,
+    textAlign: "center",
+    marginHorizontal: Spacing.extratiny,
   },
-  timerInformationWrapper: {
+  timerWrapper: {
     display: "flex",
-    paddingHorizontal: Spacing.small,
-    flexDirection: "row",
-    justifyContent: "space-between",
+    alignItems: "center",
   },
   timerInformation: {
     color: color.lightneutral,
@@ -164,17 +228,17 @@ const style = StyleSheet.create({
     paddingVertical: Spacing.base,
     backgroundColor: color.lightneutral,
     borderRadius: 30,
-    ...(Platform.select({
+    ...Platform.select({
       web: {
         paddingHorizontal: Spacing.large,
       },
       native: {
-        paddingHorizontal: Spacing.xlarge / 2
-      }
-    }))
+        paddingHorizontal: Spacing.xlarge / 2,
+      },
+    }),
   },
   modalTitle: {
-    width: "90%",
+    width: "70%",
     fontFamily: Font.Bold,
     fontSize: TextSize.h5,
     textAlign: "center",
@@ -205,4 +269,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default MonitoringPage;
+export default memo(MonitoringPage);

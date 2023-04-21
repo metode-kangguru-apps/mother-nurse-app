@@ -16,7 +16,7 @@ const createStyle = () => {
       flex: 1,
       alignItems: "center",
       backgroundColor: color.surface,
-      font: Font.Regular
+      fontFamily: Font.Regular
     },
     container: {
       flex: 1,

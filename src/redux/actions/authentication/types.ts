@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore";
+
 export type User = {
   displayName?: string;
   uid?: string;
@@ -6,31 +8,30 @@ export type User = {
   userRole?: "mother" | "nurse";
 };
 
-export type BabyCollection = {
-  babyID: string;
-  babyObj: Baby | undefined;
-};
-
 export type Mother = {
   id?: string;
   phoneNumber?: string;
   babyRoomCode?: string;
-  babyCollection: BabyCollection[] | Baby[] | undefined;
+  babyCollection: Baby[] | undefined;
 };
 
 export type Baby = {
   id?: string;
   displayName?: string;
-  gestationAge?: string;
+  gestationAge?: number;
   birthDate?: string;
   weight?: number;
   length?: number;
+  currentWeight?: number;
+  currentLength?: number;
+  currentWeek?: number;
+  createdAt?: Date | Timestamp;
   gender?: "laki-laki" | "perempuan";
 };
 
 export type Nurse = {};
 
-export type Authetication = {
+export type Authentication = {
   user: User | undefined;
   mother: Mother | undefined;
   nurse: Nurse | undefined;

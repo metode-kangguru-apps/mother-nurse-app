@@ -23,6 +23,7 @@ import ModuleIcon from "src/lib/ui/icons/module";
 import { Dimensions } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
+import Milestone from "./Milestone";
 
 interface Props extends NativeStackScreenProps<MotherStackParamList, "home"> {}
 
@@ -38,18 +39,16 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         <View style={style.ellipsHead}></View>
         <View style={style.ellipsContent}>
           <View style={style.babyNameWrapper}>
-            <Text style={style.babyName}>
-              {selectedTerapiBaby.babyObj?.displayName}
-            </Text>
+            <Text style={style.babyName}>{selectedTerapiBaby.displayName}</Text>
             <View style={style.babyNameBottomLine} />
           </View>
           {/* TODO: @muhammadhafizm baby milestone */}
           <View style={style.babyMilestone}>
-            <Text>Hello World</Text>
+            <Milestone currentWeight={selectedTerapiBaby.currentWeight} />
           </View>
           <View style={style.babyWeightWrapper}>
             <Text style={style.babyWeight}>
-              {selectedTerapiBaby.babyObj?.weight}
+              {selectedTerapiBaby.currentWeight}
             </Text>
             <Text style={style.babyWeightMesurement}>gram</Text>
           </View>
@@ -69,7 +68,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View>
               <Text style={style.babyInformationTitle}>Usia</Text>
               <Text style={style.babyInformationContent}>
-                {selectedTerapiBaby.babyObj?.gestationAge} Minggu
+                {selectedTerapiBaby.currentWeek} Minggu
               </Text>
             </View>
           </View>
@@ -88,7 +87,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View>
               <Text style={style.babyInformationTitle}>Panjang</Text>
               <Text style={style.babyInformationContent}>
-                {selectedTerapiBaby.babyObj?.length} cm
+                {selectedTerapiBaby.currentLength} cm
               </Text>
             </View>
           </View>
@@ -110,12 +109,14 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             </View>
             <Text style={style.menuTitle}>Riwayat</Text>
           </View>
-          <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}>
-              <AddNoteIcon />
+          <TouchableOpacity onPress={() => navigation.navigate("add-progress")}>
+            <View style={style.menuItemsWrapper}>
+              <View style={style.menuIcon}>
+                <AddNoteIcon />
+              </View>
+              <Text style={style.menuTitle}>Pencatatan</Text>
             </View>
-            <Text style={style.menuTitle}>Pencatatan</Text>
-          </View>
+          </TouchableOpacity>
           <View style={style.menuItemsWrapper}>
             <View style={style.menuIcon}>
               <ModuleIcon />
@@ -167,14 +168,14 @@ const createStyle = (insets: EdgeInsets) =>
       alignSelf: "center",
       justifyContent: "center",
       alignItems: "center",
-      ...(Platform.select({
+      ...Platform.select({
         web: {
-          marginTop: Spacing.base
+          marginTop: Spacing.base,
         },
         native: {
           marginTop: insets.top,
-        }
-      }))
+        },
+      }),
     },
     babyNameBottomLine: {
       width: Spacing.xlarge * 1.5,
@@ -190,6 +191,7 @@ const createStyle = (insets: EdgeInsets) =>
       marginTop: Spacing.small,
     },
     babyMilestone: {
+      width: "100%",
       paddingVertical: Spacing.xlarge / 2,
     },
     babyWeightWrapper: {
@@ -232,7 +234,7 @@ const createStyle = (insets: EdgeInsets) =>
     weekOldBabyContainer: {
       flex: 0.5,
       flexDirection: "row",
-      justifyContent: "flex-end"
+      justifyContent: "flex-end",
     },
     babyInformatonIcon: {
       marginRight: Spacing.small,
@@ -252,7 +254,7 @@ const createStyle = (insets: EdgeInsets) =>
       flex: 0.5,
       flexDirection: "row",
       alignItems: "center",
-      justifyContent: "flex-start"
+      justifyContent: "flex-start",
     },
     babyInformationContent: {
       color: color.neutral,
@@ -290,14 +292,14 @@ const createStyle = (insets: EdgeInsets) =>
       position: "absolute",
       width: "100%",
       paddingHorizontal: Spacing.xlarge / 2,
-      ...(Platform.select({
+      ...Platform.select({
         web: {
           bottom: Spacing.base,
         },
         native: {
           bottom: Spacing.small + insets.bottom,
-        }
-      }))
+        },
+      }),
     },
     buttonStart: {
       width: "100%",

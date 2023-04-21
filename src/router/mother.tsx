@@ -5,7 +5,10 @@ import SelectBabyPage from "@app/mother/SelectedBabyPage";
 import HomePage from "@app/mother/HomePage";
 import { color } from "src/lib/ui/color";
 import ProfilePage from "@app/mother/ProfilePage";
+import AddProgressPage from "@app/mother/AddProgressPage";
 import MonitoringPage from "@app/mother/MonitoringPage";
+import PMKCarePage from "@app/mother/PMKCarePage";
+import { Platform } from "react-native";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -15,7 +18,7 @@ const MotherRouter: React.FC<{}> = () => {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: color.surface, flex: 1 },
-        animation: "slide_from_right",
+        animation: "none"
       }}
     >
       <MotherStack.Screen
@@ -30,7 +33,11 @@ const MotherRouter: React.FC<{}> = () => {
         component={HomePage}
         options={{
           title: "Perawatan Metode Kangguru",
-          animation: "simple_push"
+          animationTypeForReplace: 'pop',
+          animation: Platform.select({
+            ios: "slide_from_left",
+            android: "simple_push",
+          })
         }}
       />
       <MotherStack.Screen
@@ -38,14 +45,34 @@ const MotherRouter: React.FC<{}> = () => {
         component={ProfilePage}
         options={{
           title: "Profil",
+          animation: "slide_from_right"
         }}
       />
       <MotherStack.Screen
         name="monitoring"
         component={MonitoringPage}
         options={{
-          title: "Monitoring",
-          animation: "simple_push"
+          title: "Sedang Terapi PMK",
+          animation: Platform.select({
+            ios: "fade_from_bottom",
+            android: "simple_push"
+          })
+        }}
+      />
+      <MotherStack.Screen
+        name="add-progress"
+        component={AddProgressPage}
+        options={{
+          title: "Tambah Progress Bayi",
+          animation: "slide_from_right"
+        }}
+      />
+      <MotherStack.Screen
+        name="pmk-care"
+        component={PMKCarePage}
+        options={{
+          title: "Informasi Seputar PMK",
+          animation: "slide_from_right"
         }}
       />
     </MotherStack.Navigator>

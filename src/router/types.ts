@@ -1,10 +1,12 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
 
 export type MotherStackParamList = {
-  home: undefined
+  home: undefined;
   "select-baby": undefined;
-  profile: undefined
-  monitoring: undefined
+  profile: undefined;
+  monitoring: undefined;
+  "add-progress": undefined;
+  "pmk-care": undefined
 };
 
 export type AuthStackParamList = {

@@ -27,7 +27,7 @@ import { useAppDispatch } from "@redux/hooks";
 import { logOutUser } from "@redux/actions/authentication/thunks";
 import { useEffect } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
-import { BabyCollection } from "@redux/actions/authentication/types";
+import { Baby } from "@redux/actions/authentication/types";
 interface Props
   extends CompositeScreenProps<
     NativeStackScreenProps<MotherStackParamList, "profile">,
@@ -47,20 +47,19 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     dispatch(logOutUser());
   };
 
-  function renderBabyItem(item: BabyCollection) {
-    const dateBirthFormat = moment(
-      item.babyObj?.birthDate,
-      "DD/MM/YYYY"
-    ).format("DD MMMM YYYY");
+  function renderBabyItem(item: Baby) {
+    const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
+      "DD MMMM YYYY"
+    );
     return (
       <BabyCard
         birthDate={dateBirthFormat}
-        gender={item.babyObj?.gender}
-        name={item.babyObj?.displayName}
-        weight={item.babyObj?.weight}
-        length={item.babyObj?.length}
-        isSelectedBaby={selectedTerapiBaby.babyID === item.babyID}
-        key={item.babyID}
+        gender={item.gender}
+        name={item.displayName}
+        weight={item.currentWeight}
+        length={item.currentLength}
+        isSelectedBaby={selectedTerapiBaby.id === item.id}
+        key={item.id}
       ></BabyCard>
     );
   }
@@ -74,7 +73,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
   }, [loading, user]);
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false}>
+    <View style={style.flex}>
       <Header
         title="Kembali"
         onBackButton={() => {
@@ -85,60 +84,70 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
           }
         }}
       />
-      {user.isAnonymous && (
-        <Info
-          type="warning"
-          title="Hubungkan akun dengan Google"
-          message="Akun Anda tidak terhubung dengan Google sehingga data tidak akan
-                tersimpan"
-        ></Info>
-      )}
-      <View style={style.content}>
-        {/* TODO: muhammadhafizm integrate with data nurse name and hospital name */}
-        <View style={style.profileWrapper}>
-          <ProfileCard
-            type="mother"
-            name={user.displayName}
-            phoneNumber={"+62 " + mother.phoneNumber}
-            nurseName="Riska Larasati"
-            hospitalName="RS Sehati"
-          />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View>
           {user.isAnonymous && (
-            <View style={style.buttonBindGoogle}>
-              <GoogleIcon style={style.googleIcon} />
-              <Text style={style.bindGoogleText}>Sambungkan ke Google</Text>
-            </View>
+            <Info
+              type="warning"
+              title="Hubungkan akun dengan Google"
+              message="Akun Anda tidak terhubung dengan Google sehingga data tidak akan
+                tersimpan"
+            ></Info>
           )}
-        </View>
-        <View style={style.babyContainer}>
-          <Text style={style.titleBabyProfile}>Profil Bayi</Text>
-          <TouchableWithoutFeedback>
-            <View style={style.header}>
-              <Text style={style.headerTitle}>Tambah Bayi</Text>
+          <View style={style.content}>
+            {/* TODO: muhammadhafizm integrate with data nurse name and hospital name */}
+            <View style={style.profileWrapper}>
+              <ProfileCard
+                type="mother"
+                name={user.displayName}
+                phoneNumber={"+62 " + mother.phoneNumber}
+                nurseName="Riska Larasati"
+                hospitalName="RS Sehati"
+              />
+              {user.isAnonymous && (
+                <View style={style.buttonBindGoogle}>
+                  <GoogleIcon style={style.googleIcon} />
+                  <Text style={style.bindGoogleText}>Sambungkan ke Google</Text>
+                </View>
+              )}
+            </View>
+            <View style={style.babyContainer}>
+              <Text style={style.titleBabyProfile}>Profil Bayi</Text>
+              <TouchableWithoutFeedback>
+                <View style={style.header}>
+                  <Text style={style.headerTitle}>Tambah Bayi</Text>
+                  <View>
+                    <AntDesign
+                      name="pluscircleo"
+                      size={20}
+                      color={color.secondary}
+                    />
+                  </View>
+                </View>
+              </TouchableWithoutFeedback>
               <View>
-                <AntDesign
-                  name="pluscircleo"
-                  size={20}
-                  color={color.secondary}
-                />
+                {mother.babyCollection.map((baby: Baby, _: any) =>
+                  renderBabyItem(baby)
+                )}
               </View>
             </View>
-          </TouchableWithoutFeedback>
-          <View>
-            {mother.babyCollection.map((baby: BabyCollection, _: any) =>
-              renderBabyItem(baby)
-            )}
+            <TouchableOpacity
+              style={style.logoutButton}
+              onPress={handleLogOutUser}
+            >
+              <Text style={style.logoutButtonTitle}>Keluar</Text>
+            </TouchableOpacity>
           </View>
         </View>
-        <TouchableOpacity style={style.logoutButton} onPress={handleLogOutUser}>
-          <Text style={style.logoutButtonTitle}>Keluar</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 };
 
 const style = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   content: {
     padding: Spacing.base,
     width: "100%",
