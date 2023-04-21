@@ -105,6 +105,7 @@ const createStyle = () => {
     informationWrapper: {
       display: "flex",
       flexDirection: "row",
+      justifyContent: "space-between"
     },
     title: {
       flex: 0.4,
@@ -115,7 +116,7 @@ const createStyle = () => {
     information: {
       fontFamily: Font.Medium,
       fontSize: TextSize.body,
-      flex: 0.6,
+      flex: 0.55,
     },
   });
 };
