@@ -1,3 +1,5 @@
+import BabyFaceIcon from "src/lib/ui/icons/babyFace";
+
 export const BABY_CARE_LIST: string[] = [
   "Semakin sering ibu menyusui bayi, produksi ASI akan terus bertambah.",
   "Memberikan ASIi, artinya memberikan nutrisi terbaik bagi bayi.",
@@ -9,4 +11,51 @@ export const BABY_CARE_LIST: string[] = [
   "Melakukan PMK pada bayi bermanfaat untuk menurunkan rasa nyeri.",
   "Riset membuktikan bahwa bayi yang dilakukan PMK memiliki frekuensi pernapasan lebih stabil.",
   "Mengajak bicara bayi sejak dini berarti melatih bayi berkomunikasi.",
+];
+
+export const MODULE_ITEM_LIST = [
+  {
+    icon: BabyFaceIcon,
+    title: "Parent Component",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Definisi Bayi Berat Lahir Rendah (BBLR)",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Definisi Perawatan Metode Kanguru (PMK)",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Manfaat PMK",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Siapakah yang bisa melakukan PMK?",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Kapan dan di mana PMK dilakukan?",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Persiapan Melakukan PMK",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Cara Melakukan PMK",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Tanda kewaspadaan",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Frekuensi napas normal",
+  },
+  {
+    icon: BabyFaceIcon,
+    title: "Suhu tubuh normal",
+  },
 ];

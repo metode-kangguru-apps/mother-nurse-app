@@ -10,6 +10,7 @@ import MonitoringPage from "@app/mother/MonitoringPage";
 import PMKCarePage from "@app/mother/PMKCarePage";
 import { Platform } from "react-native";
 import HistoryProgressPage from "@app/mother/HistoryProgressPage";
+import ModulePage from "@app/mother/ModulePage";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -81,6 +82,14 @@ const MotherRouter: React.FC<{}> = () => {
         component={HistoryProgressPage}
         options={{
           title: "Riwayat Pencatatan Bayi",
+          animation: "slide_from_right"
+        }}
+      />
+      <MotherStack.Screen
+        name="module"
+        component={ModulePage}
+        options={{
+          title: "Modul Pembelajaran PMK",
           animation: "slide_from_right"
         }}
       />

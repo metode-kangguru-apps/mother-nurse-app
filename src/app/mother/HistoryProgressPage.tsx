@@ -4,24 +4,23 @@ import {
   FlatList,
   ListRenderItem,
   Platform,
-  ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MotherStackParamList } from "src/router/types";
 
-import { useAppDispatch } from "@redux/hooks";
 import Header from "src/common/Header";
 import { Font } from "src/lib/ui/font";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Progress } from "@redux/actions/baby/types";
 import ProgressCard from "src/common/ProgressCard";
 import { Spacing } from "src/lib/ui/spacing";
 import Separator from "src/common/Separator";
 import { color } from "src/lib/ui/color";
+
+import { format } from 'date-fns';
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "history"> {}
@@ -40,9 +39,7 @@ const HistoryProgressPage: React.FC<Props> = ({ navigation }) => {
         item.createdAt.seconds * 1000 + item.createdAt.nanoseconds / 1000000
       );
       const day = createdAtProgress.getDate().toString().padStart(2, "0");
-      const month = Intl.DateTimeFormat("en-US", { month: "short" }).format(
-        createdAtProgress
-      );
+      const month = format(createdAtProgress, "MMM")
       const year = createdAtProgress.getFullYear().toString().slice(2);
       renderedDate = `${day} ${month} \'${year}`;
 
@@ -81,7 +78,7 @@ const HistoryProgressPage: React.FC<Props> = ({ navigation }) => {
           <Separator
             spacing={Platform.select({
               web: Spacing.none,
-              native: Spacing.large,
+              native: Spacing.base,
             })}
             color={color.surface}
           />
