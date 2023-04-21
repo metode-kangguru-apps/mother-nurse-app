@@ -29,22 +29,23 @@ const linking = {
             path: "/profile",
           },
           monitoring: {
-            path: "/monitoring"
+            path: "/monitoring",
           },
           "add-progress": {
-            path: "/add-baby-progress"
+            path: "/add-baby-progress",
           },
           "pmk-care": {
-            path: "/pmk-care"
+            path: "/pmk-care",
           },
-          history:  {
-            path: "/history"
+          history: {
+            path: "/history",
           },
           module: {
-            path: "/module"
-          }
+            path: "/module",
+          },
         },
       },
+      NotFound: "*",
     },
   },
 };

@@ -9,6 +9,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList } from "src/router/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
+import NotFoundPage from "src/common/NotFoundPage";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -31,6 +32,7 @@ const RootRouter: React.FC<Props> = () => {
         {user && user.userType === "member" && user.userRole == "mother" && (
           <Stack.Screen name="mother" component={MotherRouter} />
         )}
+        <Stack.Screen name="NotFound" component={NotFoundPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

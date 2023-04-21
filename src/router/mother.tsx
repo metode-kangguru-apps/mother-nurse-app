@@ -20,7 +20,7 @@ const MotherRouter: React.FC<{}> = () => {
       screenOptions={{
         headerShown: false,
         contentStyle: { backgroundColor: color.surface, flex: 1 },
-        animation: "none"
+        animation: "none",
       }}
     >
       <MotherStack.Screen

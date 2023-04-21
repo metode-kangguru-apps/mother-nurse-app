@@ -20,4 +20,5 @@ export type AuthStackParamList = {
 export type RootStackParamList = {
   auth: NavigatorScreenParams<AuthStackParamList>;
   mother: NavigatorScreenParams<MotherStackParamList>;
+  NotFound: undefined;
 };
