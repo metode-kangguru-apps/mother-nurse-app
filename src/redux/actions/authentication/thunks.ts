@@ -193,6 +193,7 @@ export const loginWithGoogle =
                   }
                 );
               }
+              dispatch(fetchAuthenticationSuccess());
             } else {
               const userGoogleInitialData: User = {
                 isAnonymous: false,
