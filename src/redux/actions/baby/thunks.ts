@@ -11,6 +11,8 @@ import {
   getDocs,
   updateDoc,
   getDoc,
+  query,
+  orderBy,
 } from "firebase/firestore";
 
 import {
@@ -36,6 +38,8 @@ export const addProgressBaby =
       const progressRef = collection(babyRefDocs, "progress");
       // add new progress
       await addDoc(progressRef, {
+        createdAt: new Date(),
+        week: payload.week,
         weight: payload.weight,
         length: payload.length,
         temperature: payload.temperature,
@@ -59,7 +63,11 @@ export const addProgressBaby =
               throw new Error();
             });
           // get progress list baby and set to redux
-          await getDocs(progressRef)
+          const progressOrderByCreatedAt = query(
+            progressRef,
+            orderBy("createdAt", 'desc')
+          );
+          await getDocs(progressOrderByCreatedAt)
             .then((querySnapshot) => {
               querySnapshot.forEach((doc) => {
                 progressList.push(doc.data() as Progress);
@@ -70,6 +78,35 @@ export const addProgressBaby =
             .catch(() => {
               throw new Error();
             });
+        })
+        .catch(() => {
+          throw new Error();
+        });
+    } catch {
+      dispatch(fetchBabyError());
+    }
+  };
+
+export const getProgressBaby =
+  (
+    payload: BabyProgressPayload["babyID"]
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
+  async (dispatch) => {
+    dispatch(fetchBabyRequest());
+    try {
+      const babyRefDocs = doc(firestore, "babies", payload);
+      const progressRef = query(
+        collection(babyRefDocs, "progress"),
+        orderBy("createdAt", 'desc')
+      );
+      const progressList: Progress[] = [];
+      await getDocs(progressRef)
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            progressList.push(doc.data() as Progress);
+          });
+          dispatch(setBabyProgress(progressList));
+          dispatch(fetchBabySuccess());
         })
         .catch(() => {
           throw new Error();

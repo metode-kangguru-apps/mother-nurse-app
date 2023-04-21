@@ -24,8 +24,32 @@ import { Dimensions } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
 import Milestone from "./Milestone";
+import { MenuItem } from "./type";
 
 interface Props extends NativeStackScreenProps<MotherStackParamList, "home"> {}
+
+const HOME_MENU: MenuItem[] = [
+  {
+    icon: <ProfileIcon />,
+    title: "Profile",
+    navigationIdentifier: "profile",
+  },
+  {
+    icon: <HistoryIcon />,
+    title: "Riwayat",
+    navigationIdentifier: "history",
+  },
+  {
+    icon: <AddNoteIcon />,
+    title: "Pencatatan",
+    navigationIdentifier: "add-progress",
+  },
+  {
+    icon: <ModuleIcon />,
+    title: "Modul",
+    navigationIdentifier: "module",
+  },
+];
 
 const HomePage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
@@ -95,34 +119,19 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
       </View>
       <View style={style.menuWrapper}>
         <View style={style.menuList}>
-          <TouchableOpacity onPress={() => navigation.navigate("profile")}>
-            <View style={style.menuItemsWrapper}>
-              <View style={style.menuIcon}>
-                <ProfileIcon />
+          {HOME_MENU.map((menuItem, idx) => (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate(menuItem.navigationIdentifier)
+              }
+              key={idx}
+            >
+              <View style={style.menuItemsWrapper}>
+                <View style={style.menuIcon}>{menuItem.icon}</View>
+                <Text style={style.menuTitle}>{menuItem.title}</Text>
               </View>
-              <Text style={style.menuTitle}>Profil</Text>
-            </View>
-          </TouchableOpacity>
-          <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}>
-              <HistoryIcon />
-            </View>
-            <Text style={style.menuTitle}>Riwayat</Text>
-          </View>
-          <TouchableOpacity onPress={() => navigation.navigate("add-progress")}>
-            <View style={style.menuItemsWrapper}>
-              <View style={style.menuIcon}>
-                <AddNoteIcon />
-              </View>
-              <Text style={style.menuTitle}>Pencatatan</Text>
-            </View>
-          </TouchableOpacity>
-          <View style={style.menuItemsWrapper}>
-            <View style={style.menuIcon}>
-              <ModuleIcon />
-            </View>
-            <Text style={style.menuTitle}>Modul</Text>
-          </View>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
       <View style={style.buttonStartContainer}>

@@ -53,6 +53,7 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
     dispatch(
       addProgressBaby({
         babyID: selectedTerapiBaby.id,
+        week: selectedTerapiBaby.currentWeek,
         weight: formField.weight,
         length: formField.length,
         temperature: formField.temperature,

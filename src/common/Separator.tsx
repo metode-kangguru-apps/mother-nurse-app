@@ -13,11 +13,11 @@ const createStyle = (spacing: number, color: string) => {
 };
 
 type Props = {
-  spacing: number;
+  spacing?: number;
   color: string;
 };
 
-const Separator: React.FC<Props> = ({ spacing, color }) => {
+const Separator: React.FC<Props> = ({ spacing = Spacing.small, color }) => {
   const style = useMemo(() => createStyle(spacing, color), [spacing, color]);
   return <View style={style.separator}></View>;
 };
