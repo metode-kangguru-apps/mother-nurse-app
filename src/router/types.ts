@@ -6,7 +6,9 @@ export type MotherStackParamList = {
   profile: undefined;
   monitoring: undefined;
   "add-progress": undefined;
-  "pmk-care": undefined
+  "pmk-care": undefined;
+  history: undefined;
+  module: undefined;
 };
 
 export type AuthStackParamList = {

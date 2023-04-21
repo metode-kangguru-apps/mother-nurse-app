@@ -1,8 +1,12 @@
+import { Timestamp } from "firebase/firestore"
+
 export interface BabyProgressPayload extends Progress {
     babyID: string,
 }
 
 export type Progress = {
+    createdAt? : Timestamp
+    week: number,
     weight: number,
     length: number,
     temperature: number

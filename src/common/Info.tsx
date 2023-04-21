@@ -6,6 +6,40 @@ import { Spacing } from "src/lib/ui/spacing";
 import { color } from "src/lib/ui/color";
 import { Font } from "src/lib/ui/font";
 
+interface Props {
+  type: "warning";
+  title: string;
+  message: string;
+  showCloseButton?: boolean;
+}
+
+const Info: React.FC<Props> = ({
+  type,
+  title,
+  message,
+  showCloseButton = false,
+}) => {
+  const style = useMemo(() => createStyle(type), [type]);
+  return (
+    <View style={style.container}>
+      <View>
+        {type === "warning" && (
+          <FontAwesome name="warning" size={20} color={color.poop} />
+        )}
+      </View>
+      <View style={style.content}>
+        <Text style={style.contentHeader}>{title}</Text>
+        <Text style={style.contentMessage}>{message}</Text>
+      </View>
+      {showCloseButton && (
+        <View>
+          <AntDesign name="close" size={20} color={color.poop} />
+        </View>
+      )}
+    </View>
+  );
+};
+
 const createStyle = (type: string) => {
   let typeBasedStyle = {
     container: {},
@@ -51,44 +85,10 @@ const createStyle = (type: string) => {
       ...typeBasedStyle.contentHeader,
     },
     contentMessage: {
-        fontFamily: Font.Regular,
+      fontFamily: Font.Regular,
       ...typeBasedStyle.contentMessage,
     },
   });
-};
-
-interface Props {
-  type: "warning";
-  title: string;
-  message: string;
-  showCloseButton?: boolean;
-}
-
-const Info: React.FC<Props> = ({
-  type,
-  title,
-  message,
-  showCloseButton = false,
-}) => {
-  const style = useMemo(() => createStyle(type), [type]);
-  return (
-    <View style={style.container}>
-      <View>
-        {type === "warning" && (
-          <FontAwesome name="warning" size={20} color={color.poop} />
-        )}
-      </View>
-      <View style={style.content}>
-        <Text style={style.contentHeader}>{title}</Text>
-        <Text style={style.contentMessage}>{message}</Text>
-      </View>
-      {showCloseButton && (
-        <View>
-          <AntDesign name="close" size={20} color={color.poop} />
-        </View>
-      )}
-    </View>
-  );
 };
 
 export default Info;
