@@ -207,10 +207,10 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                   { key: "Laki-laki", value: "laki-laki" },
                   { key: "Perempuan", value: "perempuan" },
                 ]}
-                onChange={(value) => {
+                onChange={(item) => {
                   setFormField({
                     ...formField,
-                    gender: value as Baby["gender"],
+                    gender: item.value as Baby["gender"],
                   });
                 }}
               />

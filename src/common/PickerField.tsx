@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   Animated,
-  Platform,
   Pressable,
   FlatList,
   TouchableOpacity,
@@ -22,10 +21,10 @@ type Props = {
   items: Options[];
   defaultValue?: string;
   onFocus?: (state: boolean) => void;
-  onChange?: (value: string) => void;
+  onChange?: (value: Options) => void;
 };
 
-const FloatingInput: React.FC<Props> = ({
+const PickerFiled: React.FC<Props> = ({
   label,
   items,
   defaultValue,
@@ -55,7 +54,7 @@ const FloatingInput: React.FC<Props> = ({
 
   function handlerSelectedValue(item: Options) {
     setInputValue(item.key);
-    onChange && onChange(item.value);
+    onChange && onChange(item);
     setModalVisible(false);
   }
 
@@ -104,6 +103,7 @@ const FloatingInput: React.FC<Props> = ({
         <Text style={style.bottomSheetTitle}>{label}</Text>
         <FlatList
           data={items}
+          showsVerticalScrollIndicator={false}
           renderItem={(state) => (
             <TouchableOpacity
               onPress={() => handlerSelectedValue(state.item)}
@@ -115,11 +115,11 @@ const FloatingInput: React.FC<Props> = ({
           ItemSeparatorComponent={() => (
             <Separator spacing={1} color={color.surface} />
           )}
-          ListHeaderComponent={() => (
-            <Separator spacing={1} color={color.surface} />
-          )}
           ListFooterComponent={() => (
-            <Separator spacing={1} color={color.surface} />
+            <>
+              <Separator spacing={1} color={color.surface} />
+              <Separator spacing={Spacing.base} color={color.lightneutral} />
+            </>
           )}
         ></FlatList>
       </BottomSheet>
@@ -140,14 +140,9 @@ const style = StyleSheet.create({
     fontSize: 14,
     color: color.neutral,
   },
-  statePrefix: {
-    position: "absolute",
-    top: Platform.OS === "android" ? 23 : 26,
-    left: 15,
-  },
   textInput: {
     outlineStyle: "none",
-    paddingTop: 24,
+    paddingTop: 22,
     paddingBottom: 8,
     position: "relative",
     backgroundColor: color.surface,
@@ -168,11 +163,11 @@ const style = StyleSheet.create({
   bottomSheetTitle: {
     fontFamily: Font.Medium,
     fontSize: TextSize.title,
-    marginBottom: Spacing.tiny,
+    marginBottom: Spacing.small,
   },
   selectorItem: {
     padding: Spacing.extratiny,
   },
 });
 
-export default FloatingInput;
+export default PickerFiled;

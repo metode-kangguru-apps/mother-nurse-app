@@ -17,6 +17,7 @@ import {
   Animated,
   Dimensions,
   ImageBackground,
+  KeyboardAvoidingView,
   ScrollView,
   StyleSheet,
   Text,
@@ -37,6 +38,9 @@ import { CompositeScreenProps } from "@react-navigation/native";
 import GoogleIcon from "src/lib/ui/icons/google";
 import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
+import { getHospitalList } from "@redux/actions/global/thunks";
+import PickerFiled from "src/common/PickerField";
+import { Hostpital } from "@redux/actions/global/type";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -49,7 +53,7 @@ interface Props
 interface FormField {
   name?: string;
   phoneNumber?: number;
-  hospitalCode?: string;
+  hospitalCode?: Hostpital;
 }
 
 const LoginPage2: React.FC<Props> = ({ navigation }) => {
@@ -68,6 +72,10 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
 
   const { user, loading } = useSelector(
     (state: RootState) => state.authentication
+  );
+
+  const { hospitalList, loading: loadingHospital } = useSelector(
+    (state: RootState) => state.global
   );
 
   const selectedRoleAnimation = useRef(new Animated.Value(0)).current;
@@ -120,6 +128,10 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     }).start();
   }, [selectedRegisterRole]);
 
+  useEffect(() => {
+    dispatch(getHospitalList(""));
+  }, []);
+
   // handle if user sign-up anonymous
   const handleLoginUserAnonymously = async () => {
     try {
@@ -133,7 +145,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
       const userAnonymousInitialData: MotherAnonymSignInPayload = {
         displayName: motherFormField.name,
         phoneNumber: motherFormField.phoneNumber,
-        hospitalCode: motherFormField.hospitalCode,
+        hospitalObj: motherFormField.hospitalCode,
         isAnonymous: true,
         userType: "guest",
         userRole: "mother",
@@ -175,150 +187,163 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   });
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <Animated.View
-        style={[
-          style.container,
-          { backgroundColor: handleChangeColorOnSelect },
-        ]}
-      >
-        {assets && (
-          <ImageBackground
-            source={{ uri: assets[0].localUri as string }}
-            style={style.backgroundPattern}
-          />
-        )}
-        <View style={style.topContent}></View>
-        <View style={style.bottomContent}>
-          {/* Tab Role Switcher */}
-          <View style={style.roleSwitcher}>
-            <TouchableOpacity onPress={() => setSelectedRegisterRole("mother")}>
-              <Text style={[style.roleItem, style.mother]}>Ibu</Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => setSelectedRegisterRole("nurse")}>
-              <Text style={[style.roleItem, style.nurse]}>Perawat</Text>
-            </TouchableOpacity>
+    <KeyboardAvoidingView style={style.flex}>
+      <ScrollView style={style.flex}>
+        <Animated.View
+          style={[
+            style.container,
+            { backgroundColor: handleChangeColorOnSelect },
+          ]}
+        >
+          {assets && (
+            <ImageBackground
+              source={{ uri: assets[0].localUri as string }}
+              style={style.backgroundPattern}
+            />
+          )}
+          <View style={style.topContent}></View>
+          <View style={style.bottomContent}>
+            {/* Tab Role Switcher */}
+            <View style={style.roleSwitcher}>
+              <TouchableOpacity
+                onPress={() => setSelectedRegisterRole("mother")}
+              >
+                <Text style={[style.roleItem, style.mother]}>Ibu</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setSelectedRegisterRole("nurse")}
+              >
+                <Text style={[style.roleItem, style.nurse]}>Perawat</Text>
+              </TouchableOpacity>
+              <Animated.View
+                style={[
+                  style.roleItem,
+                  style.currentRole,
+                  {
+                    transform: [{ translateX: handleSwitchRoleOnSelect }],
+                    backgroundColor: handleChangeColorOnSelect,
+                  },
+                ]}
+              >
+                <Text style={[style.currentRoleTitle]}>
+                  {selectedRegisterRole === "mother" ? "Ibu" : "Perawat"}
+                </Text>
+              </Animated.View>
+            </View>
+            {/* Tab Title */}
+            <Animated.Text style={style.title}>
+              {selectedRegisterRole === "mother" ? "Daftar" : "Masuk"}
+            </Animated.Text>
+            {/* Mother Form Field */}
             <Animated.View
+              pointerEvents={
+                selectedRegisterRole === "mother" ? "auto" : "none"
+              }
               style={[
-                style.roleItem,
-                style.currentRole,
+                style.motherField,
                 {
-                  transform: [{ translateX: handleSwitchRoleOnSelect }],
-                  backgroundColor: handleChangeColorOnSelect,
+                  transform: [{ translateY: handleShowMotherRoleOnSelect }],
+                  opacity: handleOpacityMotherOnSelect,
                 },
               ]}
             >
-              <Text style={[style.currentRoleTitle]}>
-                {selectedRegisterRole === "mother" ? "Ibu" : "Perawat"}
-              </Text>
-            </Animated.View>
-          </View>
-          {/* Tab Title */}
-          <Animated.Text style={style.title}>
-            {selectedRegisterRole === "mother" ? "Daftar" : "Masuk"}
-          </Animated.Text>
-          {/* Mother Form Field */}
-          <Animated.View
-            pointerEvents={selectedRegisterRole === "mother" ? "auto" : "none"}
-            style={[
-              style.motherField,
-              {
-                transform: [{ translateY: handleShowMotherRoleOnSelect }],
-                opacity: handleOpacityMotherOnSelect,
-              },
-            ]}
-          >
-            <View style={style.formFieldWrapper}>
-              <View style={style.formField}>
-                <FloatingInput
-                  label="Nama"
-                  onChange={(value) => {
-                    setMotherFormField((prev) => ({
-                      ...prev,
-                      name: value,
-                    }));
-                  }}
-                />
+              <View style={style.formFieldWrapper}>
+                <View style={style.formField}>
+                  <FloatingInput
+                    label="Nama"
+                    onChange={(value) => {
+                      setMotherFormField((prev) => ({
+                        ...prev,
+                        name: value,
+                      }));
+                    }}
+                  />
+                </View>
+                <View style={style.formField}>
+                  <PhoneNumberInput
+                    onChange={(value) => {
+                      setMotherFormField((prev) => ({
+                        ...prev,
+                        phoneNumber: parseInt(value),
+                      }));
+                    }}
+                  />
+                </View>
+                {/* TODO: @muhammadhafizm change this logic to search picker */}
+                <View style={style.formField}>
+                  <PickerFiled
+                    label="Rumah Sakit"
+                    items={hospitalList}
+                    onChange={(value) => {
+                      setMotherFormField((prev) => ({
+                        ...prev,
+                        hospitalCode: value,
+                      }));
+                    }}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={style.nextButtonContainer}
+                  onPress={handleLoginUserAnonymously}
+                >
+                  <Text style={style.nextButton}>Selanjutnya</Text>
+                </TouchableOpacity>
               </View>
-              <View style={style.formField}>
-                <PhoneNumberInput
-                  onChange={(value) => {
-                    setMotherFormField((prev) => ({
-                      ...prev,
-                      phoneNumber: parseInt(value),
-                    }));
-                  }}
-                />
-              </View>
-              <View style={style.formField}>
-                <FloatingInput
-                  label="Rumah Sakit"
-                  onChange={(value) => {
-                    setMotherFormField((prev) => ({
-                      ...prev,
-                      hospitalCode: value,
-                    }));
-                  }}
-                />
+              <View style={style.deviderGoogle}>
+                <View style={style.deviderLine}></View>
+                <View>
+                  <Text style={style.deviderGoogleInfo}>atau masuk dengan</Text>
+                </View>
+                <View style={style.deviderLine}></View>
               </View>
               <TouchableOpacity
-                style={style.nextButtonContainer}
-                onPress={handleLoginUserAnonymously}
+                style={style.loginMotherWithGoogle}
+                disabled={!request}
+                onPress={() => promptAsync({})}
               >
-                <Text style={style.nextButton}>Selanjutnya</Text>
+                <View style={style.googleMotherSectionIcon}>
+                  <GoogleIcon width={20} height={20} viewBox="2.5 2.5 20 20" />
+                </View>
+                <Text style={style.googleMotherSectionButtonTitle}>Google</Text>
               </TouchableOpacity>
-            </View>
-            <View style={style.deviderGoogle}>
-              <View style={style.deviderLine}></View>
-              <View>
-                <Text style={style.deviderGoogleInfo}>atau masuk dengan</Text>
-              </View>
-              <View style={style.deviderLine}></View>
-            </View>
-            <TouchableOpacity
-              style={style.loginMotherWithGoogle}
-              disabled={!request}
-              onPress={() => promptAsync({})}
+            </Animated.View>
+            {/* Nurse Form Field */}
+            <Animated.View
+              pointerEvents={selectedRegisterRole === "nurse" ? "auto" : "none"}
+              style={[
+                style.nurseField,
+                {
+                  transform: [{ translateY: handleShowNurseOnSelect }],
+                  opacity: handleOpacityNurseOnSelect,
+                },
+              ]}
             >
-              <View style={style.googleMotherSectionIcon}>
-                <GoogleIcon width={20} height={20} viewBox="2.5 2.5 20 20" />
-              </View>
-              <Text style={style.googleMotherSectionButtonTitle}>Google</Text>
-            </TouchableOpacity>
-          </Animated.View>
-          {/* Nurse Form Field */}
-          <Animated.View
-            pointerEvents={selectedRegisterRole === "nurse" ? "auto" : "none"}
-            style={[
-              style.nurseField,
-              {
-                transform: [{ translateY: handleShowNurseOnSelect }],
-                opacity: handleOpacityNurseOnSelect,
-              },
-            ]}
-          >
-            <Text style={style.nurseLoginInfo}>
-              Akun perawat akan terhubung dengan akun Google. Masuk dengan akun
-              Google Anda untuk mendaftar.{" "}
-            </Text>
-            <TouchableOpacity
-              style={style.loginNurseWithGoogle}
-              disabled={!request}
-              onPress={() => promptAsync({})}
-            >
-              <View style={style.googleNurseSectionIcon}>
-                <GoogleIcon width={20} height={20} viewBox="2.5 2.5 20 20" />
-              </View>
-              <Text style={style.googleNurseSectionButtonTitle}>Google</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        </View>
-      </Animated.View>
-    </ScrollView>
+              <Text style={style.nurseLoginInfo}>
+                Akun perawat akan terhubung dengan akun Google. Masuk dengan
+                akun Google Anda untuk mendaftar.{" "}
+              </Text>
+              <TouchableOpacity
+                style={style.loginNurseWithGoogle}
+                disabled={!request}
+                onPress={() => promptAsync({})}
+              >
+                <View style={style.googleNurseSectionIcon}>
+                  <GoogleIcon width={20} height={20} viewBox="2.5 2.5 20 20" />
+                </View>
+                <Text style={style.googleNurseSectionButtonTitle}>Google</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+        </Animated.View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 
 const style = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     minHeight: Dimensions.get("screen").height,
@@ -368,8 +393,8 @@ const style = StyleSheet.create({
   },
   bottomContent: {
     flex: 1,
-    borderTopRightRadius: 40,
-    borderTopLeftRadius: 40,
+    borderTopRightRadius: 35,
+    borderTopLeftRadius: 35,
     backgroundColor: color.lightneutral,
     alignItems: "center",
     position: "relative",

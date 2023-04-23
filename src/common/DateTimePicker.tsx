@@ -4,6 +4,7 @@ import {
   View,
   StyleSheet,
   Animated,
+  Platform,
   Pressable,
   Text,
 } from "react-native";
@@ -118,9 +119,9 @@ const createStyle = (borderColor: string) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
     labelWrapper: {
-      position: "absolute",
-      left: 14,
+      left: Platform.OS === "android" ? 12 : 14,
       zIndex: 1,
+      position: "absolute",
     },
     labelStyle: {
       fontSize: 14,
@@ -128,14 +129,14 @@ const createStyle = (borderColor: string) => {
     },
     statePrefix: {
       position: "absolute",
-      top: 26,
+      top: Platform.OS === "android" ? 23 : 26,
       left: 15,
     },
     textInput: {
       outlineStyle: "none",
       paddingHorizontal: textInputPaddingHorizontal,
-      paddingTop: 24,
-      paddingBottom: 8,
+      paddingTop: Platform.OS === "android" ? 22 : 24,
+      paddingBottom: Platform.OS === "android" ? 5 : 8,
       position: "relative",
       backgroundColor: color.surface,
       borderRadius: 10,

@@ -5,6 +5,7 @@ import {
   TextInput,
   StyleSheet,
   Animated,
+  Platform,
   KeyboardTypeOptions,
 } from "react-native";
 import { color } from "src/lib/ui/color";
@@ -78,12 +79,12 @@ const FloatingInput: React.FC<Props> = ({
     <View>
       <Animated.View
         pointerEvents={"none"}
-        style={{
-          transform: [{ translateY: handleAnimatedOnFocusTop }],
-          left: 14,
-          zIndex: 1,
-          position: "absolute",
-        }}
+        style={[
+          style.labelContainer,
+          {
+            transform: [{ translateY: handleAnimatedOnFocusTop }],
+          },
+        ]}
       >
         <Animated.Text
           style={[
@@ -122,21 +123,26 @@ const FloatingInput: React.FC<Props> = ({
 const createStyle = (type: "no-border" | undefined, isStatePrefix: boolean) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
+    labelContainer: {
+      left: Platform.OS === "android" ? 12 : 14,
+      zIndex: 1,
+      position: "absolute",
+    },
     labelStyle: {
       fontSize: 14,
       color: color.neutral,
     },
     statePrefix: {
       position: "absolute",
-      top: 24,
+      top: Platform.OS === "android" ? 21.5 : 24,
       left: 13,
       zIndex: 1,
     },
     textInput: {
       outlineStyle: "none",
       paddingHorizontal: textInputPaddingHorizontal,
-      paddingTop: 24,
-      paddingBottom: 8,
+      paddingTop: Platform.OS === "android" ? 17 : 24,
+      paddingBottom: Platform.OS === "android" ? 4 : 8,
       position: "relative",
       backgroundColor: color.surface,
       borderRadius: 10,

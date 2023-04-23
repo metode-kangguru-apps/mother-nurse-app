@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase/firestore";
+import { Hostpital } from "../global/type";
 
 export type User = {
   displayName?: string;
@@ -41,5 +42,5 @@ export type Authentication = {
 
 export interface MotherAnonymSignInPayload extends User {
   phoneNumber: number;
-  hospitalCode: string;
+  hospitalObj: Hostpital;
 }
