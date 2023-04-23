@@ -1,12 +1,13 @@
-import LoginScreen from "@app/authentication/Login";
-import RegisterBabyInformationScreen from "@app/authentication/RegisterBabyInformation";
-import RegisterUserInformationScreen from "@app/authentication/RegisterUserInformation";
+import LoginPage from "@app/authentication/LoginPage";
+import RegisterBabyInformationPage from "@app/authentication/RegisterBabyInformation";
+import RegisterUserInformationPage from "@app/authentication/RegisterUserInformation";
+import RegisterNurseInformationPage from "@app/authentication/RegisterNurseInformation";
 
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { color } from "src/lib/ui/color";
 import { RootState } from "@redux/types";
 import { useSelector } from "react-redux";
-import { color } from "src/lib/ui/color";
 import { AuthStackParamList } from "./types";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -25,25 +26,36 @@ const AuthRouter: React.FC<{}> = () => {
     >
       <AuthStack.Screen
         name="login"
-        component={LoginScreen}
+        component={LoginPage}
         options={{
           title: "Login",
         }}
       />
-      {user && user.userType === "guest" && (
+      {user && user.userType === "guest" && user.userRole === "mother" && (
         <>
           <AuthStack.Screen
             name="register-user-information"
-            component={RegisterUserInformationScreen}
+            component={RegisterUserInformationPage}
             options={{
               title: "Register User Information",
             }}
           />
           <AuthStack.Screen
             name="register-baby-information"
-            component={RegisterBabyInformationScreen}
+            component={RegisterBabyInformationPage}
             options={{
               title: "Register Baby Information",
+            }}
+          />
+        </>
+      )}
+      {user && user.userType === "guest" && user.userRole === "nurse" && (
+        <>
+          <AuthStack.Screen
+            name="register-nurse-information"
+            component={RegisterNurseInformationPage}
+            options={{
+              title: "Register User Information",
             }}
           />
         </>

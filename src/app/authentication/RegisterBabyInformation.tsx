@@ -210,7 +210,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    gender: value as Baby['gender'],
+                    gender: value as Baby["gender"],
                   });
                 }}
               />
@@ -228,7 +228,12 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
               <TouchableOpacity
                 style={style.prevButton}
                 onPress={() => {
-                  if (navigation.canGoBack()) {
+                  const routes = navigation.getState().routes;
+                  if (
+                    navigation.canGoBack() &&
+                    routes[routes.length - 2].name ==
+                      "register-user-information"
+                  ) {
                     navigation.goBack();
                   } else {
                     Promise.resolve(

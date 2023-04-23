@@ -15,6 +15,7 @@ export type AuthStackParamList = {
   login: undefined;
   "register-user-information": undefined;
   "register-baby-information": undefined;
+  "register-nurse-information": undefined;
 };
 
 export type RootStackParamList = {

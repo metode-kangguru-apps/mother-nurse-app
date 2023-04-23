@@ -140,9 +140,10 @@ export const logOutUser =
     }
   };
 
-export const loginWithGoogle =
+export const loginMotherWithGoogle =
   (
-    credential: OAuthCredential
+    credential: OAuthCredential,
+    userRole: "mother" | "nurse"
   ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
@@ -198,6 +199,7 @@ export const loginWithGoogle =
               const userGoogleInitialData: User = {
                 isAnonymous: false,
                 userType: "guest",
+                userRole,
               };
               await setDoc(
                 doc(firestore, "users", result.user.uid),

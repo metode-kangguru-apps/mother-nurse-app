@@ -38,3 +38,8 @@ export type Authentication = {
   loading?: boolean;
   error?: boolean;
 };
+
+export interface MotherAnonymSignInPayload extends User {
+  phoneNumber: number;
+  hospitalCode: string;
+}

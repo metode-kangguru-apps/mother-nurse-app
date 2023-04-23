@@ -39,32 +39,18 @@ const FloatingInput: React.FC<Props> = ({
 
   const borderColor = useMemo(() => handleBorderColorChange(focus), [focus]);
 
-  const handleTopBasedOnPlatform = (): number[] => {
-    switch (Platform.OS) {
-      case "ios":
-        return [17, 7];
-      default:
-        return [16, 6];
-    }
-  };
-
   const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: handleTopBasedOnPlatform(),
-  });
-
-  const handleAnimatedOnFocusLeft = isFocusedAnimated.interpolate({
-    inputRange: [0, 1],
-    outputRange: Platform.OS === "android" ? [14, 8] : [14, 9],
+    outputRange: [16, 6]
   });
 
   const handleAnimatedOnFocusSize = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: Platform.OS === "web" ? [1, 0.9] : [1, 0.9],
+    outputRange: [14, 12]
   });
 
   function handleBorderColorChange(focus: boolean) {
-    return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)";
+    return !focus ? "transparent" : "rgba(0, 0, 255, 0.5)";
   }
 
   function handlerSelectedValue(item: Options) {
@@ -77,30 +63,26 @@ const FloatingInput: React.FC<Props> = ({
     Animated.timing(isFocusedAnimated, {
       toValue: focus || inputValue !== "" ? 1 : 0,
       duration: 200,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   }, [focus]);
 
   return (
     <View style={style.container}>
-      <Animated.Text
+      <Animated.View
         style={[
-          style.labelStyle,
+          style.labelWrapper,
           {
-            transform: [
-              { translateX: handleAnimatedOnFocusLeft },
-              { translateY: handleAnimatedOnFocusTop },
-              { scaleX: handleAnimatedOnFocusSize },
-              { scaleY: handleAnimatedOnFocusSize },
-            ],
-            fontSize: 14,
-            // web 14
-            color: "#aaa",
+            transform: [{ translateY: handleAnimatedOnFocusTop }],
           },
         ]}
       >
-        {label}
-      </Animated.Text>
+        <Animated.Text
+          style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+        >
+          {label}
+        </Animated.Text>
+      </Animated.View>
       <Pressable
         style={[style.textInput, { borderColor: borderColor }]}
         onPress={() => {
@@ -149,8 +131,14 @@ const style = StyleSheet.create({
   container: {
     position: "relative",
   },
-  labelStyle: {
+  labelWrapper: {
     position: "absolute",
+    left: 14,
+    zIndex: 1,
+  },
+  labelStyle: {
+    fontSize: 14,
+    color: color.neutral,
   },
   statePrefix: {
     position: "absolute",
@@ -158,14 +146,15 @@ const style = StyleSheet.create({
     left: 15,
   },
   textInput: {
-    paddingHorizontal: Spacing.tiny + Spacing.extratiny,
-    paddingTop: Platform.OS === "android" ? 17 : 24,
-    paddingBottom: Platform.OS === "android" ? 4 : 8,
-    position: "relative",
-    borderWidth: 2,
     outlineStyle: "none",
+    paddingTop: 24,
+    paddingBottom: 8,
+    position: "relative",
+    backgroundColor: color.surface,
     borderRadius: 10,
+    borderWidth: 2,
     height: 52,
+    paddingHorizontal: Spacing.tiny + Spacing.extratiny,
   },
   pickerContainer: {
     position: "absolute",
@@ -177,7 +166,7 @@ const style = StyleSheet.create({
     zIndex: 10,
   },
   bottomSheetTitle: {
-    fontFamily: Font.Bold,
+    fontFamily: Font.Medium,
     fontSize: TextSize.title,
     marginBottom: Spacing.tiny,
   },

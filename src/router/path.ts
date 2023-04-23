@@ -14,6 +14,9 @@ const linking = {
           "register-baby-information": {
             path: "/register-baby-information",
           },
+          "register-nurse-information": {
+            path: "/register-nurse-information",
+          },
         },
       },
       mother: {

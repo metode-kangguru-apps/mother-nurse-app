@@ -1,13 +1,9 @@
 import Moment from "moment";
-import { useAppDispatch } from "@redux/hooks";
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   View,
-  TextInput,
   StyleSheet,
   Animated,
-  Platform,
-  KeyboardTypeOptions,
   Pressable,
   Text,
 } from "react-native";
@@ -15,6 +11,7 @@ import { Spacing } from "src/lib/ui/spacing";
 
 import CustomModal from "./Modal";
 import DatePicker from "react-native-modern-datepicker";
+import { color } from "src/lib/ui/color";
 
 type Props = {
   label: string;
@@ -37,39 +34,25 @@ const NativeDateTimePicker: React.FC<Props> = ({
   const borderColor = useMemo(() => handleBorderColorChange(focus), [focus]);
   const style = useMemo(() => createStyle(borderColor), [borderColor]);
 
-  const handleTopBasedOnPlatform = (): number[] => {
-    switch (Platform.OS) {
-      case "ios":
-        return [17, 7];
-      default:
-        return [16, 6];
-    }
-  };
-
   const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: handleTopBasedOnPlatform(),
-  });
-
-  const handleAnimatedOnFocusLeft = isFocusedAnimated.interpolate({
-    inputRange: [0, 1],
-    outputRange: Platform.OS === "android" ? [14, 8] : [14, 9],
+    outputRange: [16, 6],
   });
 
   const handleAnimatedOnFocusSize = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: Platform.OS === "web" ? [1, 0.9] : [1, 0.9],
+    outputRange: [14, 12],
   });
 
   function handleBorderColorChange(focus: boolean) {
-    return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)";
+    return !focus ? "transparent" : "rgba(0, 0, 255, 0.5)";
   }
 
   useEffect(() => {
     Animated.timing(isFocusedAnimated, {
       toValue: focus || inputValue !== "" ? 1 : 0,
       duration: 200,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   }, [focus]);
 
@@ -82,24 +65,20 @@ const NativeDateTimePicker: React.FC<Props> = ({
 
   return (
     <View style={{ width: "100%" }}>
-      <Animated.Text
+      <Animated.View
         style={[
-          style.labelStyle,
+          style.labelWrapper,
           {
-            transform: [
-              { translateX: handleAnimatedOnFocusLeft },
-              { translateY: handleAnimatedOnFocusTop },
-              { scaleX: handleAnimatedOnFocusSize },
-              { scaleY: handleAnimatedOnFocusSize },
-            ],
-            fontSize: 14,
-            // web 14
-            color: "#aaa",
+            transform: [{ translateY: handleAnimatedOnFocusTop }],
           },
         ]}
       >
-        {label}
-      </Animated.Text>
+        <Animated.Text
+          style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+        >
+          {label}
+        </Animated.Text>
+      </Animated.View>
       <Pressable
         style={style.textInput}
         onPress={() => {
@@ -138,23 +117,30 @@ const NativeDateTimePicker: React.FC<Props> = ({
 const createStyle = (borderColor: string) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
-    labelStyle: {
+    labelWrapper: {
       position: "absolute",
+      left: 14,
+      zIndex: 1,
+    },
+    labelStyle: {
+      fontSize: 14,
+      color: color.neutral,
     },
     statePrefix: {
       position: "absolute",
-      top: Platform.OS === "android" ? 23 : 26,
+      top: 26,
       left: 15,
     },
     textInput: {
-      borderColor: borderColor,
       outlineStyle: "none",
       paddingHorizontal: textInputPaddingHorizontal,
-      paddingTop: Platform.OS === "android" ? 22 : 24,
-      paddingBottom: Platform.OS === "android" ? 4 : 8,
+      paddingTop: 24,
+      paddingBottom: 8,
       position: "relative",
-      borderWidth: 2,
+      backgroundColor: color.surface,
       borderRadius: 10,
+      borderColor: borderColor,
+      borderWidth: 2,
       height: 52,
     },
     modalContentContainer: {
