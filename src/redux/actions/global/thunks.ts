@@ -51,7 +51,6 @@ export const getHospitalList =
           throw new Error(error);
         });
     } catch (error) {
-      console.log(error);
       dispatch(fetchGlobalError());
     }
   };

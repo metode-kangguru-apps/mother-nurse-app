@@ -56,8 +56,8 @@ export const loginUser =
                       })
                     );
                   })
-                  .catch(() => {
-                    throw new Error();
+                  .catch((error) => {
+                    throw new Error(error);
                   });
 
                 // add all baby doc to firebase
@@ -82,8 +82,8 @@ export const loginUser =
                           ),
                         });
                       })
-                      .catch(() => {
-                        throw new Error();
+                      .catch((error) => {
+                        throw new Error(error);
                       });
                   }
 
@@ -105,19 +105,19 @@ export const loginUser =
                       );
                       dispatch(fetchAuthenticationSuccess());
                     })
-                    .catch(() => {
-                      throw new Error();
+                    .catch((error) => {
+                      throw new Error(error);
                     });
                 }
               }
             }
           );
         })
-        .catch(() => {
-          throw new Error();
+        .catch((error) => {
+          throw new Error(error);
         });
-    } catch {
-      dispatch(fetchAuthenticationError());
+    } catch (error) {
+      dispatch(fetchAuthenticationError(""));
     }
   };
 
@@ -136,14 +136,14 @@ export const logOutUser =
           throw new Error();
         });
     } catch {
-      dispatch(fetchAuthenticationError());
+      dispatch(fetchAuthenticationError(""));
     }
   };
 
 export const loginMotherWithGoogle =
   (
     credential: OAuthCredential,
-    userRole: "mother" | "nurse"
+    selectedUserRole: "mother" | "nurse"
   ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
@@ -168,6 +168,13 @@ export const loginMotherWithGoogle =
 
               // fetch user based on userRole
               const userRole = userRef.get("userRole");
+
+              if (userRole !== selectedUserRole) {
+                throw Error(
+                  "Email yang anda gunakan sepertinya sudah terdaftar pada peran lain"
+                );
+              }
+
               if (userRole === "mother") {
                 await getDoc(doc(firestore, "mothers", result.user.uid)).then(
                   async (querySnapshot) => {
@@ -199,7 +206,7 @@ export const loginMotherWithGoogle =
               const userGoogleInitialData: User = {
                 isAnonymous: false,
                 userType: "guest",
-                userRole,
+                userRole: selectedUserRole,
               };
               await setDoc(
                 doc(firestore, "users", result.user.uid),
@@ -220,12 +227,13 @@ export const loginMotherWithGoogle =
             }
           });
         })
-        .catch(() => {
+        .catch((error) => {
           // if error save error message
-          throw new Error();
+          throw new Error(error);
         });
-    } catch {
-      dispatch(fetchAuthenticationError());
+    } catch (error) {
+      const errorMessage = new Error(error as string).message
+      dispatch(fetchAuthenticationError(errorMessage));
     }
   };
 
@@ -294,7 +302,7 @@ export const signUpMotherWithGoogle =
         throw new Error();
       }
     } catch {
-      dispatch(fetchAuthenticationError());
+      dispatch(fetchAuthenticationError(""));
     }
   };
 
@@ -325,6 +333,6 @@ export const getMotherData =
         }
       );
     } catch {
-      dispatch(fetchAuthenticationError());
+      dispatch(fetchAuthenticationError(""));
     }
   };

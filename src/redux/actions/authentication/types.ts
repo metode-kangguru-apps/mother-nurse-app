@@ -12,8 +12,8 @@ export type User = {
 export type Mother = {
   id?: string;
   phoneNumber?: string;
-  hospitalCode?: string;
-  babyCollection: Baby[] | undefined;
+  hospitalCode?: Hostpital;
+  babyCollection?: Baby[] | undefined;
 };
 
 export type Baby = {
@@ -38,9 +38,5 @@ export type Authentication = {
   nurse: Nurse | undefined;
   loading?: boolean;
   error?: boolean;
+  errorMessage?: string
 };
-
-export interface MotherAnonymSignInPayload extends User {
-  phoneNumber: number;
-  hospitalObj: Hostpital;
-}

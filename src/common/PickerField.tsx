@@ -76,6 +76,7 @@ const PickerFiled: React.FC<Props> = ({
   return (
     <View style={style.container}>
       <Animated.View
+        pointerEvents={"none"}
         style={[
           style.labelWrapper,
           {
@@ -106,7 +107,7 @@ const PickerFiled: React.FC<Props> = ({
           setFocus(false);
           onFocus && onFocus(false);
         }}
-        height={searchable ? "93%" : undefined}
+        height={searchable ? "90%" : undefined}
       >
         {!searchable && <Text style={style.bottomSheetTitle}>{label}</Text>}
         {searchable && (

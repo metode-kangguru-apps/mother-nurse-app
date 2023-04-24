@@ -8,6 +8,7 @@ import { RootState } from "@redux/types";
 import { useSelector } from "react-redux";
 import { AuthStackParamList } from "./types";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Platform } from "react-native";
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -29,6 +30,11 @@ const AuthRouter: React.FC<{}> = () => {
         component={LoginPage}
         options={{
           title: "Login",
+          animationTypeForReplace: 'pop',
+          animation: Platform.select({
+            ios: "slide_from_left",
+            android: "simple_push",
+          })
         }}
       />
       {user && user.userType === "guest" && user.userRole === "mother" && (

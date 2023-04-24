@@ -28,10 +28,10 @@ import {
 import * as Google from "expo-auth-session/providers/google";
 import { color } from "src/lib/ui/color";
 import {
-  MotherAnonymSignInPayload,
+  Mother,
   User,
 } from "@redux/actions/authentication/types";
-import { setUserData } from "@redux/actions/authentication";
+import { setMotherData, setUserData } from "@redux/actions/authentication";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { CompositeScreenProps } from "@react-navigation/native";
@@ -52,7 +52,7 @@ interface Props
 
 interface FormField {
   name?: string;
-  phoneNumber?: number;
+  phoneNumber?: string;
   hospitalCode?: Hostpital;
 }
 
@@ -71,7 +71,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
 
   const [assets, _] = useAssets([require("../../../assets/baby-pattern.png")]);
 
-  const { user, loading } = useSelector(
+  const { user, loading, error, errorMessage } = useSelector(
     (state: RootState) => state.authentication
   );
 
@@ -91,7 +91,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   }, [response, dispatch]);
 
   useEffect(() => {
-    if (loading) {
+    if (loading || error) {
       // still loading
       return;
     }
@@ -143,15 +143,18 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
       ) {
         throw new Error();
       }
-      const userAnonymousInitialData: MotherAnonymSignInPayload = {
+      const userAnonymousInitialData: User = {
         displayName: motherFormField.name,
-        phoneNumber: motherFormField.phoneNumber,
-        hospitalObj: motherFormField.hospitalCode,
         isAnonymous: true,
         userType: "guest",
         userRole: "mother",
       };
+      const motherAnonymousInitialData: Mother = {
+        phoneNumber: motherFormField.phoneNumber,
+        hospitalCode: motherFormField.hospitalCode as Hostpital,
+      }
       dispatch(setUserData(userAnonymousInitialData));
+      dispatch(setMotherData(motherAnonymousInitialData))
     } catch {
       return;
     }
@@ -265,7 +268,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
                         ...prev,
-                        phoneNumber: parseInt(value),
+                        phoneNumber: value,
                       }));
                     }}
                   />

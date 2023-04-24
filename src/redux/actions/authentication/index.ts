@@ -46,9 +46,10 @@ const authentication = createSlice({
       state.user = undefined;
       state.nurse = undefined;
     },
-    fetchAuthenticationError: (state) => {
+    fetchAuthenticationError: (state, action: PayloadAction<string>) => {
       state.error = true;
       state.loading = false;
+      state.errorMessage = action.payload
     },
   },
 });

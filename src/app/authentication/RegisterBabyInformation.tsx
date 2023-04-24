@@ -79,7 +79,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
       },
       mother: {
         phoneNumber: mother?.phoneNumber,
-        babyRoomCode: mother?.babyRoomCode,
+        hospitalCode: mother?.hospitalCode,
         babyCollection: [
           {
             displayName: formField.displayName,
