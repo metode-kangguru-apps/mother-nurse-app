@@ -1,5 +1,13 @@
-import { Baby } from '../authentication/types'
+import { Baby } from "../authentication/types";
 
 export type GlobalState = {
-    selectedTerapiBaby: Baby | undefined
+  loading: boolean;
+  selectedTerapiBaby: Baby | undefined;
+  hospitalList: Hostpital[]
+  error: boolean;
+};
+
+export type Hostpital = {
+    key: string,
+    value: string
 }

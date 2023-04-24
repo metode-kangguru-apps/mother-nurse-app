@@ -5,6 +5,7 @@ import {
   setMotherData,
   fetchAuthenticationError,
   fetchAuthenticationSuccess,
+  setNurseData,
 } from ".";
 import { auth, firestore } from "../../../../firebaseConfig";
 
@@ -56,8 +57,8 @@ export const loginUser =
                       })
                     );
                   })
-                  .catch(() => {
-                    throw new Error();
+                  .catch((error) => {
+                    throw new Error(error);
                   });
 
                 // add all baby doc to firebase
@@ -82,8 +83,8 @@ export const loginUser =
                           ),
                         });
                       })
-                      .catch(() => {
-                        throw new Error();
+                      .catch((error) => {
+                        throw new Error(error);
                       });
                   }
 
@@ -105,19 +106,19 @@ export const loginUser =
                       );
                       dispatch(fetchAuthenticationSuccess());
                     })
-                    .catch(() => {
-                      throw new Error();
+                    .catch((error) => {
+                      throw new Error(error);
                     });
                 }
               }
             }
           );
         })
-        .catch(() => {
-          throw new Error();
+        .catch((error) => {
+          throw new Error(error);
         });
-    } catch {
-      dispatch(fetchAuthenticationError());
+    } catch (error) {
+      dispatch(fetchAuthenticationError(""));
     }
   };
 
@@ -136,13 +137,14 @@ export const logOutUser =
           throw new Error();
         });
     } catch {
-      dispatch(fetchAuthenticationError());
+      dispatch(fetchAuthenticationError(""));
     }
   };
 
-export const loginWithGoogle =
+export const loginMotherWithGoogle =
   (
-    credential: OAuthCredential
+    credential: OAuthCredential,
+    selectedUserRole: "mother" | "nurse"
   ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
@@ -167,6 +169,13 @@ export const loginWithGoogle =
 
               // fetch user based on userRole
               const userRole = userRef.get("userRole");
+
+              if (userRole !== selectedUserRole) {
+                throw Error(
+                  "Email yang anda gunakan sepertinya sudah terdaftar pada peran lain"
+                );
+              }
+
               if (userRole === "mother") {
                 await getDoc(doc(firestore, "mothers", result.user.uid)).then(
                   async (querySnapshot) => {
@@ -198,6 +207,7 @@ export const loginWithGoogle =
               const userGoogleInitialData: User = {
                 isAnonymous: false,
                 userType: "guest",
+                userRole: selectedUserRole,
               };
               await setDoc(
                 doc(firestore, "users", result.user.uid),
@@ -218,12 +228,13 @@ export const loginWithGoogle =
             }
           });
         })
-        .catch(() => {
+        .catch((error) => {
           // if error save error message
-          throw new Error();
+          throw new Error(error);
         });
-    } catch {
-      dispatch(fetchAuthenticationError());
+    } catch (error) {
+      const errorMessage = new Error(error as string).message;
+      dispatch(fetchAuthenticationError(errorMessage));
     }
   };
 
@@ -292,7 +303,42 @@ export const signUpMotherWithGoogle =
         throw new Error();
       }
     } catch {
-      dispatch(fetchAuthenticationError());
+      dispatch(fetchAuthenticationError(""));
+    }
+  };
+
+export const signUpNurseWithGoogle =
+  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  async (dispatch) => {
+    dispatch(fetchAuthenticationRequest());
+    try {
+      if (payload.user && payload.nurse && payload.user.uid) {
+        await setDoc(doc(firestore, "users", payload.user.uid), {
+          displayName: payload.user.displayName,
+          userRole: payload.user.userRole,
+          userType: payload.user.userType,
+          isAnonymous: payload.user.isAnonymous,
+        })
+          .then(() => {
+            dispatch(setUserData({ ...payload.user }));
+          })
+          .catch(() => {
+            throw new Error();
+          });
+        await setDoc(doc(firestore, "nurses", payload.user.uid), {
+          phoneNumber: payload.nurse.phoneNumber,
+          hospitalCode: payload.nurse.hospitalCode,
+        })
+          .then(() => {
+            dispatch(setNurseData({ ...payload.nurse }));
+          })
+          .catch(() => {
+            throw new Error();
+          });
+        dispatch(fetchAuthenticationSuccess());
+      }
+    } catch {
+      dispatch(fetchAuthenticationError(""));
     }
   };
 
@@ -323,6 +369,6 @@ export const getMotherData =
         }
       );
     } catch {
-      dispatch(fetchAuthenticationError());
+      dispatch(fetchAuthenticationError(""));
     }
   };

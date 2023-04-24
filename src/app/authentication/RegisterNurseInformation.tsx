@@ -19,7 +19,7 @@ import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 
-import { AuthStackParamList } from "src/router/types";
+import { AuthStackParamList, RootStackParamList } from "src/router/types";
 import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
 
@@ -32,28 +32,42 @@ import { useAppDispatch } from "@redux/hooks";
 import {
   clearAuthenticationDataSuccess,
   setMotherData,
+  setNurseData,
   setUserData,
 } from "@redux/actions/authentication";
-import { Mother } from "@redux/actions/authentication/types";
+import {
+  Authentication,
+  Mother,
+  Nurse,
+} from "@redux/actions/authentication/types";
 import PickerFiled from "src/common/PickerField";
 import { getHospitalList } from "@redux/actions/global/thunks";
+import { Hostpital } from "@redux/actions/global/type";
+import { signUpNurseWithGoogle } from "@redux/actions/authentication/thunks";
+import { CompositeScreenProps } from "@react-navigation/native";
 
 interface Props
-  extends NativeStackScreenProps<
-    AuthStackParamList,
-    "register-user-information"
+  extends CompositeScreenProps<
+    NativeStackScreenProps<AuthStackParamList, "register-nurse-information">,
+    NativeStackScreenProps<RootStackParamList>
   > {}
+
+interface NursePayload {
+  displayName: string;
+  phoneNumber: string;
+  hospitalCode: Hostpital;
+}
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
-const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
-  const [assets, _] = useAssets([require("../../../assets/info-mother.png")]);
+const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
+  const [assets, _] = useAssets([require("../../../assets/nurse-icon.png")]);
   const dispatch = useAppDispatch();
 
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
 
-  const { user, mother } = useSelector(
+  const { user, nurse } = useSelector(
     (state: RootState) => state.authentication
   );
   const { hospitalList, loading: loadingHospital } = useSelector(
@@ -61,32 +75,34 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   );
 
   const [searchHospital, setSearchHospital] = useState<string>("");
-  const [formField, setFormField] = useState({
-    displayName: user?.displayName,
-    phoneNumber: mother?.phoneNumber,
-    hospitalCode: mother?.hospitalCode,
-  });
+  const [formField, setFormField] = useState({} as NursePayload);
 
-  function handlerGoToRegisterBaby() {
-    dispatch(
-      setUserData({
+  function registerNurse() {
+    const newUserObj = {
+      user: {
         displayName: formField.displayName,
-      })
-    );
-    dispatch(
-      setMotherData({
+        userType: "member",
+        userRole: "nurse",
+        isAnonymous: false,
+        uid: user?.uid,
+      },
+      mother: undefined,
+      nurse: {
         phoneNumber: formField.phoneNumber,
         hospitalCode: formField.hospitalCode,
-      } as Mother)
-    );
+      },
+    };
+    dispatch(signUpNurseWithGoogle(newUserObj as Authentication));
   }
 
   // redierect to new page if field mother already filled
   useEffect(() => {
-    if (mother) {
-      navigation.navigate("register-baby-information");
+    if (nurse) {
+      navigation.navigate("nurse", {
+        screen: "profile",
+      });
     }
-  }, [mother]);
+  }, [nurse]);
 
   useEffect(() => {
     dispatch(getHospitalList(searchHospital));
@@ -120,12 +136,11 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
           <View style={style.contentContainer}>
             <View style={style.formRegistration}>
               <View style={style.titleContainer}>
-                <Text style={style.title}>Daftar</Text>
+                <Text style={style.title}>Daftar Sebagai Perawat</Text>
               </View>
               <View style={style.inputContainer}>
                 <FloatingInput
-                  label="Nama Ibu"
-                  defaultValue={user?.displayName}
+                  label="Nama Lengkap"
                   onChange={(value) =>
                     setFormField({
                       ...formField,
@@ -136,7 +151,6 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
               </View>
               <View style={style.inputContainer}>
                 <PhoneNumberInput
-                  defaultValue={mother?.phoneNumber}
                   onChange={(value) => {
                     setFormField({
                       ...formField,
@@ -179,9 +193,9 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={style.nextButton}
-                onPress={handlerGoToRegisterBaby}
+                onPress={registerNurse}
               >
-                <Text style={style.buttonTitle}>Selanjutnya</Text>
+                <Text style={style.buttonTitle}>Daftar</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -275,4 +289,4 @@ const createStyle = (insets: EdgeInsets) =>
     },
   });
 
-export default RegisterUserInformation;
+export default RegisterNurseInformation;

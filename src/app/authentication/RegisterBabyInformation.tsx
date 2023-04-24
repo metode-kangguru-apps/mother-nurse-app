@@ -79,7 +79,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
       },
       mother: {
         phoneNumber: mother?.phoneNumber,
-        babyRoomCode: mother?.babyRoomCode,
+        hospitalCode: mother?.hospitalCode,
         babyCollection: [
           {
             displayName: formField.displayName,
@@ -207,28 +207,24 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                   { key: "Laki-laki", value: "laki-laki" },
                   { key: "Perempuan", value: "perempuan" },
                 ]}
-                onChange={(value) => {
+                onChange={(item) => {
                   setFormField({
                     ...formField,
-                    gender: value as Baby['gender'],
+                    gender: item.value as Baby["gender"],
                   });
                 }}
-              />
-            </View>
-            <View style={style.addBaby}>
-              <Text>Ada lebih dari 1 bayi?</Text>
-              <Text style={style.addBabyButton}> Tambah Bayi </Text>
-              <SimpleLineIcons
-                name="question"
-                size={Spacing.small}
-                color={color.primary}
               />
             </View>
             <View style={style.buttonContainer}>
               <TouchableOpacity
                 style={style.prevButton}
                 onPress={() => {
-                  if (navigation.canGoBack()) {
+                  const routes = navigation.getState().routes;
+                  if (
+                    navigation.canGoBack() &&
+                    routes[routes.length - 2].name ==
+                      "register-user-information"
+                  ) {
                     navigation.goBack();
                   } else {
                     Promise.resolve(
@@ -309,20 +305,13 @@ const createStyle = (insets: EdgeInsets) =>
     inputContainer: {
       marginBottom: Spacing.tiny,
     },
-    addBaby: {
-      display: "flex",
-      flexDirection: "row",
-    },
-    addBabyButton: {
-      color: color.primary,
-    },
     buttonContainer: {
       display: "flex",
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
       alignSelf: "flex-end",
-      marginTop: Spacing.large,
+      marginTop: Spacing.base,
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

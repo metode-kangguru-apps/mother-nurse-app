@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { useAssets } from "expo-asset";
 import { Spacing } from "src/lib/ui/spacing";
+import { color } from "src/lib/ui/color";
 
 interface Props {
   defaultValue?: string;
@@ -16,7 +17,7 @@ const PhoneNumberInput: React.FC<Props> = ({ defaultValue, onChange }) => {
     <View
       style={[
         style.inputContainer,
-        { borderColor: !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)" },
+        { borderColor: !focus ? "transparent" : "rgba(0, 0, 255, 0.5)" },
       ]}
     >
       <View style={style.countryProviderCode}>
@@ -54,6 +55,7 @@ const style = StyleSheet.create({
     flexDirection: "row",
     borderWidth: 2,
     borderRadius: 10,
+    backgroundColor: color.surface
   },
   countryProviderCode: {
     display: "flex",

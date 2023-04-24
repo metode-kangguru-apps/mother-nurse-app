@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase/firestore";
+import { Hostpital } from "../global/type";
 
 export type User = {
   displayName?: string;
@@ -11,9 +12,11 @@ export type User = {
 export type Mother = {
   id?: string;
   phoneNumber?: string;
-  babyRoomCode?: string;
-  babyCollection: Baby[] | undefined;
+  hospitalCode?: Hostpital;
+  babyCollection?: Baby[] | undefined;
 };
+
+export interface Nurse extends Mother {}
 
 export type Baby = {
   id?: string;
@@ -29,12 +32,11 @@ export type Baby = {
   gender?: "laki-laki" | "perempuan";
 };
 
-export type Nurse = {};
-
 export type Authentication = {
   user: User | undefined;
   mother: Mother | undefined;
   nurse: Nurse | undefined;
   loading?: boolean;
   error?: boolean;
+  errorMessage?: string
 };

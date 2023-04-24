@@ -14,6 +14,9 @@ const linking = {
           "register-baby-information": {
             path: "/register-baby-information",
           },
+          "register-nurse-information": {
+            path: "/register-nurse-information",
+          },
         },
       },
       mother: {
@@ -44,6 +47,14 @@ const linking = {
             path: "/module",
           },
         },
+      },
+      nurse: {
+        path: "/nurse",
+        screens: {
+          profile: {
+            path: "/profile"
+          }
+        }
       },
       NotFound: "*",
     },

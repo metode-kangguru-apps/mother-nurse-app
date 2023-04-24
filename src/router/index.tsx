@@ -1,6 +1,7 @@
 import linking from "./path";
 import AuthRouter from "./auth";
 import MotherRouter from "./mother";
+import NurseRouter from "./nurse";
 
 import { NavigationContainer } from "@react-navigation/native";
 
@@ -31,6 +32,9 @@ const RootRouter: React.FC<Props> = () => {
         )}
         {user && user.userType === "member" && user.userRole == "mother" && (
           <Stack.Screen name="mother" component={MotherRouter} />
+        )}
+        {user && user.userType === "member" && user.userRole == "nurse" && (
+          <Stack.Screen name="nurse" component={NurseRouter} />
         )}
         <Stack.Screen name="NotFound" component={NotFoundPage} />
       </Stack.Navigator>

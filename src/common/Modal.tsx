@@ -45,7 +45,7 @@ const CustomModal: React.FC<Props> = ({
           <View style={style.overlay} />
         )}
 
-        <View style={style.modalContent}>{children}</View>
+        <View pointerEvents="box-none" style={style.modalContent}>{children}</View>
       </View>
     </Modal>
   );
@@ -74,8 +74,9 @@ const createStyle = (
       zIndex: 1,
     },
     modalContent: {
-      justifyContent: "center",
-      alignItems: "center",
+      flex: 1,
+      justifyContent: contentVPoss,
+      alignItems: contentHPoss,
       position: "relative",
       width: "100%",
       zIndex: 2,
