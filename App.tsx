@@ -16,23 +16,24 @@ import { localImages } from "src/lib/ui/images";
 
 const App: React.FC<{}> = () => {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
-  const loadResourcesAndDataAsync = useCallback(async () => {
-    try {
-      SplashScreen.preventAutoHideAsync();
-      const fontAssets = Font.loadAsync(customFont);
-      const imageAssets = cacheImages(localImages);
-
-      await Promise.all([...imageAssets, fontAssets]).then(() => {
-        setAppIsReady(true);
-        SplashScreen.hideAsync();
-      });
-    } catch (e) {
-      // You might want to provide this error information to an error reporting service
-      console.warn(e);
-    }
-  }, []);
 
   useEffect(() => {
+    async function loadResourcesAndDataAsync() {
+      try {
+        SplashScreen.preventAutoHideAsync();
+        const fontAssets = Font.loadAsync(customFont);
+        const imageAssets = cacheImages(localImages);
+
+        await Promise.all([...imageAssets, fontAssets]).then(() => {
+          setAppIsReady(true);
+          SplashScreen.hideAsync();
+        });
+      } catch (e) {
+        // You might want to provide this error information to an error reporting service
+        console.warn(e);
+      }
+    }
+
     loadResourcesAndDataAsync();
   }, []);
 
