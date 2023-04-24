@@ -16,6 +16,8 @@ export type Mother = {
   babyCollection?: Baby[] | undefined;
 };
 
+export interface Nurse extends Mother {}
+
 export type Baby = {
   id?: string;
   displayName?: string;
@@ -29,8 +31,6 @@ export type Baby = {
   createdAt?: Date | Timestamp;
   gender?: "laki-laki" | "perempuan";
 };
-
-export type Nurse = {};
 
 export type Authentication = {
   user: User | undefined;

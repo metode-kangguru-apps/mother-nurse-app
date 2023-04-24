@@ -345,6 +345,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
             </Animated.View>
           </View>
         </Animated.View>
+        {/* TODO: @muhammadhafizm implement error with same login */}
       </ScrollView>
     </KeyboardAvoidingView>
   );

@@ -11,6 +11,10 @@ export type MotherStackParamList = {
   module: undefined;
 };
 
+export type NurseStackParamList = {
+  profile: undefined;
+};
+
 export type AuthStackParamList = {
   login: undefined;
   "register-user-information": undefined;
@@ -21,5 +25,6 @@ export type AuthStackParamList = {
 export type RootStackParamList = {
   auth: NavigatorScreenParams<AuthStackParamList>;
   mother: NavigatorScreenParams<MotherStackParamList>;
+  nurse: NavigatorScreenParams<NurseStackParamList>
   NotFound: undefined;
 };

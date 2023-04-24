@@ -48,6 +48,14 @@ const linking = {
           },
         },
       },
+      nurse: {
+        path: "/nurse",
+        screens: {
+          profile: {
+            path: "/profile"
+          }
+        }
+      },
       NotFound: "*",
     },
   },
