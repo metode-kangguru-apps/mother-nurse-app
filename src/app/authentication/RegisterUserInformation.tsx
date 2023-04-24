@@ -35,6 +35,8 @@ import {
   setUserData,
 } from "@redux/actions/authentication";
 import { Mother } from "@redux/actions/authentication/types";
+import PickerFiled from "src/common/PickerField";
+import { getHospitalList } from "@redux/actions/global/thunks";
 
 interface Props
   extends NativeStackScreenProps<
@@ -54,11 +56,15 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   const { user, mother } = useSelector(
     (state: RootState) => state.authentication
   );
+  const { hospitalList, loading: loadingHospital } = useSelector(
+    (state: RootState) => state.global
+  );
 
+  const [searchHospital, setSearchHospital] = useState<string>("");
   const [formField, setFormField] = useState({
     displayName: user?.displayName,
     phoneNumber: mother?.phoneNumber,
-    babyRoomCode: mother?.babyRoomCode,
+    hospitalCode: mother?.hospitalCode,
   });
 
   function handlerGoToRegisterBaby() {
@@ -70,7 +76,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
     dispatch(
       setMotherData({
         phoneNumber: formField.phoneNumber,
-        babyRoomCode: formField.babyRoomCode,
+        hospitalCode: formField.hospitalCode,
       } as Mother)
     );
   }
@@ -78,9 +84,13 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   // redierect to new page if field mother already filled
   useEffect(() => {
     if (mother) {
-      navigation.navigate('register-baby-information')
+      navigation.navigate("register-baby-information");
     }
-  }, [mother])
+  }, [mother]);
+
+  useEffect(() => {
+    dispatch(getHospitalList(searchHospital));
+  }, [searchHospital]);
 
   function handlerGoBackToLogin() {
     Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
@@ -136,14 +146,21 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
                 />
               </View>
               <View style={style.inputContainer}>
-                <FloatingInput
-                  label="Kode Ruang Bayi"
-                  defaultValue={mother?.babyRoomCode}
+                <PickerFiled
+                  label="Rumah Sakit"
+                  searchable={true}
+                  items={hospitalList}
+                  onFocus={() => {
+                    setSearchHospital("");
+                  }}
                   onChange={(value) => {
-                    setFormField({
-                      ...formField,
-                      babyRoomCode: value,
-                    });
+                    setFormField((prev) => ({
+                      ...prev,
+                      hospitalCode: value,
+                    }));
+                  }}
+                  onSearch={(value) => {
+                    setSearchHospital(value);
                   }}
                 />
               </View>

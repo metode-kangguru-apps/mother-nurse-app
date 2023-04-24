@@ -12,7 +12,7 @@ export type User = {
 export type Mother = {
   id?: string;
   phoneNumber?: string;
-  babyRoomCode?: string;
+  hospitalCode?: string;
   babyCollection: Baby[] | undefined;
 };
 

@@ -270,12 +270,14 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                     }}
                   />
                 </View>
-                {/* TODO: @muhammadhafizm change this logic to search picker */}
                 <View style={style.formField}>
                   <PickerFiled
                     label="Rumah Sakit"
                     searchable={true}
                     items={hospitalList}
+                    onFocus={() => {
+                      setSearchHospital("")
+                    }}
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
                         ...prev,
