@@ -2,6 +2,7 @@ import { RootState } from "@redux/types";
 import { useSelector } from "react-redux";
 import {
   FlatList,
+  ImageBackground,
   ListRenderItem,
   StyleSheet,
   Text,
@@ -25,18 +26,19 @@ import BabyIcon from "src/lib/ui/icons/baby";
 import { weekDifference } from "src/lib/utils/calculate";
 import { Baby } from "@redux/actions/authentication/types";
 import { getProgressBaby } from "@redux/actions/baby/thunks";
+import { useAssets } from "expo-asset";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
 
 const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { mother } = useSelector(
-    (state: RootState) => state.authentication
-  );
+  const { mother } = useSelector((state: RootState) => state.authentication);
   const [selectedBaby, setSelectedBaby] = useState<number | undefined>(
     undefined
   );
+
+  const [assets, _] = useAssets([require("../../../assets/baby-pattern.png")]);
 
   const renderItemList: ListRenderItem<Baby> = ({ item, index }) => {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
@@ -92,15 +94,21 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
 
       let selectedBabyDocument = {
         ...mother.babyCollection[selectedBaby],
-        currentWeek
+        currentWeek,
       };
-      dispatch(getProgressBaby(selectedBabyDocument.id))
+      dispatch(getProgressBaby(selectedBabyDocument.id));
       dispatch(setSelectedTerapiBaby(selectedBabyDocument));
       navigation.navigate("home");
     }
   };
   return (
     <View style={style.container}>
+      {assets && (
+        <ImageBackground
+          source={{ uri: assets[0].localUri as string }}
+          style={style.backgroundPattern}
+        />
+      )}
       <Text style={style.title}>Pilih Bayi</Text>
       <View style={style.babiesWrapper}>
         {/* TODO: @muhammadhafizm implement loading */}
@@ -132,6 +140,13 @@ const style = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
+  },
+  backgroundPattern: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    opacity: 0.25,
   },
   title: {
     fontFamily: Font.Bold,
