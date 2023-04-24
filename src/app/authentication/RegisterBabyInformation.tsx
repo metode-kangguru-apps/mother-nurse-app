@@ -215,15 +215,6 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
                 }}
               />
             </View>
-            <View style={style.addBaby}>
-              <Text>Ada lebih dari 1 bayi?</Text>
-              <Text style={style.addBabyButton}> Tambah Bayi </Text>
-              <SimpleLineIcons
-                name="question"
-                size={Spacing.small}
-                color={color.primary}
-              />
-            </View>
             <View style={style.buttonContainer}>
               <TouchableOpacity
                 style={style.prevButton}
@@ -314,20 +305,13 @@ const createStyle = (insets: EdgeInsets) =>
     inputContainer: {
       marginBottom: Spacing.tiny,
     },
-    addBaby: {
-      display: "flex",
-      flexDirection: "row",
-    },
-    addBabyButton: {
-      color: color.primary,
-    },
     buttonContainer: {
       display: "flex",
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
       alignSelf: "flex-end",
-      marginTop: Spacing.large,
+      marginTop: Spacing.base,
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,
