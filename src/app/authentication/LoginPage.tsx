@@ -357,7 +357,7 @@ const style = StyleSheet.create({
   },
   container: {
     flex: 1,
-    minHeight: Dimensions.get("screen").height,
+    height: Dimensions.get("screen").height,
     backgroundColor: color.primary,
   },
   backgroundPattern: {
