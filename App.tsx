@@ -24,13 +24,13 @@ const App: React.FC<{}> = () => {
         const fontAssets = Font.loadAsync(customFont);
         const imageAssets = cacheImages(localImages);
 
-        await Promise.all([...imageAssets, fontAssets]);
+        await Promise.all([...imageAssets, fontAssets]).then(() => {
+          setAppIsReady(true);
+          SplashScreen.hideAsync();
+        });
       } catch (e) {
         // You might want to provide this error information to an error reporting service
         console.warn(e);
-      } finally {
-        setAppIsReady(true);
-        SplashScreen.hideAsync();
       }
     }
 
