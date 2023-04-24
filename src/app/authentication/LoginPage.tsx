@@ -192,7 +192,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView style={style.flex}>
-      <ScrollView style={style.flex}>
+      <ScrollView style={style.flex} scrollEnabled={selectedRegisterRole === "mother"}>
         <Animated.View
           style={[
             style.container,
