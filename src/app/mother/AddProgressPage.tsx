@@ -12,7 +12,6 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MotherStackParamList } from "src/router/types";
 import Header from "src/common/Header";
 import { Font } from "src/lib/ui/font";
-import { useAssets } from "expo-asset";
 import FloatingInput from "src/common/FloatingInput";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
@@ -36,8 +35,6 @@ type FormField = {
 
 const AddProgressPage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-
-  const [assets, _] = useAssets([require("../../../assets/baby-report.png")]);
   const [formField, setFormField] = useState<FormField>({
     weight: 0,
     length: 0,
@@ -71,14 +68,10 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
         />
         <View style={style.content}>
           <View style={style.babyReportImage}>
-            {assets && (
-              <Image
-                style={{ flex: 1 }}
-                source={{
-                  uri: assets[0].localUri as string,
-                }}
-              />
-            )}
+            <Image
+              style={{ flex: 1 }}
+              source={require("../../../assets/baby-report.png")}
+            />
           </View>
           <View style={style.formContainer}>
             <Text style={style.formTitle}>Pertumbuhan Bayi</Text>

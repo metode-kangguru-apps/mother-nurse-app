@@ -20,10 +20,8 @@ import { AuthStackParamList, RootStackParamList } from "src/router/types";
 import FloatingInput from "src/common/FloatingInput";
 
 import { AntDesign } from "@expo/vector-icons";
-import { SimpleLineIcons } from "@expo/vector-icons";
 import DateTimePicker from "src/common/DateTimePicker";
 import PickerField from "src/common/PickerField";
-import { useAssets } from "expo-asset";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
 import { Baby, Authentication } from "@redux/actions/authentication/types";
@@ -53,7 +51,6 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
   const { user, mother } = useSelector(
     (state: RootState) => state.authentication
   );
-  const [assets, _] = useAssets([require("../../../assets/info-baby.png")]);
 
   useEffect(() => {
     if (mother && mother.babyCollection) {
@@ -119,14 +116,10 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
             <View style={style.welcomeImage}>
-              {assets && (
-                <Image
-                  style={{ flex: 1 }}
-                  source={{
-                    uri: assets[0].localUri as string,
-                  }}
-                />
-              )}
+              <Image
+                style={{ flex: 1 }}
+                source={require("../../../assets/info-baby.png")}
+              />
             </View>
           </View>
           <View style={style.contentContainer}>

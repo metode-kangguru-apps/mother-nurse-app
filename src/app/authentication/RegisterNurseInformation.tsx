@@ -24,22 +24,12 @@ import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
 
 import { AntDesign } from "@expo/vector-icons";
-import { useAssets } from "expo-asset";
 
 import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
-import {
-  clearAuthenticationDataSuccess,
-  setMotherData,
-  setNurseData,
-  setUserData,
-} from "@redux/actions/authentication";
-import {
-  Authentication,
-  Mother,
-  Nurse,
-} from "@redux/actions/authentication/types";
+import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
+import { Authentication } from "@redux/actions/authentication/types";
 import PickerFiled from "src/common/PickerField";
 import { getHospitalList } from "@redux/actions/global/thunks";
 import { Hostpital } from "@redux/actions/global/type";
@@ -61,7 +51,6 @@ interface NursePayload {
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
 const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
-  const [assets, _] = useAssets([require("../../../assets/nurse-icon.png")]);
   const dispatch = useAppDispatch();
 
   const insets = useSafeAreaInsets();
@@ -123,14 +112,10 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
             <View style={style.welcomeImage}>
-              {assets && (
-                <Image
-                  style={{ flex: 1 }}
-                  source={{
-                    uri: assets[0].localUri as string,
-                  }}
-                />
-              )}
+              <Image
+                style={{ flex: 1 }}
+                source={require("../../../assets/nurse-icon.png")}
+              />
             </View>
           </View>
           <View style={style.contentContainer}>

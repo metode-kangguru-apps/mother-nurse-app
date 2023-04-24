@@ -7,7 +7,6 @@ import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 
-import { useAssets } from "expo-asset";
 import { useAppDispatch } from "@redux/hooks";
 import * as WebBrowser from "expo-web-browser";
 
@@ -27,10 +26,7 @@ import {
 
 import * as Google from "expo-auth-session/providers/google";
 import { color } from "src/lib/ui/color";
-import {
-  Mother,
-  User,
-} from "@redux/actions/authentication/types";
+import { Mother, User } from "@redux/actions/authentication/types";
 import { setMotherData, setUserData } from "@redux/actions/authentication";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
@@ -63,13 +59,11 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     "mother" | "nurse"
   >("mother");
   const [motherFormField, setMotherFormField] = useState<FormField>({});
-  const [searchHospital, setSearchHospital] = useState<string>("")
+  const [searchHospital, setSearchHospital] = useState<string>("");
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: FIREBASE_WEB_CLIENT_ID,
   });
-
-  const [assets, _] = useAssets([require("../../../assets/baby-pattern.png")]);
 
   const { user, loading, error, errorMessage } = useSelector(
     (state: RootState) => state.authentication
@@ -152,9 +146,9 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
       const motherAnonymousInitialData: Mother = {
         phoneNumber: motherFormField.phoneNumber,
         hospitalCode: motherFormField.hospitalCode as Hostpital,
-      }
+      };
       dispatch(setUserData(userAnonymousInitialData));
-      dispatch(setMotherData(motherAnonymousInitialData))
+      dispatch(setMotherData(motherAnonymousInitialData));
     } catch {
       return;
     }
@@ -192,19 +186,20 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
 
   return (
     <KeyboardAvoidingView style={style.flex}>
-      <ScrollView style={style.flex} scrollEnabled={selectedRegisterRole === "mother"}>
+      <ScrollView
+        style={style.flex}
+        scrollEnabled={selectedRegisterRole === "mother"}
+      >
         <Animated.View
           style={[
             style.container,
             { backgroundColor: handleChangeColorOnSelect },
           ]}
         >
-          {assets && (
-            <ImageBackground
-              source={{ uri: assets[0].localUri as string }}
-              style={style.backgroundPattern}
-            />
-          )}
+          <ImageBackground
+            source={require("../../../assets/baby-pattern.png")}
+            style={style.backgroundPattern}
+          />
           <View style={style.topContent}></View>
           <View style={style.bottomContent}>
             {/* Tab Role Switcher */}
@@ -279,7 +274,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                     searchable={true}
                     items={hospitalList}
                     onFocus={() => {
-                      setSearchHospital("")
+                      setSearchHospital("");
                     }}
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
@@ -288,7 +283,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                       }));
                     }}
                     onSearch={(value) => {
-                      setSearchHospital(value)
+                      setSearchHospital(value);
                     }}
                   />
                 </View>

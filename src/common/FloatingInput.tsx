@@ -7,6 +7,7 @@ import {
   Animated,
   Platform,
   KeyboardTypeOptions,
+  Keyboard,
 } from "react-native";
 import { color } from "src/lib/ui/color";
 
@@ -76,9 +77,11 @@ const FloatingInput: React.FC<Props> = ({
       duration: 250,
       useNativeDriver: false,
     }).start();
-    if (focus && textField.current) {
-      textField.current.focus()
-    }
+    setTimeout(() => {
+      if (focus && textField.current) {
+        textField.current.focus();
+      }
+    }, Platform.select({ios: 700, android: 400}));
   }, [focus]);
 
   return (
@@ -121,7 +124,7 @@ const FloatingInput: React.FC<Props> = ({
           onChange && onChange(state.nativeEvent.text);
         }}
         defaultValue={defaultValue}
-        returnKeyType="next"
+        returnKeyType="default"
       />
     </View>
   );

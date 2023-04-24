@@ -24,7 +24,6 @@ import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
 
 import { AntDesign } from "@expo/vector-icons";
-import { useAssets } from "expo-asset";
 
 import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
@@ -47,7 +46,6 @@ interface Props
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
 const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
-  const [assets, _] = useAssets([require("../../../assets/info-mother.png")]);
   const dispatch = useAppDispatch();
 
   const insets = useSafeAreaInsets();
@@ -107,14 +105,10 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
             <View style={style.welcomeImage}>
-              {assets && (
-                <Image
-                  style={{ flex: 1 }}
-                  source={{
-                    uri: assets[0].localUri as string,
-                  }}
-                />
-              )}
+              <Image
+                style={{ flex: 1 }}
+                source={require("../../../assets/info-mother.png")}
+              />
             </View>
           </View>
           <View style={style.contentContainer}>
