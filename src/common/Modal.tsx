@@ -74,8 +74,9 @@ const createStyle = (
       zIndex: 1,
     },
     modalContent: {
-      justifyContent: "center",
-      alignItems: "center",
+      flex: 1,
+      justifyContent: contentVPoss,
+      alignItems: contentHPoss,
       position: "relative",
       width: "100%",
       zIndex: 2,

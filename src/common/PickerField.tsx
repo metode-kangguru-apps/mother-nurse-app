@@ -15,6 +15,7 @@ import { TextSize } from "src/lib/ui/textSize";
 import BottomSheet from "./BottomSheet";
 import Separator from "./Separator";
 import { Options } from "./types";
+import FloatingInput from "./FloatingInput";
 
 type Props = {
   label: string;
@@ -22,6 +23,9 @@ type Props = {
   defaultValue?: string;
   onFocus?: (state: boolean) => void;
   onChange?: (value: Options) => void;
+  onSearch?: (value: string) => void;
+  searchable?: boolean;
+  loading?: boolean;
 };
 
 const PickerFiled: React.FC<Props> = ({
@@ -30,6 +34,9 @@ const PickerFiled: React.FC<Props> = ({
   defaultValue,
   onFocus,
   onChange,
+  onSearch,
+  searchable = false,
+  loading = false,
 }) => {
   const [focus, setFocus] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
@@ -40,12 +47,12 @@ const PickerFiled: React.FC<Props> = ({
 
   const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: [16, 6]
+    outputRange: [16, 6],
   });
 
   const handleAnimatedOnFocusSize = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: [14, 12]
+    outputRange: [14, 12],
   });
 
   function handleBorderColorChange(focus: boolean) {
@@ -99,8 +106,20 @@ const PickerFiled: React.FC<Props> = ({
           setFocus(false);
           onFocus && onFocus(false);
         }}
+        height={searchable ? "93%" : undefined}
       >
-        <Text style={style.bottomSheetTitle}>{label}</Text>
+        {!searchable && <Text style={style.bottomSheetTitle}>{label}</Text>}
+        {searchable && (
+          <View style={style.searchPicker}>
+            <FloatingInput
+              bindFocus={modalVisible}
+              onChange={(value) => {
+                onSearch && onSearch(value);
+              }}
+              label={`Cari ${label}`}
+            />
+          </View>
+        )}
         <FlatList
           data={items}
           showsVerticalScrollIndicator={false}
@@ -150,6 +169,10 @@ const style = StyleSheet.create({
     borderWidth: 2,
     height: 52,
     paddingHorizontal: Spacing.tiny + Spacing.extratiny,
+  },
+  searchPicker: {
+    marginTop: Spacing.tiny,
+    marginBottom: Spacing.small,
   },
   pickerContainer: {
     position: "absolute",

@@ -63,6 +63,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     "mother" | "nurse"
   >("mother");
   const [motherFormField, setMotherFormField] = useState<FormField>({});
+  const [searchHospital, setSearchHospital] = useState<string>("")
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: FIREBASE_WEB_CLIENT_ID,
@@ -129,8 +130,8 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   }, [selectedRegisterRole]);
 
   useEffect(() => {
-    dispatch(getHospitalList(""));
-  }, []);
+    dispatch(getHospitalList(searchHospital));
+  }, [searchHospital]);
 
   // handle if user sign-up anonymous
   const handleLoginUserAnonymously = async () => {
@@ -273,12 +274,16 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                 <View style={style.formField}>
                   <PickerFiled
                     label="Rumah Sakit"
+                    searchable={true}
                     items={hospitalList}
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
                         ...prev,
                         hospitalCode: value,
                       }));
+                    }}
+                    onSearch={(value) => {
+                      setSearchHospital(value)
                     }}
                   />
                 </View>

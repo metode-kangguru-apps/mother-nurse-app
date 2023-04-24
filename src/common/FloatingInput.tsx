@@ -20,6 +20,7 @@ type Props = {
   statePrefix?: string;
   onFocus?: (state: boolean) => void;
   onChange?: (value: string) => void;
+  bindFocus?: boolean;
 };
 
 const FloatingInput: React.FC<Props> = ({
@@ -28,14 +29,16 @@ const FloatingInput: React.FC<Props> = ({
   type,
   keyboardType = "default",
   statePrefix,
+  bindFocus = false,
   onFocus,
   onChange,
 }) => {
-  const [focus, setFocus] = useState<boolean>(false);
+  const [focus, setFocus] = useState<boolean>(bindFocus);
   const [inputValue, setInputValue] = useState<string>(
     defaultValue || statePrefix || ""
   );
   const isFocusedAnimated = useRef(new Animated.Value(0)).current;
+  const textField = useRef<TextInput>(null);
 
   const style = useMemo(
     () => createStyle(type, !!statePrefix),
@@ -73,6 +76,9 @@ const FloatingInput: React.FC<Props> = ({
       duration: 250,
       useNativeDriver: false,
     }).start();
+    if (focus && textField.current) {
+      textField.current.focus()
+    }
   }, [focus]);
 
   return (
@@ -99,6 +105,7 @@ const FloatingInput: React.FC<Props> = ({
       </Animated.View>
       {statePrefix && <Text style={style.statePrefix}>{statePrefix}</Text>}
       <TextInput
+        ref={textField}
         style={[style.textInput, { borderColor: borderColor }]}
         keyboardType={keyboardType}
         onFocus={() => {

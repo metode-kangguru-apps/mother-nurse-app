@@ -13,18 +13,30 @@ import {
   getDoc,
   query,
   orderBy,
+  where,
 } from "firebase/firestore";
-import { fetchGlobalError, fetchGlobalRequest, fetchGlobalSuccess, setHospitalList } from ".";
+import {
+  fetchGlobalError,
+  fetchGlobalRequest,
+  fetchGlobalSuccess,
+  setHospitalList,
+} from ".";
 import { Hostpital } from "./type";
+import { titleCase } from "src/lib/utils/string";
 
 export const getHospitalList =
   (payload: string): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchGlobalRequest());
     try {
-      const hospitalsRef = collection(firestore, "hospitals", payload);
+      const hospitalsRef = collection(firestore, "hospitals");
+      const getHospitalQuery = query(
+        hospitalsRef,
+        where("name", ">=", titleCase(payload)),
+        where("name", "<=", titleCase(payload) + "\uf8ff")
+      );
       const hospitalList: Hostpital[] = [];
-      await getDocs(hospitalsRef)
+      await getDocs(getHospitalQuery)
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             hospitalList.push({
@@ -32,13 +44,14 @@ export const getHospitalList =
               value: doc.id,
             });
           });
-          dispatch(setHospitalList(hospitalList))
+          dispatch(setHospitalList(hospitalList));
           dispatch(fetchGlobalSuccess());
         })
-        .catch(() => {
-          throw new Error();
+        .catch((error) => {
+          throw new Error(error);
         });
-    } catch {
+    } catch (error) {
+      console.log(error);
       dispatch(fetchGlobalError());
     }
   };
