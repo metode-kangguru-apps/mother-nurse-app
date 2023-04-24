@@ -11,7 +11,7 @@ interface Props {
 }
 
 const BottomSheet: React.FC<Props> = ({ visible, onCloseModal, children, height }) => {
-  const screenHeight = Dimensions.get("screen").height;
+  const screenHeight = Dimensions.get("window").height;
   const panY = useRef(new Animated.Value(screenHeight)).current;
 
   const style = useMemo(() => createStyle(height), [height])

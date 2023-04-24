@@ -150,7 +150,7 @@ const createStyle = (insets: EdgeInsets) =>
     container: {
       flex: 1,
       overflow: "hidden",
-      height: Dimensions.get("screen").height,
+      height: Dimensions.get("window").height,
       position: "relative",
     },
     header: {

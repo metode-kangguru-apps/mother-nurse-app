@@ -345,7 +345,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
             </Animated.View>
           </View>
         </Animated.View>
-        {/* TODO: @muhammadhafizm implement error with same login */}
+        {/* TODO: @muhammadhafizm implement error */}
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -357,7 +357,7 @@ const style = StyleSheet.create({
   },
   container: {
     flex: 1,
-    height: Dimensions.get("screen").height,
+    minHeight: Dimensions.get("window").height,
     backgroundColor: color.primary,
   },
   backgroundPattern: {
@@ -369,7 +369,7 @@ const style = StyleSheet.create({
   },
   topContent: {
     width: "100%",
-    height: (Dimensions.get("screen").height * 30) / 100,
+    height: (Dimensions.get("window").height * 30) / 100,
   },
   roleSwitcher: {
     borderWidth: 4,
