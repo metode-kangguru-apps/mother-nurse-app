@@ -46,6 +46,9 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
 const style = StyleSheet.create({
   flex: {
     flex: 1,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
   },
 });
 
