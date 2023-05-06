@@ -81,8 +81,8 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
             )}
           </View>
           <View style={style.formContainer}>
-            <Text style={style.formTitle}>Pertumbuhan Bayi</Text>
-            <View style={style.formWrapper}>
+            <View>
+              <Text style={style.formTitle}>Pertumbuhan Bayi</Text>
               <View style={style.formField}>
                 <FloatingInput
                   label="Berat Badan (gram)"
@@ -120,14 +120,12 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
                 ></FloatingInput>
               </View>
             </View>
+            <TouchableOpacity onPress={handleProgressSubmit}>
+              <View style={style.buttonContainer}>
+                <Text style={style.buttonTitle}>Catat Pertumbuhan</Text>
+              </View>
+            </TouchableOpacity>
           </View>
-        </View>
-        <View style={style.buttonWrapper}>
-          <TouchableOpacity onPress={handleProgressSubmit}>
-            <View style={style.buttonContainer}>
-              <Text style={style.buttonTitle}>Catat Pertumbuhan</Text>
-            </View>
-          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -142,16 +140,31 @@ const createStyle = (insets: EdgeInsets) =>
     },
     content: {
       display: "flex",
+      flexGrow: 1,
       alignItems: "center",
     },
     babyReportImage: {
       width: 193,
       height: 193,
+      marginBottom: Spacing.base,
     },
     formContainer: {
+      flex: 1,
       width: "100%",
       paddingHorizontal: Spacing.base,
       paddingTop: Spacing.base,
+      justifyContent: "space-between",
+      backgroundColor: color.lightneutral,
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
+      ...Platform.select({
+        web: {
+          paddingBottom: Spacing.base,
+        },
+        native: {
+          paddingBottom: Spacing.small + insets.bottom,
+        },
+      }),
     },
     formTitle: {
       marginBottom: Spacing.base,
@@ -161,19 +174,6 @@ const createStyle = (insets: EdgeInsets) =>
     formWrapper: {},
     formField: {
       marginBottom: Spacing.tiny,
-    },
-    buttonWrapper: {
-      position: "absolute",
-      width: "100%",
-      paddingHorizontal: Spacing.xlarge / 2,
-      ...Platform.select({
-        web: {
-          bottom: Spacing.base,
-        },
-        native: {
-          bottom: Spacing.small + insets.bottom,
-        },
-      }),
     },
     buttonContainer: {
       width: "100%",
