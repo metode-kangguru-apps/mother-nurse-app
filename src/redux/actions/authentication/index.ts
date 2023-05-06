@@ -31,6 +31,8 @@ const authentication = createSlice({
       );
       if (idx !== undefined && state.mother?.babyCollection?.[idx]) {
         state.mother.babyCollection[idx] = action.payload;
+      } else {
+        state.mother?.babyCollection?.push(action.payload)
       }
     },
     setNurseData: (state, action: PayloadAction<any>) => {

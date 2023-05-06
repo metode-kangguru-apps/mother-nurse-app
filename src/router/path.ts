@@ -28,6 +28,9 @@ const linking = {
           "select-baby": {
             path: "/select-baby",
           },
+          "add-new-baby": {
+            path: "/add-new-baby"
+          },
           profile: {
             path: "/profile",
           },

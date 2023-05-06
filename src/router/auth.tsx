@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import { AuthStackParamList } from "./types";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Platform } from "react-native";
+import RegisterBabyInformation2 from "@app/authentication/RegisterBabyInformation2";
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -48,7 +49,7 @@ const AuthRouter: React.FC<{}> = () => {
           />
           <AuthStack.Screen
             name="register-baby-information"
-            component={RegisterBabyInformationPage}
+            component={RegisterBabyInformation2}
             options={{
               title: "Register Baby Information",
             }}

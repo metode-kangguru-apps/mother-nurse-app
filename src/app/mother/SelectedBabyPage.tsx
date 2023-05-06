@@ -1,9 +1,11 @@
 import { RootState } from "@redux/types";
 import { useSelector } from "react-redux";
 import {
+  Dimensions,
   FlatList,
   ImageBackground,
   ListRenderItem,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
@@ -27,6 +29,8 @@ import { weekDifference } from "src/lib/utils/calculate";
 import { Baby } from "@redux/actions/authentication/types";
 import { getProgressBaby } from "@redux/actions/baby/thunks";
 import { useAssets } from "expo-asset";
+import { AntDesign } from "@expo/vector-icons";
+import { BABY_CARD_HIGHT } from "./ProfilePage/BabyCard";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
@@ -40,7 +44,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
 
   const [assets, _] = useAssets([require("../../../assets/baby-pattern.png")]);
 
-  const renderItemList: ListRenderItem<Baby> = ({ item, index }) => {
+  const renderItemList = (item: Baby, index: number) => {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
     );
@@ -49,6 +53,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
         onPress={() => {
           setSelectedBaby(index);
         }}
+        key={index}
       >
         <View
           style={[
@@ -102,44 +107,70 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
     }
   };
   return (
-    <View style={style.container}>
+    <View style={style.scrollWrapper}>
       {assets && (
         <ImageBackground
           source={{ uri: assets[0].localUri as string }}
           style={style.backgroundPattern}
         />
       )}
-      <Text style={style.title}>Pilih Bayi</Text>
-      <View style={style.babiesWrapper}>
-        {/* TODO: @muhammadhafizm implement loading */}
-        <FlatList
-          data={mother?.babyCollection as Baby[]}
-          renderItem={renderItemList}
-        />
-      </View>
-      <TouchableWithoutFeedback onPress={handleSelectedBaby}>
-        <View
-          style={[
-            style.buttonStart,
-            selectedBaby !== undefined ? style.buttonSelectedBaby : undefined,
-          ]}
-        >
-          <Text style={style.textStart}>Mulai Terapi</Text>
-          <EvilIcons name="arrow-right" size={24} color={color.lightneutral} />
+      <ScrollView
+        contentContainerStyle={style.wrapper}
+      >
+        <View style={style.container}>
+          <Text style={style.title}>Pilih Bayi</Text>
+          <View style={style.babiesWrapper}>
+            {/* TODO: @muhammadhafizm implement loading */}
+            {mother.babyCollection &&
+              mother.babyCollection.map((element: Baby, index: number) => {
+                return renderItemList(element, index);
+              })}
+            <TouchableWithoutFeedback
+              onPress={() => navigation.navigate("add-new-baby")}
+            >
+              <View style={style.addBabyButton} pointerEvents="box-only">
+                <Text style={style.addBabyTitle}>Tambah Bayi</Text>
+                <AntDesign name="pluscircleo" size={20} color={color.primary} />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+          <TouchableWithoutFeedback onPress={handleSelectedBaby}>
+            <View
+              style={[
+                style.buttonStart,
+                selectedBaby !== undefined
+                  ? style.buttonSelectedBaby
+                  : undefined,
+              ]}
+            >
+              <Text style={style.textStart}>Mulai Terapi</Text>
+              <EvilIcons
+                name="arrow-right"
+                size={24}
+                color={color.lightneutral}
+              />
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </TouchableWithoutFeedback>
+      </ScrollView>
     </View>
   );
 };
 
 const style = StyleSheet.create({
-  container: {
+  scrollWrapper: {
     flex: 1,
+    height: "100%",
+    width: "100%",
+  },
+  wrapper: {
+    flexGrow: 1,
+    justifyContent: "space-around",
+  },
+  container: {
     padding: Spacing.small,
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
   },
   backgroundPattern: {
     flex: 1,
@@ -227,6 +258,26 @@ const style = StyleSheet.create({
   },
   buttonSelectedBaby: {
     backgroundColor: color.secondary,
+  },
+  addBabyButton: {
+    width: "100%",
+    borderRadius: 30,
+    paddingVertical: Spacing.xsmall,
+    backgroundColor: color.lightneutral,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    marginBottom: Spacing.small,
+  },
+  addBabyTitle: {
+    fontFamily: Font.Medium,
+    fontSize: TextSize.title,
+    color: color.primary,
+    marginRight: Spacing.tiny,
   },
 });
 

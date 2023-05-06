@@ -6,6 +6,7 @@ import {
   fetchAuthenticationError,
   fetchAuthenticationSuccess,
   setNurseData,
+  updateMotherBabyCollectionData,
 } from ".";
 import { auth, firestore } from "../../../../firebaseConfig";
 
@@ -26,8 +27,10 @@ import {
   collection,
   getDoc,
   Timestamp,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
-import { Authentication, Baby, Mother, User } from "./types";
+import { AddBabyPayload, Authentication, Baby, Mother, User } from "./types";
 
 export const loginUser =
   (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
@@ -270,7 +273,7 @@ export const signUpMotherWithGoogle =
               ...babyData,
             };
             await addDoc(collection(firestore, "babies"), babyDocument)
-              .then(async (querySnapshot) => {
+              .then((querySnapshot) => {
                 // ref id collection for firebase mother baby collection
                 babyRefCollection.push(querySnapshot.id);
                 // data to save in redux
@@ -370,5 +373,38 @@ export const getMotherData =
       );
     } catch {
       dispatch(fetchAuthenticationError(""));
+    }
+  };
+
+export const addNewBaby =
+  (payload: AddBabyPayload): ThunkAction<void, RootState, unknown, AnyAction> =>
+  async (dispatch) => {
+    dispatch(fetchAuthenticationRequest());
+    try {
+      const babyCreatedAt = new Date();
+      const babyDocument: Baby = {
+        createdAt: babyCreatedAt,
+        ...payload.babyData,
+      };
+      const motherRef = doc(firestore, "mothers", payload.userId);
+      await addDoc(collection(firestore, "babies"), babyDocument)
+        .then((querySnapshot) => {
+          // update mother baby collections
+          updateDoc(motherRef, {
+            babyCollection: arrayUnion(querySnapshot.id),
+          });
+          babyDocument.id = querySnapshot.id;
+          babyDocument.createdAt = Timestamp.fromMillis(
+            babyCreatedAt.getTime()
+          );
+          console.log(babyDocument)
+          dispatch(updateMotherBabyCollectionData(babyDocument));
+          dispatch(fetchAuthenticationSuccess());
+        })
+        .catch(() => {
+          throw new Error();
+        });
+    } catch {
+      dispatch(fetchAuthenticationError("Bayi gagal ditambah"));
     }
   };

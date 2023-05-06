@@ -40,3 +40,8 @@ export type Authentication = {
   error?: boolean;
   errorMessage?: string
 };
+
+export interface AddBabyPayload {
+  userId: string
+  babyData: Baby
+}

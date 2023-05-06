@@ -1,15 +1,18 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { color } from "src/lib/ui/color";
 import BabyIcon from "src/lib/ui/icons/baby";
 import { EvilIcons } from "@expo/vector-icons";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 import { Baby } from "@redux/actions/authentication/types";
+import { Font } from "src/lib/ui/font";
 
 export enum Gender {
   "laki-laki" = "Laki-laki",
   "perempuan" = "Perempuan",
 }
+
+export const BABY_CARD_HIGHT = 154
 
 interface Props {
   birthDate?: string;
@@ -17,7 +20,7 @@ interface Props {
   name?: string;
   weight?: number;
   length?: number;
-  isSelectedBaby?: boolean;
+  handleSelectedBabyTerapi?: () => void
 }
 
 const BabyCard: React.FC<Props> = ({
@@ -26,7 +29,7 @@ const BabyCard: React.FC<Props> = ({
   name,
   weight,
   length,
-  isSelectedBaby,
+  handleSelectedBabyTerapi
 }) => {
   return (
     <View style={style.container}>
@@ -37,7 +40,7 @@ const BabyCard: React.FC<Props> = ({
           />
         </View>
         <View style={style.babyInformation}>
-          <Text style={style.babyBirthDate}>{birthDate}</Text>
+          <Text style={style.babyBirthDate}>Lahir: {birthDate}</Text>
           <Text style={style.babyGender}>{gender && Gender[gender]}</Text>
           <Text style={style.babyName}>{name}</Text>
         </View>
@@ -47,7 +50,7 @@ const BabyCard: React.FC<Props> = ({
         <View style={style.devider}></View>
         <Text style={style.babyInfoText}>Panjang {length} cm</Text>
       </View>
-      {!isSelectedBaby && (
+      <TouchableOpacity onPress={handleSelectedBabyTerapi}>
         <View style={style.buttonStartTerapi}>
           <Text
             style={[
@@ -67,7 +70,7 @@ const BabyCard: React.FC<Props> = ({
             />
           </View>
         </View>
-      )}
+      </TouchableOpacity>
     </View>
   );
 };
@@ -75,6 +78,7 @@ const BabyCard: React.FC<Props> = ({
 const style = StyleSheet.create({
   container: {
     width: "100%",
+    height: BABY_CARD_HIGHT,
     backgroundColor: color.lightneutral,
     borderRadius: 20,
     padding: Spacing.small,
@@ -96,12 +100,13 @@ const style = StyleSheet.create({
     color: color.neutral,
   },
   babyGender: {
-    fontSize: TextSize.caption,
+    fontSize: TextSize.body,
     color: color.accent2,
     marginVertical: Spacing.extratiny / 2,
   },
   babyName: {
-    fontSize: TextSize.title,
+    fontFamily: Font.Medium,
+    fontSize: TextSize.h4 / 2,
   },
   info: {
     display: "flex",
@@ -110,7 +115,7 @@ const style = StyleSheet.create({
     alignItems: "center",
   },
   babyInfoText: {
-    fontSize: TextSize.caption,
+    fontSize: TextSize.body,
     color: color.accent2,
   },
   devider: {
@@ -120,16 +125,15 @@ const style = StyleSheet.create({
     marginHorizontal: Spacing.tiny,
   },
   buttonStartTerapi: {
-    marginTop: Spacing.small,
-    padding: Spacing.tiny,
+    marginVertical: Spacing.xsmall,
+    paddingRight: Spacing.tiny,
     display: "flex",
     flexDirection: "row",
     alignSelf: "flex-end",
     alignItems: "center",
   },
   buttonTitle: {
-    marginRight: Spacing.extratiny,
-    fontSize: TextSize.caption,
+    fontSize: TextSize.body,
   },
 });
 export default BabyCard;

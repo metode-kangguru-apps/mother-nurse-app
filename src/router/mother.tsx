@@ -13,6 +13,7 @@ import HistoryProgressPage from "@app/mother/HistoryProgressPage";
 import ModulePage from "@app/mother/ModulePage";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
+import AddNewBabyInformation from "@app/mother/AddNewBabyInformation";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -33,6 +34,18 @@ const MotherRouter: React.FC<{}> = () => {
         component={SelectBabyPage}
         options={{
           title: "Pilih Bayi",
+        }}
+      />
+      <MotherStack.Screen
+        name="add-new-baby"
+        component={AddNewBabyInformation}
+        options={{
+          title: "Tambah Bayi Baru",
+          animationTypeForReplace: "pop",
+          animation: Platform.select({
+            ios: "slide_from_left",
+            android: "simple_push",
+          }),
         }}
       />
       {selectedTerapiBaby && (
