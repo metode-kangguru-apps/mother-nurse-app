@@ -9,106 +9,40 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 import { color } from "src/lib/ui/color";
 
-import { AuthStackParamList, RootStackParamList } from "src/router/types";
 import FloatingInput from "src/common/FloatingInput";
 
 import { AntDesign } from "@expo/vector-icons";
-import { SimpleLineIcons } from "@expo/vector-icons";
 import DateTimePicker from "src/common/DateTimePicker";
 import PickerField from "src/common/PickerField";
 import { useAssets } from "expo-asset";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useEffect, useMemo, useState } from "react";
-import { Baby, Authentication } from "@redux/actions/authentication/types";
-import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
-import { useAppDispatch } from "@redux/hooks";
-import {
-  loginUser,
-  signUpMotherWithGoogle,
-} from "@redux/actions/authentication/thunks";
-import { CompositeScreenProps } from "@react-navigation/native";
-import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
+import { memo, useMemo, useState } from "react";
+import { Baby } from "@redux/actions/authentication/types";
+
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
-interface Props
-  extends CompositeScreenProps<
-    NativeStackScreenProps<AuthStackParamList, "register-baby-information">,
-    NativeStackScreenProps<RootStackParamList>
-  > {}
+interface Props {
+  title: string,
+  handleBackButton: () => void;
+  handleRegisterBaby: (babyData: Baby) => void;
+}
 
-const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
-  const dispatch = useAppDispatch();
+const RegisterBabyPage: React.FC<Props> = ({
+  title,
+  handleBackButton,
+  handleRegisterBaby,
+}) => {
   const insets = useSafeAreaInsets();
   const [formField, setFormField] = useState<Baby>({});
   const style = useMemo(() => createStyle(insets), [insets]);
-  const { user, mother } = useSelector(
-    (state: RootState) => state.authentication
-  );
-  const [assets, _] = useAssets([require("../../../assets/info-baby.png")]);
-
-  useEffect(() => {
-    if (mother && mother.babyCollection) {
-      if (mother.babyCollection.length > 1) {
-        navigation.navigate("mother", {
-          screen: "select-baby",
-        });
-      } else {
-        navigation.navigate("mother", {
-          screen: "home",
-        });
-      }
-    }
-  }, [mother]);
-
-  function handlerRegisterAccount() {
-    const newUserObj = {
-      user: {
-        displayName: user?.displayName,
-        userType: "member",
-        userRole: "mother",
-        isAnonymous: true,
-      },
-      mother: {
-        phoneNumber: mother?.phoneNumber,
-        hospitalCode: mother?.hospitalCode,
-        babyCollection: [
-          {
-            displayName: formField.displayName,
-            gestationAge: formField.gestationAge,
-            birthDate: formField.birthDate,
-            weight: formField.weight,
-            length: formField.length,
-            currentWeight: formField.weight,
-            currentLength: formField.length,
-            gender: formField.gender,
-          },
-        ],
-      },
-      nurse: undefined,
-    };
-    if (user?.isAnonymous) {
-      dispatch(loginUser(newUserObj as Authentication));
-    } else {
-      const newGoogleUserObj = {
-        ...newUserObj,
-        user: {
-          ...newUserObj.user,
-          uid: user?.uid,
-          isAnonymous: false,
-        },
-      };
-      dispatch(signUpMotherWithGoogle(newGoogleUserObj as Authentication));
-    }
-  }
+  const [assets, _] = useAssets([require("../../../../assets/info-baby.png")]);
 
   return (
     <KeyboardAvoidingView
@@ -131,7 +65,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
           </View>
           <View style={style.contentContainer}>
             <View style={style.titleContainer}>
-              <Text style={style.title}>Daftar Bayi</Text>
+              <Text style={style.title}>{title}</Text>
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
@@ -218,22 +152,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
             <View style={style.buttonContainer}>
               <TouchableOpacity
                 style={style.prevButton}
-                onPress={() => {
-                  const routes = navigation.getState().routes;
-                  if (
-                    navigation.canGoBack() &&
-                    routes[routes.length - 2].name ==
-                      "register-user-information"
-                  ) {
-                    navigation.goBack();
-                  } else {
-                    Promise.resolve(
-                      dispatch(clearAuthenticationDataSuccess())
-                    ).then(() => {
-                      navigation.navigate("login");
-                    });
-                  }
-                }}
+                onPress={handleBackButton}
               >
                 <AntDesign
                   name="arrowleft"
@@ -244,7 +163,7 @@ const RegisterBabyInformation: React.FC<Props> = ({ navigation }) => {
               </TouchableOpacity>
               <TouchableOpacity
                 style={style.nextButton}
-                onPress={handlerRegisterAccount}
+                onPress={() => handleRegisterBaby(formField)}
               >
                 <Text style={style.buttonTitle}>Selanjutnya</Text>
               </TouchableOpacity>
@@ -337,4 +256,4 @@ const createStyle = (insets: EdgeInsets) =>
     },
   });
 
-export default RegisterBabyInformation;
+export default memo(RegisterBabyPage);

@@ -67,6 +67,7 @@ const NativeDateTimePicker: React.FC<Props> = ({
   return (
     <View style={{ width: "100%" }}>
       <Animated.View
+        pointerEvents={"none"}
         style={[
           style.labelWrapper,
           {

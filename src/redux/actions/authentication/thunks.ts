@@ -6,6 +6,7 @@ import {
   fetchAuthenticationError,
   fetchAuthenticationSuccess,
   setNurseData,
+  updateMotherBabyCollectionData,
 } from ".";
 import { auth, firestore } from "../../../../firebaseConfig";
 
@@ -26,8 +27,10 @@ import {
   collection,
   getDoc,
   Timestamp,
+  updateDoc,
+  arrayUnion,
 } from "firebase/firestore";
-import { Authentication, Baby, Mother, User } from "./types";
+import { AddBabyPayload, Authentication, Baby, Mother, User } from "./types";
 
 export const loginUser =
   (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
@@ -47,19 +50,9 @@ export const loginUser =
                 await setDoc(
                   doc(firestore, "users", credential.user.uid),
                   userInformation.user
-                )
-                  .then(() => {
-                    // set user data to redux
-                    dispatch(
-                      setUserData({
-                        ...userInformation.user,
-                        uid: credential.user.uid,
-                      })
-                    );
-                  })
-                  .catch((error) => {
-                    throw new Error(error);
-                  });
+                ).catch((error) => {
+                  throw new Error(error);
+                });
 
                 // add all baby doc to firebase
                 const babyRefID: string[] = [];
@@ -73,7 +66,7 @@ export const loginUser =
                     };
                     // add baby document
                     await addDoc(collection(firestore, "babies"), babyDocument)
-                      .then((querySnapshot) => {
+                      .then(async (querySnapshot) => {
                         babyRefID.push(querySnapshot.id);
                         babyCollection.push({
                           ...babyDocument,
@@ -81,6 +74,18 @@ export const loginUser =
                           createdAt: Timestamp.fromMillis(
                             babyCreatedAt.getTime()
                           ),
+                        });
+                        const progressRef = collection(
+                          querySnapshot,
+                          "progress"
+                        );
+                        await addDoc(progressRef, {
+                          createdAt: new Date(),
+                          week: babyDocument.gestationAge,
+                          weight: babyDocument.currentWeight,
+                          length: babyDocument.currentLength,
+                        }).catch(() => {
+                          throw new Error();
                         });
                       })
                       .catch((error) => {
@@ -102,6 +107,13 @@ export const loginUser =
                         setMotherData({
                           ...motherData,
                           babyCollection,
+                        })
+                      );
+                      // set user data to redux
+                      dispatch(
+                        setUserData({
+                          ...userInformation.user,
+                          uid: credential.user.uid,
                         })
                       );
                       dispatch(fetchAuthenticationSuccess());
@@ -159,13 +171,6 @@ export const loginMotherWithGoogle =
               const userRef = await getDoc(
                 doc(firestore, "users", result.user.uid)
               );
-              // save user data to local storage
-              dispatch(
-                setUserData({
-                  uid: result.user.uid,
-                  ...userRef.data(),
-                })
-              );
 
               // fetch user based on userRole
               const userRole = userRef.get("userRole");
@@ -175,7 +180,6 @@ export const loginMotherWithGoogle =
                   "Email yang anda gunakan sepertinya sudah terdaftar pada peran lain"
                 );
               }
-
               if (userRole === "mother") {
                 await getDoc(doc(firestore, "mothers", result.user.uid)).then(
                   async (querySnapshot) => {
@@ -197,6 +201,13 @@ export const loginMotherWithGoogle =
                         babyCollection,
                       };
                       dispatch(setMotherData(savedMotherData));
+                      // save user data to local storage
+                      dispatch(
+                        setUserData({
+                          uid: result.user.uid,
+                          ...userRef.data(),
+                        })
+                      );
                       dispatch(fetchAuthenticationSuccess());
                     }
                   }
@@ -250,13 +261,9 @@ export const signUpMotherWithGoogle =
           userRole: payload.user.userRole,
           userType: payload.user.userType,
           isAnonymous: payload.user.isAnonymous,
-        })
-          .then(() => {
-            dispatch(setUserData(payload.user));
-          })
-          .catch(() => {
-            throw new Error();
-          });
+        }).catch(() => {
+          throw new Error();
+        });
 
         // create all baby and add to firestore
         const babyRefCollection: string[] = [];
@@ -279,6 +286,15 @@ export const signUpMotherWithGoogle =
                   id: querySnapshot.id,
                   createdAt: Timestamp.fromMillis(babyCreatedAt.getTime()),
                 });
+                const progressRef = collection(querySnapshot, "progress");
+                await addDoc(progressRef, {
+                  createdAt: new Date(),
+                  week: babyDocument.gestationAge,
+                  weight: babyDocument.currentWeight,
+                  length: babyDocument.currentLength,
+                }).catch(() => {
+                  throw new Error();
+                });
               })
               .catch(() => {
                 throw new Error();
@@ -293,6 +309,7 @@ export const signUpMotherWithGoogle =
           await setDoc(doc(firestore, "mothers", payload.user.uid), motherData)
             .then(() => {
               dispatch(setMotherData({ ...motherData, babyCollection }));
+              dispatch(setUserData(payload.user));
               dispatch(fetchAuthenticationSuccess());
             })
             .catch(() => {
@@ -370,5 +387,48 @@ export const getMotherData =
       );
     } catch {
       dispatch(fetchAuthenticationError(""));
+    }
+  };
+
+export const addNewBaby =
+  (payload: AddBabyPayload): ThunkAction<void, RootState, unknown, AnyAction> =>
+  async (dispatch) => {
+    dispatch(fetchAuthenticationRequest());
+    try {
+      const babyCreatedAt = new Date();
+      const babyDocument: Baby = {
+        createdAt: babyCreatedAt,
+        ...payload.babyData,
+      };
+      const motherRef = doc(firestore, "mothers", payload.userId);
+      await addDoc(collection(firestore, "babies"), babyDocument)
+        .then(async (querySnapshot) => {
+          // update mother baby collections
+          updateDoc(motherRef, {
+            babyCollection: arrayUnion(querySnapshot.id),
+          });
+          babyDocument.id = querySnapshot.id;
+          babyDocument.createdAt = Timestamp.fromMillis(
+            babyCreatedAt.getTime()
+          );
+
+          // add current data as progress
+          const progressRef = collection(querySnapshot, "progress");
+          await addDoc(progressRef, {
+            createdAt: new Date(),
+            week: babyDocument.gestationAge,
+            weight: babyDocument.currentWeight,
+            length: babyDocument.currentLength,
+          }).catch(() => {
+            throw new Error();
+          });
+          dispatch(updateMotherBabyCollectionData(babyDocument));
+          dispatch(fetchAuthenticationSuccess());
+        })
+        .catch(() => {
+          throw new Error();
+        });
+    } catch {
+      dispatch(fetchAuthenticationError("Bayi gagal ditambah"));
     }
   };

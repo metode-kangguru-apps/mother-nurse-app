@@ -28,6 +28,7 @@ import { logOutUser } from "@redux/actions/authentication/thunks";
 import { useEffect } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { Baby } from "@redux/actions/authentication/types";
+import { setSelectedTerapiBaby } from "@redux/actions/global";
 interface Props
   extends CompositeScreenProps<
     NativeStackScreenProps<MotherStackParamList, "profile">,
@@ -47,6 +48,11 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     dispatch(logOutUser());
   };
 
+  function handleSelectedBabyTerapi(babyObj: Baby) {
+    dispatch(setSelectedTerapiBaby(babyObj))
+    navigation.navigate("home")
+  }
+
   function renderBabyItem(item: Baby) {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
@@ -58,8 +64,8 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
         name={item.displayName}
         weight={item.currentWeight}
         length={item.currentLength}
-        isSelectedBaby={selectedTerapiBaby.id === item.id}
         key={item.id}
+        handleSelectedBabyTerapi={() => handleSelectedBabyTerapi(item)}
       ></BabyCard>
     );
   }
@@ -113,8 +119,8 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
             </View>
             <View style={style.babyContainer}>
               <Text style={style.titleBabyProfile}>Profil Bayi</Text>
-              <TouchableWithoutFeedback>
-                <View style={style.header}>
+              <TouchableWithoutFeedback onPress={() => navigation.navigate("add-new-baby")}>
+                <View style={style.header} pointerEvents="box-only">
                   <Text style={style.headerTitle}>Tambah Bayi</Text>
                   <View>
                     <AntDesign
