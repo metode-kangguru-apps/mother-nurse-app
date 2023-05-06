@@ -19,14 +19,14 @@ const Milestone: React.FC<Props> = ({
     useState<string>("4%");
   useEffect(() => {
     if (currentWeight > stones[stones.length - 1]) {
-      setCurrentProgressWidth("100%")
-      return
+      setCurrentProgressWidth("100%");
+      return;
     } else if (currentWeight < stones[0]) {
-      setCurrentProgressWidth("0%")
-      return
+      setCurrentProgressWidth("0%");
+      return;
     }
     for (let idx = 0; idx < stones.length - 1; idx++) {
-      if (currentWeight > stones[idx] && currentWeight < stones[idx + 1]) {
+      if (currentWeight >= stones[idx] && currentWeight < stones[idx + 1]) {
         const lowerLimit = currentWeight - stones[idx];
         const upperLimit = stones[idx + 1] - stones[idx];
         const percentage = (lowerLimit / upperLimit) * 25;
