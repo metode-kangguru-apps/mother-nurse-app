@@ -11,7 +11,7 @@ interface Props {
   week: number;
   weight: number;
   length: number;
-  temperature: number;
+  temperature?: number;
 }
 
 const ProgressCard: React.FC<Props> = ({
@@ -46,7 +46,7 @@ const ProgressCard: React.FC<Props> = ({
         </View>
         <View style={style.informationWrapper}>
           <Text style={style.title}>Suhu</Text>
-          <Text style={style.information}>{temperature}°C</Text>
+          <Text style={style.information}>{temperature ? `${temperature}°C` : '-'}</Text>
         </View>
       </View>
     </View>

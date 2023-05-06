@@ -66,7 +66,7 @@ export const loginUser =
                     };
                     // add baby document
                     await addDoc(collection(firestore, "babies"), babyDocument)
-                      .then((querySnapshot) => {
+                      .then(async (querySnapshot) => {
                         babyRefID.push(querySnapshot.id);
                         babyCollection.push({
                           ...babyDocument,
@@ -74,6 +74,18 @@ export const loginUser =
                           createdAt: Timestamp.fromMillis(
                             babyCreatedAt.getTime()
                           ),
+                        });
+                        const progressRef = collection(
+                          querySnapshot,
+                          "progress"
+                        );
+                        await addDoc(progressRef, {
+                          createdAt: new Date(),
+                          week: babyDocument.gestationAge,
+                          weight: babyDocument.currentWeight,
+                          length: babyDocument.currentLength,
+                        }).catch(() => {
+                          throw new Error();
                         });
                       })
                       .catch((error) => {
@@ -265,7 +277,7 @@ export const signUpMotherWithGoogle =
               ...babyData,
             };
             await addDoc(collection(firestore, "babies"), babyDocument)
-              .then((querySnapshot) => {
+              .then(async (querySnapshot) => {
                 // ref id collection for firebase mother baby collection
                 babyRefCollection.push(querySnapshot.id);
                 // data to save in redux
@@ -273,6 +285,15 @@ export const signUpMotherWithGoogle =
                   ...babyDocument,
                   id: querySnapshot.id,
                   createdAt: Timestamp.fromMillis(babyCreatedAt.getTime()),
+                });
+                const progressRef = collection(querySnapshot, "progress");
+                await addDoc(progressRef, {
+                  createdAt: new Date(),
+                  week: babyDocument.gestationAge,
+                  weight: babyDocument.currentWeight,
+                  length: babyDocument.currentLength,
+                }).catch(() => {
+                  throw new Error();
                 });
               })
               .catch(() => {
@@ -381,7 +402,7 @@ export const addNewBaby =
       };
       const motherRef = doc(firestore, "mothers", payload.userId);
       await addDoc(collection(firestore, "babies"), babyDocument)
-        .then((querySnapshot) => {
+        .then(async (querySnapshot) => {
           // update mother baby collections
           updateDoc(motherRef, {
             babyCollection: arrayUnion(querySnapshot.id),
@@ -390,6 +411,17 @@ export const addNewBaby =
           babyDocument.createdAt = Timestamp.fromMillis(
             babyCreatedAt.getTime()
           );
+
+          // add current data as progress
+          const progressRef = collection(querySnapshot, "progress");
+          await addDoc(progressRef, {
+            createdAt: new Date(),
+            week: babyDocument.gestationAge,
+            weight: babyDocument.currentWeight,
+            length: babyDocument.currentLength,
+          }).catch(() => {
+            throw new Error();
+          });
           dispatch(updateMotherBabyCollectionData(babyDocument));
           dispatch(fetchAuthenticationSuccess());
         })
