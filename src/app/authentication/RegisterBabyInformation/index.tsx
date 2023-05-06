@@ -1,16 +1,7 @@
-import { Dimensions, Platform, StyleSheet } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-
-import { Font } from "src/lib/ui/font";
-import { Spacing } from "src/lib/ui/spacing";
-import { TextSize } from "src/lib/ui/textSize";
-import { color } from "src/lib/ui/color";
-
 import { AuthStackParamList, RootStackParamList } from "src/router/types";
 
-import { useAssets } from "expo-asset";
-import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect} from "react";
 import { Baby, Authentication } from "@redux/actions/authentication/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
@@ -23,8 +14,6 @@ import { CompositeScreenProps } from "@react-navigation/native";
 import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
 import RegisterBabyPage from "./RegisterBabyPage";
 
-const MEDIA_HEIGHT = Dimensions.get("window").height;
-
 interface Props
   extends CompositeScreenProps<
     NativeStackScreenProps<AuthStackParamList, "register-baby-information">,
@@ -36,20 +25,6 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
   const { user, mother } = useSelector(
     (state: RootState) => state.authentication
   );
-
-  useEffect(() => {
-    if (mother && mother.babyCollection) {
-      if (mother.babyCollection.length > 1) {
-        navigation.navigate("mother", {
-          screen: "select-baby",
-        });
-      } else {
-        navigation.navigate("mother", {
-          screen: "home",
-        });
-      }
-    }
-  }, [mother]);
 
   function handlerRegisterAccount(babyData: Baby) {
     const newUserObj = {

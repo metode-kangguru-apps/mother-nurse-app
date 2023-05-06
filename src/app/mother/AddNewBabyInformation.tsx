@@ -1,13 +1,7 @@
 import {
   Dimensions,
-  Image,
-  KeyboardAvoidingView,
   Platform,
-  ScrollView,
   StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -17,24 +11,18 @@ import { TextSize } from "src/lib/ui/textSize";
 import { color } from "src/lib/ui/color";
 
 import { MotherStackParamList } from "src/router/types";
-import FloatingInput from "src/common/FloatingInput";
 
-import { AntDesign } from "@expo/vector-icons";
-import DateTimePicker from "src/common/DateTimePicker";
-import PickerField from "src/common/PickerField";
-import { useAssets } from "expo-asset";
-import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { useEffect, useMemo, useState } from "react";
+import { EdgeInsets, } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
 import {
   Baby,
-  Authentication,
   AddBabyPayload,
 } from "@redux/actions/authentication/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { useAppDispatch } from "@redux/hooks";
 import { addNewBaby } from "@redux/actions/authentication/thunks";
-import RegisterBabyPage from "@app/authentication/RegisterBabyInformation2/RegisterBabyPage";
+import RegisterBabyPage from "@app/authentication/RegisterBabyInformation/RegisterBabyPage";
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 

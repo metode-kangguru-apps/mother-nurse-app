@@ -5,11 +5,10 @@ import { RootStackParamList } from "src/router/types";
 interface Props
   extends NativeStackScreenProps<RootStackParamList, "NotFound"> {}
 
-const NotFoundPage: React.FC<Props> = ({ navigation }) => {
-    const StatusCodeContext = React.createContext(null);
-    useEffect(() => {
-        location.replace('/')
-    }, [])
+const NotFoundPage: React.FC<Props> = () => {
+  useEffect(() => {
+    location.replace("/");
+  }, []);
   return <></>;
 };
 

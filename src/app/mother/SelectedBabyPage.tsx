@@ -30,14 +30,12 @@ import { Baby } from "@redux/actions/authentication/types";
 import { getProgressBaby } from "@redux/actions/baby/thunks";
 import { useAssets } from "expo-asset";
 import { AntDesign } from "@expo/vector-icons";
-import { BABY_CARD_HIGHT } from "./ProfilePage/BabyCard";
-
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
 
 const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { mother } = useSelector((state: RootState) => state.authentication);
+  const { mother, loading } = useSelector((state: RootState) => state.authentication);
   const [selectedBaby, setSelectedBaby] = useState<number | undefined>(
     undefined
   );
@@ -106,6 +104,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
       navigation.navigate("home");
     }
   };
+
   return (
     <View style={style.scrollWrapper}>
       {assets && (

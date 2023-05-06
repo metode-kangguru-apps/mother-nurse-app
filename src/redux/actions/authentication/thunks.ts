@@ -50,19 +50,9 @@ export const loginUser =
                 await setDoc(
                   doc(firestore, "users", credential.user.uid),
                   userInformation.user
-                )
-                  .then(() => {
-                    // set user data to redux
-                    dispatch(
-                      setUserData({
-                        ...userInformation.user,
-                        uid: credential.user.uid,
-                      })
-                    );
-                  })
-                  .catch((error) => {
-                    throw new Error(error);
-                  });
+                ).catch((error) => {
+                  throw new Error(error);
+                });
 
                 // add all baby doc to firebase
                 const babyRefID: string[] = [];
@@ -105,6 +95,13 @@ export const loginUser =
                         setMotherData({
                           ...motherData,
                           babyCollection,
+                        })
+                      );
+                      // set user data to redux
+                      dispatch(
+                        setUserData({
+                          ...userInformation.user,
+                          uid: credential.user.uid,
                         })
                       );
                       dispatch(fetchAuthenticationSuccess());
@@ -162,13 +159,6 @@ export const loginMotherWithGoogle =
               const userRef = await getDoc(
                 doc(firestore, "users", result.user.uid)
               );
-              // save user data to local storage
-              dispatch(
-                setUserData({
-                  uid: result.user.uid,
-                  ...userRef.data(),
-                })
-              );
 
               // fetch user based on userRole
               const userRole = userRef.get("userRole");
@@ -178,7 +168,6 @@ export const loginMotherWithGoogle =
                   "Email yang anda gunakan sepertinya sudah terdaftar pada peran lain"
                 );
               }
-
               if (userRole === "mother") {
                 await getDoc(doc(firestore, "mothers", result.user.uid)).then(
                   async (querySnapshot) => {
@@ -200,6 +189,13 @@ export const loginMotherWithGoogle =
                         babyCollection,
                       };
                       dispatch(setMotherData(savedMotherData));
+                      // save user data to local storage
+                      dispatch(
+                        setUserData({
+                          uid: result.user.uid,
+                          ...userRef.data(),
+                        })
+                      );
                       dispatch(fetchAuthenticationSuccess());
                     }
                   }
@@ -253,13 +249,9 @@ export const signUpMotherWithGoogle =
           userRole: payload.user.userRole,
           userType: payload.user.userType,
           isAnonymous: payload.user.isAnonymous,
-        })
-          .then(() => {
-            dispatch(setUserData(payload.user));
-          })
-          .catch(() => {
-            throw new Error();
-          });
+        }).catch(() => {
+          throw new Error();
+        });
 
         // create all baby and add to firestore
         const babyRefCollection: string[] = [];
@@ -296,6 +288,7 @@ export const signUpMotherWithGoogle =
           await setDoc(doc(firestore, "mothers", payload.user.uid), motherData)
             .then(() => {
               dispatch(setMotherData({ ...motherData, babyCollection }));
+              dispatch(setUserData(payload.user));
               dispatch(fetchAuthenticationSuccess());
             })
             .catch(() => {
@@ -397,7 +390,6 @@ export const addNewBaby =
           babyDocument.createdAt = Timestamp.fromMillis(
             babyCreatedAt.getTime()
           );
-          console.log(babyDocument)
           dispatch(updateMotherBabyCollectionData(babyDocument));
           dispatch(fetchAuthenticationSuccess());
         })
