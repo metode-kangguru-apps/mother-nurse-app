@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Animated, StyleSheet, Text, View } from "react-native";
 import { color } from "src/lib/ui/color";
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
@@ -18,10 +18,10 @@ const Milestone: React.FC<Props> = ({
   const [currentProgressWidth, setCurrentProgressWidth] =
     useState<string>("4%");
   useEffect(() => {
-    if (currentWeight > stones[stones.length - 1]) {
+    if (currentWeight >= stones[stones.length - 1]) {
       setCurrentProgressWidth("100%");
       return;
-    } else if (currentWeight < stones[0]) {
+    } else if (currentWeight <= stones[0]) {
       setCurrentProgressWidth("0%");
       return;
     }
@@ -34,13 +34,14 @@ const Milestone: React.FC<Props> = ({
         setCurrentProgressWidth(`${majorPercentage + percentage}%`);
       }
     }
-  }, [currentWeight]);
+  }, [currentWeight, stones]);
   return (
     <View style={style.container}>
       <View style={style.milestoneLine}>
-        <View
+        {/* TODO: nice to have animation when width changes */}
+        <Animated.View
           style={[style.progressLine, { width: currentProgressWidth }]}
-        ></View>
+        ></Animated.View>
       </View>
       <View style={[style.progressStoneWrapper, { left: "4%" }]}>
         <View style={style.progressStone}>
@@ -50,7 +51,7 @@ const Milestone: React.FC<Props> = ({
             </View>
           )}
         </View>
-        <Text style={style.progressStoneInfo}>1500 gr</Text>
+        <Text style={style.progressStoneInfo}>{stones[0]} gr</Text>
       </View>
       <View style={[style.progressStoneWrapper, { left: "25%" }]}>
         <View style={style.progressStone}>
@@ -60,7 +61,7 @@ const Milestone: React.FC<Props> = ({
             </View>
           )}
         </View>
-        <Text style={style.progressStoneInfo}>1800 gr</Text>
+        <Text style={style.progressStoneInfo}>{stones[1]} gr</Text>
       </View>
       <View style={style.progressStoneWrapper}>
         <View style={style.progressStone}>
@@ -70,8 +71,12 @@ const Milestone: React.FC<Props> = ({
             </View>
           )}
         </View>
-        {/* <Text style={style.targetStoneInfo}>Target</Text> */}
-        <Text style={style.progressStoneInfo}>2000 gr</Text>
+        {stones[2] === 2500 && (
+          <Text style={style.targetStoneInfo}>Target</Text>
+        )}
+        <Text style={[style.progressStoneInfo, stones[2] === 2500 && style.targetStone]}>
+          {stones[2]} gr
+        </Text>
       </View>
       <View style={[style.progressStoneWrapper, { right: "25%" }]}>
         <View style={style.progressStone}>
@@ -81,9 +86,11 @@ const Milestone: React.FC<Props> = ({
             </View>
           )}
         </View>
-        <Text style={style.targetStoneInfo}>Target</Text>
-        <Text style={[style.progressStoneInfo, style.targetStone]}>
-          2500 gr
+        {stones[3] === 2500 && (
+          <Text style={style.targetStoneInfo}>Target</Text>
+        )}
+        <Text style={[style.progressStoneInfo, stones[3] === 2500 && style.targetStone]}>
+          {stones[3]} gr
         </Text>
       </View>
       <View style={[style.progressStoneWrapper, { right: "4%" }]}>
@@ -94,7 +101,12 @@ const Milestone: React.FC<Props> = ({
             </View>
           )}
         </View>
-        <Text style={style.progressStoneInfo}>2800 gr</Text>
+        {stones[4] === 2500 && (
+          <Text style={style.targetStoneInfo}>Target</Text>
+        )}
+        <Text style={[style.progressStoneInfo, stones[4] === 2500 && style.targetStone]}>
+          {stones[4]} gr
+        </Text>
       </View>
     </View>
   );

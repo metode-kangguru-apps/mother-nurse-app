@@ -25,6 +25,7 @@ import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
 import Milestone from "./Milestone";
 import { MenuItem } from "./type";
+import { helperMilstoneSelectionWeek } from "./helpers";
 
 interface Props extends NativeStackScreenProps<MotherStackParamList, "home"> {}
 
@@ -56,6 +57,14 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
   const selectedTerapiBaby = useSelector(
     (state: RootState) => state.global.selectedTerapiBaby
   );
+  const selectedStones = useMemo(
+    () =>
+      helperMilstoneSelectionWeek(
+        selectedTerapiBaby.gender,
+        selectedTerapiBaby.currentWeek
+      ),
+    [selectedTerapiBaby.gender, selectedTerapiBaby.currentWeek]
+  );
   const style = useMemo(() => createStyle(insets), [insets]);
   return (
     <View style={style.container}>
@@ -68,7 +77,10 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
           </View>
           {/* TODO: @muhammadhafizm baby milestone */}
           <View style={style.babyMilestone}>
-            <Milestone currentWeight={selectedTerapiBaby.currentWeight} />
+            <Milestone
+              currentWeight={selectedTerapiBaby.currentWeight}
+              stones={selectedStones}
+            />
           </View>
           <View style={style.babyWeightWrapper}>
             <Text style={style.babyWeight}>
@@ -121,9 +133,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         <View style={style.menuList}>
           {HOME_MENU.map((menuItem, idx) => (
             <TouchableOpacity
-              onPress={() =>
-                navigation.navigate(menuItem.navigationIdentifier)
-              }
+              onPress={() => navigation.navigate(menuItem.navigationIdentifier)}
               key={idx}
             >
               <View style={style.menuItemsWrapper}>
