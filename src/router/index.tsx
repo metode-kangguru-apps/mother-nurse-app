@@ -29,18 +29,14 @@ const RootRouter: React.FC<Props> = () => {
           animation: "none",
         }}
       >
-        {(!user || user.userType === "guest") && (
+        {(!user ||
+          user.userType === "guest" ||
+          (mother && !mother.babyCollection)) && (
           <Stack.Screen name="auth" component={AuthRouter} />
         )}
-        {user &&
-          mother &&
-          mother.babyCollection &&
-          user.userType === "member" &&
-          user.userRole == "mother" &&
-          mother.babyCollection.length > 0 && 
-          (
-            <Stack.Screen name="mother" component={MotherRouter} />
-          )}
+        {user && user.userType === "member" && user.userRole == "mother" && (
+          <Stack.Screen name="mother" component={MotherRouter} />
+        )}
         {user && user.userType === "member" && user.userRole == "nurse" && (
           <Stack.Screen name="nurse" component={NurseRouter} />
         )}
