@@ -1,0 +1,6 @@
+export function weekDifference(date: Date){
+    const now = new Date()
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffWeeks = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 7));
+    return diffWeeks
+}

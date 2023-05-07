@@ -1,105 +1,170 @@
-import { useState, useMemo, useEffect, useRef } from "react"
-import { View, TextInput, StyleSheet, Animated, Platform } from "react-native"
-import { Spacing } from "src/lib/ui/spacing"
-import { TextSize } from "src/lib/ui/textSize"
+import { useState, useMemo, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  Animated,
+  Platform,
+  KeyboardTypeOptions,
+} from "react-native";
+import { color } from "src/lib/ui/color";
+
+import { Spacing } from "src/lib/ui/spacing";
 
 type Props = {
-    label: string,
-    defaultValue?: string
-}
+  label: string;
+  defaultValue?: string;
+  type?: "no-border";
+  keyboardType?: KeyboardTypeOptions;
+  statePrefix?: string;
+  onFocus?: (state: boolean) => void;
+  onChange?: (value: string) => void;
+  bindFocus?: boolean;
+};
 
 const FloatingInput: React.FC<Props> = ({
-    label,
-    defaultValue
+  label,
+  defaultValue,
+  type,
+  keyboardType = "default",
+  statePrefix,
+  bindFocus = false,
+  onFocus,
+  onChange,
 }) => {
-    const [focus, setFocus] = useState<boolean>(false)
-    const [inputValue, setInputValue] = useState<string>(defaultValue || '')
-    const style = useMemo(() => createStyle(focus), [focus])
-    const isFocusedAnimated = useRef(new Animated.Value(defaultValue === '' ? 0 : 1)).current;
+  const [focus, setFocus] = useState<boolean>(bindFocus);
+  const [inputValue, setInputValue] = useState<string>(
+    defaultValue || statePrefix || ""
+  );
+  const isFocusedAnimated = useRef(new Animated.Value(0)).current;
+  const textField = useRef<TextInput>(null);
 
-    const handleTopBasedOnPlatform = (): number[] => {
-        switch(Platform.OS){
-            case 'web':
-                return [16, 6]
-            case 'android':
-                return [24, 13]
-            case 'ios':
-                return [24, 14]
-        }
-        return [16, 6]
+  const style = useMemo(
+    () => createStyle(type, !!statePrefix),
+    [type, statePrefix]
+  );
+  const borderColor = useMemo(
+    () => handleBorderColorChange(type, focus),
+    [focus, type]
+  );
+
+  const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
+    inputRange: [0, 1],
+    outputRange: [16, 6],
+  });
+
+  const handleAnimatedOnFocusSize = isFocusedAnimated.interpolate({
+    inputRange: [0, 1],
+    outputRange: [14, 12],
+  });
+
+  function handleBorderColorChange(
+    type: "no-border" | undefined,
+    focus: boolean
+  ) {
+    if (!type) {
+      return !focus ? "transparent" : "rgba(0, 0, 255, 0.5)";
+    } else {
+      return "transparent";
     }
+  }
 
-    const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
-        inputRange: [0, 1],
-        outputRange: handleTopBasedOnPlatform(),
+  useEffect(() => {
+    Animated.timing(isFocusedAnimated, {
+      toValue: focus || inputValue !== "" || statePrefix ? 1 : 0,
+      duration: 250,
+      useNativeDriver: false,
+    }).start();
+    if (focus && textField.current) {
+      textField.current.focus()
+    }
+  }, [focus]);
 
-    })
+  return (
+    <View>
+      <Animated.View
+        pointerEvents={"none"}
+        style={[
+          style.labelContainer,
+          {
+            transform: [{ translateY: handleAnimatedOnFocusTop }],
+          },
+        ]}
+      >
+        <Animated.Text
+          style={[
+            style.labelStyle,
+            {
+              fontSize: handleAnimatedOnFocusSize,
+            },
+          ]}
+        >
+          {label}
+        </Animated.Text>
+      </Animated.View>
+      {statePrefix && <Text style={style.statePrefix}>{statePrefix}</Text>}
+      <TextInput
+        ref={textField}
+        style={[style.textInput, { borderColor: borderColor }]}
+        keyboardType={keyboardType}
+        onFocus={() => {
+          setFocus(true);
+          onFocus && onFocus(true);
+        }}
+        onBlur={() => {
+          setFocus(false);
+          onFocus && onFocus(false);
+        }}
+        onChange={(state) => {
+          setInputValue(state.nativeEvent.text);
+          onChange && onChange(state.nativeEvent.text);
+        }}
+        defaultValue={defaultValue}
+        returnKeyType="next"
+      />
+    </View>
+  );
+};
 
-    const handleAnimatedOnFocusLeft = isFocusedAnimated.interpolate({
-        inputRange: [0, 1],
-        outputRange: Platform.OS === 'android' ? [14, 8] : [14, 9],
-    })
-
-    const handleAnimatedOnFocusSize = isFocusedAnimated.interpolate({
-        inputRange: [0, 1],
-        outputRange: Platform.OS === 'web' ? [1, 0.9] : [1, 0.9],
-    })
-
-    useEffect(() => {
-        Animated.timing(isFocusedAnimated, {
-            toValue: (focus || inputValue !== '') ? 1 : 0,
-            duration: 200,
-            useNativeDriver: true,
-        }).start();
-    }, [focus])
-
-    return (
-        <View style={style.inputContainer}>
-            <Animated.Text style={[
-                style.labelStyle, {
-                    transform: [
-                        {translateX: handleAnimatedOnFocusLeft},
-                        {translateY: handleAnimatedOnFocusTop},
-                        {scaleX: handleAnimatedOnFocusSize},
-                        {scaleY: handleAnimatedOnFocusSize}
-                    ],
-                    fontSize: 14,
-                    // web 14
-                    color: '#aaa',
-                }
-            ]}>
-                {label}
-            </Animated.Text>
-            <TextInput
-                style={[style.textInput, {borderColor: !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)"}]}
-                onFocus={() => setFocus(true)}
-                onBlur={() => setFocus(false)}
-                onChange={(state) => setInputValue(state.nativeEvent.text)}
-            />
-        </View>
-    )
-}
-
-const createStyle = (
-    isFocused: boolean
-) => {
-    return StyleSheet.create({
-        inputContainer: {
-            paddingVertical: Spacing.tiny,
-        },
-        labelStyle: {
-            position: 'absolute',
-        },
-        textInput: {
+const createStyle = (type: "no-border" | undefined, isStatePrefix: boolean) => {
+  const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
+  return StyleSheet.create({
+    labelContainer: {
+      left: Platform.OS === "android" ? 12 : 14,
+      zIndex: 1,
+      position: "absolute",
+    },
+    labelStyle: {
+      fontSize: 14,
+      color: color.neutral,
+    },
+    statePrefix: {
+      position: "absolute",
+      top: Platform.OS === "android" ? 21.5 : 24,
+      left: 13,
+      zIndex: 1,
+    },
+    textInput: {
+      outlineStyle: "none",
+      paddingHorizontal: textInputPaddingHorizontal,
+      paddingTop: Platform.OS === "android" ? 17 : 24,
+      paddingBottom: Platform.OS === "android" ? 4 : 8,
+      position: "relative",
+      backgroundColor: color.surface,
+      borderRadius: 10,
+      ...(type === "no-border"
+        ? {}
+        : {
             borderWidth: 2,
-            paddingHorizontal: Spacing.tiny + Spacing.extratiny,
-            paddingTop: Platform.OS === 'android' ? 17 : 24,
-            paddingBottom: Platform.OS === 'android' ? 4 : 8,
-            position: 'relative',
-            borderRadius: Spacing.tiny
+          }),
+      ...(isStatePrefix && {
+        paddingLeft:
+          textInputPaddingHorizontal +
+          (Spacing.small * 2 - Spacing.extratiny / 2),
+      }),
+    },
+  });
+};
 
-        },
-    })
-}
-
-export default FloatingInput
+export default FloatingInput;

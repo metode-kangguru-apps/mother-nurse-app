@@ -1,44 +1,53 @@
-import { View, StyleSheet, Platform, SafeAreaView } from 'react-native'
-import React, { useMemo } from 'react'
-import { DefaultWidthSize } from './types'
+import React, { useMemo } from "react";
+
+import { DefaultWidthSize } from "./types";
+
+import { useAppDispatch } from "@redux/hooks";
+
+import { View, StyleSheet, Platform } from "react-native";
+
+import { color } from "src/lib/ui/color";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { Font } from "src/lib/ui/font";
 
 const createStyle = () => {
-    return StyleSheet.create({
-        main: {
-            flex: 1,
-            alignItems: "center",
+  return StyleSheet.create({
+    main: {
+      flex: 1,
+      alignItems: "center",
+      backgroundColor: color.surface,
+      fontFamily: Font.Regular
+    },
+    container: {
+      flex: 1,
+      ...Platform.select({
+        web: {
+          width: "100%",
+          maxWidth: DefaultWidthSize.mobile,
         },
-        container: {
-            flex: 1,
-            ...Platform.select({
-                web: {
-                    width: "100%",
-                    maxWidth: DefaultWidthSize.mobile,
-                },
-                native: {
-                    width: "100%",
-                }
-            })
-        }
-    })
-}
+        native: {
+          width: "100%",
+          height: "100%",
+        },
+      }),
+    },
+  });
+};
 
 export type Props = {
-    children?: React.ReactNode
-}
+  children?: React.ReactNode;
+};
 
-const BaseContainer: React.FC<Props> = ({
-    children
-}) => {
-    // create default style
-    const style = useMemo(() => createStyle(), [])
-    return (
-        <SafeAreaView style={style.main}>
-            <View style={style.container}>
-                {children}
-            </View>
-        </SafeAreaView>
-    )
-}
+const BaseContainer: React.FC<Props> = ({ children }) => {
+  // create default style
+  const style = useMemo(() => createStyle(), []);
+  const dispatch = useAppDispatch();
 
-export default BaseContainer
+  return (
+    <SafeAreaProvider style={[style.main]}>
+      <View style={style.container}>{children}</View>
+    </SafeAreaProvider>
+  );
+};
+
+export default BaseContainer;
