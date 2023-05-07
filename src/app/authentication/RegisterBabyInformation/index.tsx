@@ -82,6 +82,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
   }
 
   return (
+    // TODO: Implement loading state
     <RegisterBabyPage
       title="Daftar Bayi"
       handleBackButton={handleBackButton}

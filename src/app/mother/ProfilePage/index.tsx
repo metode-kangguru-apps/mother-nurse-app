@@ -24,11 +24,19 @@ import ProfileCard from "./ProfileCard";
 import BabyCard from "./BabyCard";
 
 import { useAppDispatch } from "@redux/hooks";
-import { logOutUser } from "@redux/actions/authentication/thunks";
+import { bindAnonymousAccoutToGoogle, logOutUser } from "@redux/actions/authentication/thunks";
 import { useEffect } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { Baby } from "@redux/actions/authentication/types";
 import { setSelectedTerapiBaby } from "@redux/actions/global";
+
+import * as Google from "expo-auth-session/providers/google";
+import { FIREBASE_WEB_CLIENT_ID } from "@env";
+import * as WebBrowser from "expo-web-browser";
+import { GoogleAuthProvider } from "firebase/auth/react-native";
+
+WebBrowser.maybeCompleteAuthSession();
+
 interface Props
   extends CompositeScreenProps<
     NativeStackScreenProps<MotherStackParamList, "profile">,
@@ -44,6 +52,10 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     (state: RootState) => state.authentication
   );
 
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    clientId: FIREBASE_WEB_CLIENT_ID,
+  });
+
   const handleLogOutUser = () => {
     dispatch(logOutUser());
   };
@@ -52,6 +64,14 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     dispatch(setSelectedTerapiBaby(babyObj))
     navigation.navigate("home")
   }
+
+  useEffect(() => {
+    if (response?.type === "success") {
+      const { id_token } = response.params;
+      const credential = GoogleAuthProvider.credential(id_token);
+      dispatch(bindAnonymousAccoutToGoogle(credential))
+    }
+  }, [response, dispatch]);
 
   function renderBabyItem(item: Baby) {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
@@ -91,6 +111,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
         }}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
+        {/* TODO: muhammadhafizm implement loading state */}
         <View>
           {user.isAnonymous && (
             <Info
@@ -111,10 +132,15 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 hospitalName="RS Sehati"
               />
               {user.isAnonymous && (
-                <View style={style.buttonBindGoogle}>
-                  <GoogleIcon style={style.googleIcon} />
-                  <Text style={style.bindGoogleText}>Sambungkan ke Google</Text>
-                </View>
+                <TouchableOpacity
+                  disabled={!request}
+                  onPress={() => promptAsync({})}
+                >
+                  <View style={style.buttonBindGoogle}>
+                    <GoogleIcon style={style.googleIcon} />
+                    <Text style={style.bindGoogleText}>Sambungkan ke Google</Text>
+                  </View>
+                </TouchableOpacity>
               )}
             </View>
             <View style={style.babyContainer}>

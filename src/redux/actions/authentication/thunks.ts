@@ -18,7 +18,7 @@ import {
   signOut,
 } from "firebase/auth/react-native";
 
-import { signInWithCredential } from "firebase/auth";
+import { linkWithCredential, signInWithCredential } from "firebase/auth";
 import {
   doc,
   onSnapshot,
@@ -430,5 +430,37 @@ export const addNewBaby =
         });
     } catch {
       dispatch(fetchAuthenticationError("Bayi gagal ditambah"));
+    }
+  };
+
+export const bindAnonymousAccoutToGoogle =
+  (
+    credential: OAuthCredential
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
+  async (dispatch) => {
+    try {
+      dispatch(fetchAuthenticationRequest())
+      if (auth.currentUser) {
+        linkWithCredential(auth.currentUser, credential)
+          .then(() => {
+            if (auth.currentUser?.uid) {
+              updateDoc(doc(firestore, "users", auth.currentUser.uid), {
+                isAnonymous: false,
+              })
+                .then(() => {
+                  dispatch(setUserData({ isAnonymous: false }));
+                  dispatch(fetchAuthenticationSuccess())
+                })
+                .catch(() => {
+                  throw new Error();
+                });
+            }
+          })
+          .catch(() => {
+            throw new Error();
+          });
+      }
+    } catch {
+      dispatch(fetchAuthenticationError("Account Google sudah pernah dipakai"));
     }
   };
