@@ -1,7 +1,6 @@
 import FloatingInput from "./FloatingInput";
 import { useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { useAssets } from "expo-asset";
 import { Spacing } from "src/lib/ui/spacing";
 import { color } from "src/lib/ui/color";
 
@@ -11,7 +10,6 @@ interface Props {
 }
 
 const PhoneNumberInput: React.FC<Props> = ({ defaultValue, onChange }) => {
-  const [assets, _] = useAssets([require("../../assets/indonesia-icon.png")]);
   const [focus, setFocus] = useState(false);
   return (
     <View
@@ -22,14 +20,10 @@ const PhoneNumberInput: React.FC<Props> = ({ defaultValue, onChange }) => {
     >
       <View style={style.countryProviderCode}>
         <View style={style.countryProviderLogoContainer}>
-          {assets && (
-            <Image
-              style={style.countryProviderLogo}
-              source={{
-                uri: assets[0].localUri as string,
-              }}
-            />
-          )}
+          <Image
+            style={style.countryProviderLogo}
+            source={require("../../assets/indonesia-icon.png")}
+          />
         </View>
       </View>
       <View style={style.textInput}>
@@ -55,7 +49,7 @@ const style = StyleSheet.create({
     flexDirection: "row",
     borderWidth: 2,
     borderRadius: 10,
-    backgroundColor: color.surface
+    backgroundColor: color.surface,
   },
   countryProviderCode: {
     display: "flex",

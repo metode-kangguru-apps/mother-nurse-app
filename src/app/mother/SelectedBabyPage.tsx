@@ -25,14 +25,14 @@ import BabyIcon from "src/lib/ui/icons/baby";
 import { weekDifference } from "src/lib/utils/calculate";
 import { Baby } from "@redux/actions/authentication/types";
 import { getProgressBaby } from "@redux/actions/baby/thunks";
-import { useAssets } from "expo-asset";
 import { AntDesign } from "@expo/vector-icons";
+
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
 
 const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { mother, loading } = useSelector(
+  const { mother } = useSelector(
     (state: RootState) => state.authentication
   );
   const { selectedTerapiBaby } = useSelector(
@@ -45,8 +45,6 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const handleTerapiBabyChanges = useCallback(() => {
     navigation.navigate("home");
   }, [selectedTerapiBaby]);
-
-  const [assets, _] = useAssets([require("../../../assets/baby-pattern.png")]);
 
   const renderItemList = (item: Baby, index: number) => {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
@@ -113,13 +111,13 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={style.scrollWrapper}>
-      {assets && (
-        <ImageBackground
-          source={{ uri: assets[0].localUri as string }}
-          style={style.backgroundPattern}
-        />
-      )}
-      <ScrollView contentContainerStyle={style.wrapper}>
+      <ImageBackground
+        source={require("../../../assets/baby-pattern.png")}
+        style={style.backgroundPattern}
+      />
+      <ScrollView
+        contentContainerStyle={style.wrapper}
+      >
         <View style={style.container}>
           <Text style={style.title}>Pilih Bayi</Text>
           <View style={style.babiesWrapper}>

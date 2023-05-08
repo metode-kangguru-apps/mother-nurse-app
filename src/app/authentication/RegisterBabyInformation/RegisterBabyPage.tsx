@@ -20,11 +20,9 @@ import FloatingInput from "src/common/FloatingInput";
 import { AntDesign } from "@expo/vector-icons";
 import DateTimePicker from "src/common/DateTimePicker";
 import PickerField from "src/common/PickerField";
-import { useAssets } from "expo-asset";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { memo, useMemo, useState } from "react";
 import { Baby } from "@redux/actions/authentication/types";
-
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
@@ -42,7 +40,6 @@ const RegisterBabyPage: React.FC<Props> = ({
   const insets = useSafeAreaInsets();
   const [formField, setFormField] = useState<Baby>({});
   const style = useMemo(() => createStyle(insets), [insets]);
-  const [assets, _] = useAssets([require("../../../../assets/info-baby.png")]);
 
   return (
     <KeyboardAvoidingView
@@ -53,14 +50,10 @@ const RegisterBabyPage: React.FC<Props> = ({
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
             <View style={style.welcomeImage}>
-              {assets && (
-                <Image
-                  style={{ flex: 1 }}
-                  source={{
-                    uri: assets[0].localUri as string,
-                  }}
-                />
-              )}
+              <Image
+                style={{ flex: 1 }}
+                source={require("../../../../assets/info-baby.png")}
+              />
             </View>
           </View>
           <View style={style.contentContainer}>

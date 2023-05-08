@@ -16,7 +16,6 @@ import { color } from "src/lib/ui/color";
 import { useMemo, useState } from "react";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Spacing } from "src/lib/ui/spacing";
-import { useAssets } from "expo-asset";
 import { Font } from "src/lib/ui/font";
 import { TextSize } from "src/lib/ui/textSize";
 
@@ -26,28 +25,23 @@ interface Props
 const PMKCarePage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
-  const [assets, _] = useAssets([
-    require("../../../assets/example-pmk-care.png"),
-  ]);
   return (
     <ScrollView>
       <View style={style.container}>
         <View style={style.content}>
           <View style={style.pmkCareImage}>
-            {assets && (
-              <Image
-                style={{ flex: 1 }}
-                source={{
-                  uri: assets[0].localUri as string,
-                }}
-              />
-            )}
+            <Image
+              style={{ flex: 1 }}
+              source={require("../../../assets/example-pmk-care.png")}
+            />
           </View>
           <View style={style.pmkCareInformationContainer}>
             <Text style={style.pmkCareInformationTitle}>Tahukah kamu?</Text>
             <Text style={style.pmkCareInformationContent}>
               Periode emas atau golden age adalah tahapan pertumbuhan dan
-              perkembangan yang paling penting pada masa awal kehidupan anak.{'\n'}{'\n'}
+              perkembangan yang paling penting pada masa awal kehidupan anak.
+              {"\n"}
+              {"\n"}
               Golden age meliputi 1000 hari pertama kehidupan anak yang dihitung
               dari masa dalam kandungan sampai dengan usia anak mencapai dua
               tahun.
@@ -87,7 +81,7 @@ const createStyle = (insets: EdgeInsets) =>
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
-      width: "100%"
+      width: "100%",
     },
     pmkCareInformationTitle: {
       paddingHorizontal: Spacing.tiny,
@@ -103,7 +97,7 @@ const createStyle = (insets: EdgeInsets) =>
       textAlign: "center",
       fontFamily: Font.Medium,
       fontSize: TextSize.title,
-      color: color.lightneutral
+      color: color.lightneutral,
     },
     buttonWrapper: {
       position: "absolute",

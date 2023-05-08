@@ -11,7 +11,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import { persistor, store } from "@redux/store";
 
 import RootRouter from "src/router";
-import { cacheImages } from "src/lib/utils/cacheAssets";
+import { cacheImages, cacheFonts } from "src/lib/utils/cacheAssets";
 import { localImages } from "src/lib/ui/images";
 
 const App: React.FC<{}> = () => {
@@ -21,7 +21,7 @@ const App: React.FC<{}> = () => {
     async function loadResourcesAndDataAsync() {
       try {
         SplashScreen.preventAutoHideAsync();
-        const fontAssets = Font.loadAsync(customFont);
+        const fontAssets =  cacheFonts([...customFont]);
         const imageAssets = cacheImages(localImages);
 
         await Promise.all([...imageAssets, fontAssets]).then(() => {
