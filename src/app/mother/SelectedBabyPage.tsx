@@ -17,7 +17,7 @@ import { MotherStackParamList } from "src/router/types";
 import { color } from "src/lib/ui/color";
 
 import { EvilIcons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import { setSelectedTerapiBaby } from "@redux/actions/global";
 import moment from "moment";
@@ -32,11 +32,20 @@ interface Props
 
 const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { mother } = useSelector((state: RootState) => state.authentication);
+  const { mother } = useSelector(
+    (state: RootState) => state.authentication
+  );
+  const { selectedTerapiBaby } = useSelector(
+    (state: RootState) => state.global
+  );
   const [selectedBaby, setSelectedBaby] = useState<number | undefined>(
     undefined
   );
-  
+
+  const handleTerapiBabyChanges = useCallback(() => {
+    navigation.navigate("home");
+  }, [selectedTerapiBaby]);
+
   const renderItemList = (item: Baby, index: number) => {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
@@ -96,7 +105,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
       };
       dispatch(getProgressBaby(selectedBabyDocument.id));
       dispatch(setSelectedTerapiBaby(selectedBabyDocument));
-      navigation.navigate("home");
+      handleTerapiBabyChanges()
     }
   };
 

@@ -13,7 +13,9 @@ import RegisterBabyInformation from "@app/authentication/RegisterBabyInformation
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthRouter: React.FC<{}> = () => {
-  const { user } = useSelector((state: RootState) => state.authentication);
+  const { user, mother } = useSelector(
+    (state: RootState) => state.authentication
+  );
   return (
     <AuthStack.Navigator
       screenOptions={{
@@ -30,14 +32,15 @@ const AuthRouter: React.FC<{}> = () => {
         component={LoginPage}
         options={{
           title: "Login",
-          animationTypeForReplace: 'pop',
+          animationTypeForReplace: "pop",
           animation: Platform.select({
             ios: "slide_from_left",
             android: "simple_push",
-          })
+          }),
         }}
       />
-      {user && user.userType === "guest" && user.userRole === "mother" && (
+      {((user && user.userType === "guest" && user.userRole === "mother") ||
+        (mother && !mother.babyCollection)) && (
         <>
           <AuthStack.Screen
             name="register-user-information"
