@@ -1,5 +1,4 @@
 import LoginPage from "@app/authentication/LoginPage";
-import RegisterBabyInformationPage from "@app/authentication/RegisterBabyInformation";
 import RegisterUserInformationPage from "@app/authentication/RegisterUserInformation";
 import RegisterNurseInformationPage from "@app/authentication/RegisterNurseInformation";
 
@@ -9,6 +8,7 @@ import { useSelector } from "react-redux";
 import { AuthStackParamList } from "./types";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Platform } from "react-native";
+import RegisterBabyInformation from "@app/authentication/RegisterBabyInformation";
 
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
@@ -48,7 +48,7 @@ const AuthRouter: React.FC<{}> = () => {
           />
           <AuthStack.Screen
             name="register-baby-information"
-            component={RegisterBabyInformationPage}
+            component={RegisterBabyInformation}
             options={{
               title: "Register Baby Information",
             }}

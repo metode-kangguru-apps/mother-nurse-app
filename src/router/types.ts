@@ -9,6 +9,7 @@ export type MotherStackParamList = {
   "pmk-care": undefined;
   history: undefined;
   module: undefined;
+  "add-new-baby": undefined
 };
 
 export type NurseStackParamList = {
