@@ -18,7 +18,7 @@ import {
   signOut,
 } from "firebase/auth/react-native";
 
-import { signInWithCredential } from "firebase/auth";
+import { linkWithCredential, signInWithCredential } from "firebase/auth";
 import {
   doc,
   onSnapshot,
@@ -50,9 +50,19 @@ export const loginUser =
                 await setDoc(
                   doc(firestore, "users", credential.user.uid),
                   userInformation.user
-                ).catch((error) => {
-                  throw new Error(error);
-                });
+                )
+                  .then(() => {
+                    // set user data to redux
+                    dispatch(
+                      setUserData({
+                        ...userInformation.user,
+                        uid: credential.user.uid,
+                      })
+                    );
+                  })
+                  .catch((error) => {
+                    throw new Error(error);
+                  });
 
                 // add all baby doc to firebase
                 const babyRefID: string[] = [];
@@ -107,13 +117,6 @@ export const loginUser =
                         setMotherData({
                           ...motherData,
                           babyCollection,
-                        })
-                      );
-                      // set user data to redux
-                      dispatch(
-                        setUserData({
-                          ...userInformation.user,
-                          uid: credential.user.uid,
                         })
                       );
                       dispatch(fetchAuthenticationSuccess());
@@ -171,6 +174,18 @@ export const loginMotherWithGoogle =
               const userRef = await getDoc(
                 doc(firestore, "users", result.user.uid)
               );
+              // save user data to local storage
+              dispatch(
+                setUserData({
+                  uid: result.user.uid,
+                  ...userRef.data(),
+                })
+              );
+              
+              if (userRef.data()?.userType === "guest") {
+                dispatch(fetchAuthenticationSuccess());
+                return
+              }
 
               // fetch user based on userRole
               const userRole = userRef.get("userRole");
@@ -201,19 +216,11 @@ export const loginMotherWithGoogle =
                         babyCollection,
                       };
                       dispatch(setMotherData(savedMotherData));
-                      // save user data to local storage
-                      dispatch(
-                        setUserData({
-                          uid: result.user.uid,
-                          ...userRef.data(),
-                        })
-                      );
                       dispatch(fetchAuthenticationSuccess());
                     }
                   }
                 );
               }
-              dispatch(fetchAuthenticationSuccess());
             } else {
               const userGoogleInitialData: User = {
                 isAnonymous: false,
@@ -261,9 +268,13 @@ export const signUpMotherWithGoogle =
           userRole: payload.user.userRole,
           userType: payload.user.userType,
           isAnonymous: payload.user.isAnonymous,
-        }).catch(() => {
-          throw new Error();
-        });
+        })
+          .then(() => {
+            dispatch(setUserData(payload.user));
+          })
+          .catch(() => {
+            throw new Error();
+          });
 
         // create all baby and add to firestore
         const babyRefCollection: string[] = [];
@@ -309,7 +320,6 @@ export const signUpMotherWithGoogle =
           await setDoc(doc(firestore, "mothers", payload.user.uid), motherData)
             .then(() => {
               dispatch(setMotherData({ ...motherData, babyCollection }));
-              dispatch(setUserData(payload.user));
               dispatch(fetchAuthenticationSuccess());
             })
             .catch(() => {
@@ -430,5 +440,37 @@ export const addNewBaby =
         });
     } catch {
       dispatch(fetchAuthenticationError("Bayi gagal ditambah"));
+    }
+  };
+
+export const bindAnonymousAccoutToGoogle =
+  (
+    credential: OAuthCredential
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
+  async (dispatch) => {
+    try {
+      dispatch(fetchAuthenticationRequest());
+      if (auth.currentUser) {
+        linkWithCredential(auth.currentUser, credential)
+          .then(() => {
+            if (auth.currentUser?.uid) {
+              updateDoc(doc(firestore, "users", auth.currentUser.uid), {
+                isAnonymous: false,
+              })
+                .then(() => {
+                  dispatch(setUserData({ isAnonymous: false }));
+                  dispatch(fetchAuthenticationSuccess());
+                })
+                .catch(() => {
+                  throw new Error();
+                });
+            }
+          })
+          .catch(() => {
+            throw new Error();
+          });
+      }
+    } catch {
+      dispatch(fetchAuthenticationError("Account Google sudah pernah dipakai"));
     }
   };

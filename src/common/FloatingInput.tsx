@@ -121,7 +121,7 @@ const FloatingInput: React.FC<Props> = ({
           onChange && onChange(state.nativeEvent.text);
         }}
         defaultValue={defaultValue}
-        returnKeyType="next"
+        returnKeyType="done"
       />
     </View>
   );

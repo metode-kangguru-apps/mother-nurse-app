@@ -1,10 +1,7 @@
 
 // idx 1 is 28 week gestation age
 // < 37 week 3%, 10%, 50%, 2,5kg, 90%
-
-import { Gender } from "../ProfilePage/BabyCard";
-
-// need to ask for laki laki
+// need to ask client for laki laki milestone criteria
 export const MILESTONE_CRITERIA = {
     "laki-laki": [
         [600, 790, 1090, 1350, 2500],
