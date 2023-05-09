@@ -17,7 +17,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 interface Props {}
 
 const RootRouter: React.FC<Props> = () => {
-  const { user, mother } = useSelector(
+  const { user, mother, nurse } = useSelector(
     (state: RootState) => state.authentication
   );
   return (
@@ -30,13 +30,17 @@ const RootRouter: React.FC<Props> = () => {
         }}
       >
         {(!user ||
+          !mother ||
           user.userType === "guest" ||
-          (mother && !mother.babyCollection)) && (
-          <Stack.Screen name="auth" component={AuthRouter} />
-        )}
-        {user && user.userType === "member" && user.userRole == "mother" && (
-          <Stack.Screen name="mother" component={MotherRouter} />
-        )}
+          (mother && !mother.babyCollection)) &&
+          !nurse && <Stack.Screen name="auth" component={AuthRouter} />}
+        {user &&
+          user.userType === "member" &&
+          user.userRole == "mother" &&
+          mother &&
+          mother.babyCollection && (
+            <Stack.Screen name="mother" component={MotherRouter} />
+          )}
         {user && user.userType === "member" && user.userRole == "nurse" && (
           <Stack.Screen name="nurse" component={NurseRouter} />
         )}

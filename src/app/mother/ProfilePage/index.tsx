@@ -128,8 +128,8 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 type="mother"
                 name={user.displayName}
                 phoneNumber={"+62 " + mother.phoneNumber}
-                nurseName="Riska Larasati"
-                hospitalName="RS Sehati"
+                hospitalName={mother.hospitalCode.key.split(" - ")[0]}
+                bangsal={mother.hospitalCode.key.split(" - ")[1]}
               />
               {user.isAnonymous && (
                 <TouchableOpacity

@@ -59,7 +59,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
   const { user, nurse } = useSelector(
     (state: RootState) => state.authentication
   );
-  const { hospitalList, loading: loadingHospital } = useSelector(
+  const { hospitalList } = useSelector(
     (state: RootState) => state.global
   );
 
@@ -83,15 +83,6 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
     };
     dispatch(signUpNurseWithGoogle(newUserObj as Authentication));
   }
-
-  // redierect to new page if field mother already filled
-  useEffect(() => {
-    if (nurse) {
-      navigation.navigate("nurse", {
-        screen: "profile",
-      });
-    }
-  }, [nurse]);
 
   useEffect(() => {
     dispatch(getHospitalList(searchHospital));

@@ -9,16 +9,16 @@ interface Props {
   type: "mother" | "nurse";
   name: string;
   phoneNumber: string;
-  nurseName: string;
   hospitalName: string;
+  bangsal: string;
 }
 
 const ProfileCard: React.FC<Props> = ({
   type,
   name,
   phoneNumber,
-  nurseName,
   hospitalName,
+  bangsal,
 }) => {
   return (
     <View style={style.container}>
@@ -33,12 +33,12 @@ const ProfileCard: React.FC<Props> = ({
       </View>
       <View style={style.content}>
         <View style={style.smallInformation}>
-          <Text style={style.labelForm}>Perawat</Text>
-          <Text style={style.valueForm}>{nurseName}</Text>
-        </View>
-        <View style={style.smallInformation}>
           <Text style={style.labelForm}>Rumah Sakit</Text>
           <Text style={style.valueForm}>{hospitalName}</Text>
+        </View>
+        <View style={style.smallInformation}>
+          <Text style={style.labelForm}>Bangsal</Text>
+          <Text style={style.valueForm}>{bangsal}</Text>
         </View>
       </View>
     </View>

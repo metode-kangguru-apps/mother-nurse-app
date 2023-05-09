@@ -11,7 +11,7 @@ import { useAppDispatch } from "@redux/hooks";
 import * as WebBrowser from "expo-web-browser";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { loginMotherWithGoogle } from "@redux/actions/authentication/thunks";
+import { loginWithGoogle } from "@redux/actions/authentication/thunks";
 import {
   Animated,
   Dimensions,
@@ -80,7 +80,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      dispatch(loginMotherWithGoogle(credential, selectedRegisterRole));
+      dispatch(loginWithGoogle(credential, selectedRegisterRole));
     }
   }, [response, dispatch]);
 
@@ -93,7 +93,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     if (user?.userType !== "guest") {
       // login mother
       if (user?.userRole === "mother") {
-        navigation.navigate("mother", {
+        navigation.replace("mother", {
           screen: "select-baby",
         });
       }
@@ -102,16 +102,16 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
 
     if (user?.userRole === "nurse") {
       // google nurse
-      navigation.navigate("register-nurse-information");
+      navigation.replace("register-nurse-information");
       return;
     }
 
     if (user?.isAnonymous) {
       // anonymous mother
-      navigation.navigate("register-baby-information");
+      navigation.replace("register-baby-information");
     } else {
       // google mother
-      navigation.navigate("register-user-information");
+      navigation.replace("register-user-information");
     }
   }, [user, loading]);
 

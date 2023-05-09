@@ -73,7 +73,6 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
       navigation.canGoBack() &&
       routes[routes.length - 2].name == "register-user-information"
     ) {
-      console.log("mantap")
       navigation.goBack();
     } else {
       Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
