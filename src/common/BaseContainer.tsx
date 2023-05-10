@@ -16,7 +16,6 @@ const createStyle = () => {
       flex: 1,
       alignItems: "center",
       backgroundColor: color.surface,
-      fontFamily: Font.Regular
     },
     container: {
       flex: 1,
@@ -41,7 +40,6 @@ export type Props = {
 const BaseContainer: React.FC<Props> = ({ children }) => {
   // create default style
   const style = useMemo(() => createStyle(), []);
-  const dispatch = useAppDispatch();
 
   return (
     <SafeAreaProvider style={[style.main]}>

@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-import * as Font from "expo-font";
 import { customFont } from "./src/lib/ui/font";
 
 import * as SplashScreen from "expo-splash-screen";
 import BaseContainer from "./src/common/BaseContainer";
+import SplashScreenApp from "src/common/SplashScreen";
 
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -17,9 +17,12 @@ import {
   getMotherData,
   getNurseData,
 } from "@redux/actions/authentication/thunks";
+import { Animated, StyleSheet } from "react-native";
+import { color } from "src/lib/ui/color";
 
 const App: React.FC<{}> = () => {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
+  const fadeAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     async function loadResourcesAndDataAsync() {
@@ -43,8 +46,17 @@ const App: React.FC<{}> = () => {
         };
         getUserData().then(async () => {
           await Promise.all([...imageAssets, fontAssets]).then(() => {
-            setAppIsReady(true);
-            SplashScreen.hideAsync();
+            setTimeout(async () => {
+              setAppIsReady(true);
+              await SplashScreen.hideAsync().then(() => {
+                Animated.timing(fadeAnim, {
+                  toValue: 0,
+                  delay: 100,
+                  duration: 450, // Durasi animasi dalam milidetik
+                  useNativeDriver: true,
+                }).start();
+              });
+            }, 1500);
           });
         });
       } catch (e) {
@@ -55,19 +67,36 @@ const App: React.FC<{}> = () => {
     loadResourcesAndDataAsync();
   }, []);
 
-  if (!appIsReady) {
-    return null;
-  }
-
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <BaseContainer>
-          <RootRouter />
+        {!appIsReady ? (
+          <SplashScreenApp />
+        ) : (
+          <>
+            <Animated.View
+              pointerEvents={"none"}
+              style={[styles.container, { opacity: fadeAnim }]}
+            ></Animated.View>
+            <RootRouter />
+          </>
+            )}
         </BaseContainer>
       </PersistGate>
     </Provider>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    zIndex: 1,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    backgroundColor: color.primary,
+  },
+});
 
 export default App;
