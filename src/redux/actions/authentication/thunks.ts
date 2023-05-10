@@ -10,7 +10,7 @@ import {
 } from ".";
 import { auth, firestore } from "../../../../firebaseConfig";
 
-import { RootState } from "../../types";
+import { AppDispatch, RootState } from "../../types";
 import { ThunkAction } from "redux-thunk";
 import {
   OAuthCredential,
@@ -31,16 +31,25 @@ import {
   getDocs,
   DocumentReference,
 } from "firebase/firestore";
-import { AddBabyPayload, Authentication, Baby, Mother, User } from "./types";
+import {
+  AddBabyPayload,
+  AuthenticationState,
+  Baby,
+  Mother,
+  User,
+} from "./types";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const loginUser =
-  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (
+    payload: AuthenticationState
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     try {
       signInAnonymously(auth)
         .then((credential) => {
-          let userInformation: Authentication = payload;
+          let userInformation: AuthenticationState = payload;
           // get user data from firestore cloud
           getDoc(doc(firestore, "users", credential.user.uid)).then(
             async (user) => {
@@ -322,7 +331,9 @@ export const loginWithGoogle =
   };
 
 export const signUpMotherWithGoogle =
-  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (
+    payload: AuthenticationState
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     try {
@@ -412,7 +423,9 @@ export const signUpMotherWithGoogle =
   };
 
 export const signUpNurseWithGoogle =
-  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (
+    payload: AuthenticationState
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     try {
@@ -462,37 +475,6 @@ export const signUpNurseWithGoogle =
         });
       }
       dispatch(fetchAuthenticationSuccess());
-    } catch {
-      dispatch(fetchAuthenticationError(""));
-    }
-  };
-
-export const getMotherData =
-  (motherId: string): ThunkAction<void, RootState, unknown, AnyAction> =>
-  async (dispatch) => {
-    dispatch(fetchAuthenticationRequest());
-    try {
-      await getDoc(doc(firestore, "mothers", motherId)).then(
-        async (querySnapshot) => {
-          const motherData = querySnapshot.data();
-          const babyCollection: Baby[] = [];
-          if (motherData?.babyCollection) {
-            for (const babyRefID of motherData.babyCollection) {
-              await getDoc(doc(firestore, "babies", babyRefID)).then(
-                (document) => {
-                  babyCollection.push(document.data() as Baby);
-                }
-              );
-            }
-            const savedMotherData: Mother = {
-              ...motherData,
-              babyCollection,
-            };
-            dispatch(setMotherData(savedMotherData));
-            dispatch(fetchAuthenticationSuccess());
-          }
-        }
-      );
     } catch {
       dispatch(fetchAuthenticationError(""));
     }
@@ -572,3 +554,91 @@ export const bindAnonymousAccoutToGoogle =
       dispatch(fetchAuthenticationError("Account Google sudah pernah dipakai"));
     }
   };
+
+export const getNurseData = createAsyncThunk<
+  unknown,
+  string,
+  {
+    dispatch: AppDispatch;
+  }
+>("", async (nurseId, { dispatch }) => {
+  try {
+    dispatch(fetchAuthenticationRequest());
+    await getDoc(doc(firestore, "nurses", nurseId)).then(
+      async (querySnapshot) => {
+        const nurseData = querySnapshot.data();
+        const hospitalData = (await getDoc(nurseData?.hospital)).data();
+        const motherCollectionRef = collection(nurseData?.hospital, "mothers");
+        const motherCollection: any[] = [];
+        const mothers = (await getDocs(motherCollectionRef)).docs;
+        const fetchAllMotherAndBaby = mothers.map(async (mother) => {
+          const motherData = (
+            await getDoc(mother.data().motherRef)
+          ).data() as Mother;
+          const babyCollection: any[] = [];
+          const fetchBaby = motherData.babyCollection?.map(async (babyRef) => {
+            const babyData = (
+              await getDoc(babyRef as DocumentReference)
+            ).data();
+            babyCollection.push(babyData);
+          });
+          fetchBaby &&
+            (await Promise.all(fetchBaby).then(() => {
+              motherCollection.push({
+                ...motherData,
+                babyCollection,
+              });
+            }));
+        });
+        await Promise.all(fetchAllMotherAndBaby).then(() => {
+          dispatch(
+            setNurseData({
+              phoneNumber: nurseData?.phoneNumber,
+              hospital: hospitalData,
+              motherCollection,
+            })
+          );
+          dispatch(fetchAuthenticationSuccess());
+        });
+      }
+    );
+  } catch {
+    dispatch(fetchAuthenticationError(""));
+  }
+});
+
+export const getMotherData = createAsyncThunk<
+  unknown,
+  string,
+  {
+    dispatch: AppDispatch;
+  }
+>("", async (motherId, { dispatch }) => {
+  try {
+    dispatch(fetchAuthenticationRequest());
+    await getDoc(doc(firestore, "mothers", motherId)).then(
+      async (querySnapshot) => {
+        const motherData = querySnapshot.data();
+        const babyCollection: Baby[] = [];
+        if (motherData?.babyCollection) {
+          for (const babyRef of motherData.babyCollection) {
+            await getDoc(babyRef).then((document) => {
+              babyCollection.push({
+                ...(document.data() as Baby),
+                id: document.id,
+              });
+            });
+          }
+          const savedMotherData: Mother = {
+            ...motherData,
+            babyCollection,
+          };
+          dispatch(setMotherData(savedMotherData));
+          dispatch(fetchAuthenticationSuccess());
+        }
+      }
+    );
+  } catch (e) {
+    dispatch(fetchAuthenticationError(""));
+  }
+});

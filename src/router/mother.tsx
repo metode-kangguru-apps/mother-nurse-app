@@ -48,7 +48,7 @@ const MotherRouter: React.FC<{}> = () => {
           }),
         }}
       />
-      {selectedTerapiBaby && (
+      {!!Object.keys(selectedTerapiBaby).length && (
         <>
           <MotherStack.Screen
             name="home"

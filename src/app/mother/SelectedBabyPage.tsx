@@ -32,9 +32,7 @@ interface Props
 
 const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { mother } = useSelector(
-    (state: RootState) => state.authentication
-  );
+  const { mother } = useSelector((state: RootState) => state.authentication);
   const { selectedTerapiBaby } = useSelector(
     (state: RootState) => state.global
   );
@@ -42,8 +40,10 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
     undefined
   );
 
-  const handleTerapiBabyChanges = useCallback(() => {
-    navigation.navigate("home");
+  useEffect(() => {
+    if (Object.keys(selectedTerapiBaby).length) {
+      navigation.navigate("home");
+    }
   }, [selectedTerapiBaby]);
 
   const renderItemList = (item: Baby, index: number) => {
@@ -103,9 +103,8 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
         ...mother.babyCollection[selectedBaby],
         currentWeek,
       };
-      dispatch(getProgressBaby(selectedBabyDocument.id));
       dispatch(setSelectedTerapiBaby(selectedBabyDocument));
-      handleTerapiBabyChanges()
+      dispatch(getProgressBaby(selectedBabyDocument.id));
     }
   };
 
@@ -115,9 +114,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
         source={require("../../../assets/baby-pattern.png")}
         style={style.backgroundPattern}
       />
-      <ScrollView
-        contentContainerStyle={style.wrapper}
-      >
+      <ScrollView contentContainerStyle={style.wrapper}>
         <View style={style.container}>
           <Text style={style.title}>Pilih Bayi</Text>
           <View style={style.babiesWrapper}>

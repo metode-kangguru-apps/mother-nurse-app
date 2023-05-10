@@ -11,6 +11,7 @@ export type User = {
 
 export type Mother = {
   id?: string;
+  displayName?: string;
   phoneNumber?: string;
   hospitalCode?: Hostpital;
   babyCollection?: Baby[] | undefined;
@@ -32,11 +33,12 @@ export type Baby = {
   gender?: "laki-laki" | "perempuan";
 };
 
-export type Authentication = {
+export type AuthenticationState = {
   user: User | undefined;
   mother: Mother | undefined;
   nurse: Nurse | undefined;
   loading?: boolean;
+  success?: boolean;
   error?: boolean;
   errorMessage?: string
 };

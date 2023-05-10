@@ -34,6 +34,7 @@ import * as Google from "expo-auth-session/providers/google";
 import { FIREBASE_WEB_CLIENT_ID } from "@env";
 import * as WebBrowser from "expo-web-browser";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
+import { persistor } from "@redux/store";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -58,6 +59,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
 
   const handleLogOutUser = () => {
     dispatch(logOutUser());
+    persistor.purge()
   };
 
   function handleSelectedBabyTerapi(babyObj: Baby) {
@@ -73,7 +75,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     }
   }, [response, dispatch]);
 
-  function renderBabyItem(item: Baby) {
+  function renderBabyItem(item: Baby, index: number) {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
     );
@@ -84,7 +86,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
         name={item.displayName}
         weight={item.currentWeight}
         length={item.currentLength}
-        key={item.id}
+        key={index}
         handleSelectedBabyTerapi={() => handleSelectedBabyTerapi(item)}
       ></BabyCard>
     );
@@ -158,8 +160,8 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 </View>
               </TouchableWithoutFeedback>
               <View>
-                {mother.babyCollection.map((baby: Baby, _: any) =>
-                  renderBabyItem(baby)
+                {mother.babyCollection.map((baby: Baby, key: number) =>
+                  renderBabyItem(baby, key)
                 )}
               </View>
             </View>
