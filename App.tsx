@@ -23,7 +23,6 @@ import { color } from "src/lib/ui/color";
 const App: React.FC<{}> = () => {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
-
   useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
@@ -45,6 +44,7 @@ const App: React.FC<{}> = () => {
           }
         };
         getUserData().then(async () => {
+          console.log("mantap")
           await Promise.all([...imageAssets, fontAssets]).then(() => {
             setTimeout(async () => {
               setAppIsReady(true);
@@ -66,7 +66,6 @@ const App: React.FC<{}> = () => {
     }
     loadResourcesAndDataAsync();
   }, []);
-
   return (
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>

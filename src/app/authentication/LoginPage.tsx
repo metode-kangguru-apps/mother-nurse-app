@@ -1,4 +1,8 @@
-import { FIREBASE_IOS_CLIENT_ID, FIREBASE_WEB_CLIENT_ID } from "@env";
+import {
+  FIREBASE_IOS_CLIENT_ID,
+  FIREBASE_WEB_CLIENT_ID,
+  FIREBASE_ANDROID_CLIENT_ID,
+} from "@env";
 import { useEffect, useRef, useState } from "react";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
 import { AuthStackParamList, RootStackParamList } from "src/router/types";
@@ -62,9 +66,10 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   const [searchHospital, setSearchHospital] = useState<string>("");
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: FIREBASE_WEB_CLIENT_ID,
+    expoClientId: FIREBASE_WEB_CLIENT_ID,
     webClientId: FIREBASE_WEB_CLIENT_ID,
-    iosClientId: FIREBASE_IOS_CLIENT_ID
+    iosClientId: FIREBASE_IOS_CLIENT_ID,
+    androidClientId: FIREBASE_ANDROID_CLIENT_ID,
   });
 
   const { user, loading, error, errorMessage } = useSelector(

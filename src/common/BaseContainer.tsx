@@ -2,13 +2,10 @@ import React, { useMemo } from "react";
 
 import { DefaultWidthSize } from "./types";
 
-import { useAppDispatch } from "@redux/hooks";
-
 import { View, StyleSheet, Platform } from "react-native";
 
 import { color } from "src/lib/ui/color";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { Font } from "src/lib/ui/font";
 
 const createStyle = () => {
   return StyleSheet.create({

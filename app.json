@@ -9,7 +9,8 @@
     "scheme": "hug-a-baby",
     "splash": {
       "image": "./assets/splash.png",
-      "backgroundColor": "#4E9992"
+      "resizeMode": "cover",
+      "backgroundColor": "#F3F3F3"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
@@ -24,7 +25,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
+        "backgroundColor": "#4E9992"
       },
       "package": "com.pmkappdev.mothernurseapp"
     },

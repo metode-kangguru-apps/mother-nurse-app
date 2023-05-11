@@ -29,7 +29,7 @@ import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
-import { Authentication } from "@redux/actions/authentication/types";
+import { AuthenticationState } from "@redux/actions/authentication/types";
 import PickerFiled from "src/common/PickerField";
 import { getHospitalList } from "@redux/actions/global/thunks";
 import { Hostpital } from "@redux/actions/global/type";
@@ -81,7 +81,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
         hospitalCode: formField.hospitalCode,
       },
     };
-    dispatch(signUpNurseWithGoogle(newUserObj as Authentication));
+    dispatch(signUpNurseWithGoogle(newUserObj as AuthenticationState));
   }
 
   useEffect(() => {
