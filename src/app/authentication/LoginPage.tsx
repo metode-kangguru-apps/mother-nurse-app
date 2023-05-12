@@ -53,7 +53,7 @@ interface Props
 interface FormField {
   name?: string;
   phoneNumber?: string;
-  hospitalCode?: Hostpital;
+  hospital?: Hostpital;
 }
 
 const LoginPage2: React.FC<Props> = ({ navigation }) => {
@@ -67,9 +67,9 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     expoClientId: FIREBASE_WEB_CLIENT_ID,
-    webClientId: FIREBASE_WEB_CLIENT_ID,
-    iosClientId: FIREBASE_IOS_CLIENT_ID,
-    androidClientId: FIREBASE_ANDROID_CLIENT_ID,
+    // webClientId: FIREBASE_WEB_CLIENT_ID,
+    // iosClientId: FIREBASE_IOS_CLIENT_ID,
+    // androidClientId: FIREBASE_ANDROID_CLIENT_ID,
   });
 
   const { user, loading, error, errorMessage } = useSelector(
@@ -139,7 +139,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     try {
       if (
         !motherFormField.phoneNumber ||
-        !motherFormField.hospitalCode ||
+        !motherFormField.hospital ||
         !motherFormField.name
       ) {
         throw new Error();
@@ -152,7 +152,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
       };
       const motherAnonymousInitialData: Mother = {
         phoneNumber: motherFormField.phoneNumber,
-        hospitalCode: motherFormField.hospitalCode as Hostpital,
+        hospital: motherFormField.hospital as Hostpital,
       };
       dispatch(setUserData(userAnonymousInitialData));
       dispatch(setMotherData(motherAnonymousInitialData));
@@ -204,8 +204,8 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
           ]}
         >
           <ImageBackground
-            source={require("../../../assets/baby-pattern.png")}
             style={style.backgroundPattern}
+            source={require("../../../assets/baby-pattern.png")}
           />
           <View style={style.topContent}></View>
           <View style={style.bottomContent}>
@@ -286,7 +286,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
                         ...prev,
-                        hospitalCode: value,
+                        hospital: value,
                       }));
                     }}
                     onSearch={(value) => {

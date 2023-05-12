@@ -62,7 +62,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   const [formField, setFormField] = useState({
     displayName: user?.displayName,
     phoneNumber: mother?.phoneNumber,
-    hospitalCode: mother?.hospitalCode,
+    hospital: mother?.hospital,
   });
 
   function handlerGoToRegisterBaby() {
@@ -74,7 +74,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
     dispatch(
       setMotherData({
         phoneNumber: formField.phoneNumber,
-        hospitalCode: formField.hospitalCode,
+        hospital: formField.hospital,
       } as Mother)
     );
   }
@@ -104,9 +104,9 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
-            <View style={style.welcomeImage}>
+            <View style={{ flex: 1 }}>
               <Image
-                style={{ flex: 1 }}
+                style={style.welcomeImage}
                 source={require("../../../assets/info-mother.png")}
               />
             </View>
@@ -150,7 +150,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
                   onChange={(value) => {
                     setFormField((prev) => ({
                       ...prev,
-                      hospitalCode: value,
+                      hospital: value,
                     }));
                   }}
                   onSearch={(value) => {
@@ -244,6 +244,7 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
+      marginBottom: Spacing.small
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

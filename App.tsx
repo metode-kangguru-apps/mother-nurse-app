@@ -44,7 +44,6 @@ const App: React.FC<{}> = () => {
           }
         };
         getUserData().then(async () => {
-          console.log("mantap")
           await Promise.all([...imageAssets, fontAssets]).then(() => {
             setTimeout(async () => {
               setAppIsReady(true);

@@ -13,7 +13,7 @@ export type Mother = {
   id?: string;
   displayName?: string;
   phoneNumber?: string;
-  hospitalCode?: Hostpital;
+  hospital?: Hostpital;
   babyCollection?: Baby[] | undefined;
 };
 

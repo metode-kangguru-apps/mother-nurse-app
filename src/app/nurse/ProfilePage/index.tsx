@@ -41,9 +41,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
   const style = useMemo(() => createStyle(insets), [insets]);
 
   const handleLogOutUser = () => {
-    console.log("mantap")
     dispatch(logOutUser());
-    persistor.purge()
   };
 
   return (

@@ -39,6 +39,7 @@ import {
   User,
 } from "./types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
+import { persistor } from "@redux/store";
 
 export const loginUser =
   (
@@ -76,7 +77,10 @@ export const loginUser =
                 // add all baby doc to firebase
                 const babyRefID: any[] = [];
                 const babyCollection: Baby[] = [];
-                if (userInformation.mother?.babyCollection) {
+                if (
+                  userInformation.mother?.babyCollection &&
+                  payload.mother?.hospital
+                ) {
                   const babyCreatedAt = new Date();
                   for (const baby of userInformation.mother.babyCollection) {
                     const babyDocument = {
@@ -113,9 +117,16 @@ export const loginUser =
                   }
 
                   // add mother with baby refs collection id to firebase
+                  const hospitalRef = doc(
+                    firestore,
+                    "hospitals",
+                    payload.mother?.hospital.value
+                  );
                   const motherData = {
                     ...userInformation.mother,
+                    displayName: userInformation.user?.displayName,
                     babyCollection: babyRefID,
+                    hospital: (await getDoc(hospitalRef)).data(),
                   };
                   const motherRef = doc(
                     firestore,
@@ -123,7 +134,7 @@ export const loginUser =
                     credential.user.uid
                   );
                   await setDoc(motherRef, motherData)
-                    .then(() => {
+                    .then(async () => {
                       dispatch(
                         setMotherData({
                           ...motherData,
@@ -131,20 +142,13 @@ export const loginUser =
                         })
                       );
                       dispatch(fetchAuthenticationSuccess());
-                      if (motherData.hospitalCode?.value) {
-                        const hospitalRef = doc(
-                          firestore,
-                          "hospitals",
-                          motherData.hospitalCode.value
-                        );
-                        const motherCollection = collection(
-                          hospitalRef,
-                          "mothers"
-                        );
-                        addDoc(motherCollection, {
-                          motherRef: motherRef,
-                        });
-                      }
+                      const motherCollection = collection(
+                        hospitalRef,
+                        "mothers"
+                      );
+                      await addDoc(motherCollection, {
+                        motherRef: motherRef,
+                      });
                     })
                     .catch((error) => {
                       throw new Error(error);
@@ -172,6 +176,7 @@ export const logOutUser =
           // clear data from local storage
           dispatch({ type: "CLEAR_SESSION" });
           dispatch(fetchAuthenticationSuccess());
+          persistor.purge();
         })
         .catch(() => {
           throw new Error();
@@ -200,15 +205,16 @@ export const loginWithGoogle =
                 const userRef = await getDoc(
                   doc(firestore, "users", result.user.uid)
                 );
+                const userData = userRef.data();
                 // save user data to local storage
                 dispatch(
                   setUserData({
                     uid: result.user.uid,
-                    ...userRef.data(),
+                    ...userData,
                   })
                 );
 
-                if (userRef.data()?.userType === "guest") {
+                if (userData?.userType === "guest") {
                   dispatch(fetchAuthenticationSuccess());
                   return;
                 }
@@ -353,9 +359,9 @@ export const signUpMotherWithGoogle =
           });
 
         // create all baby and add to firestore
-        const babyRefCollection: any[] = [];
+        const babyRefCollection: DocumentReference[] = [];
         const babyCollection: Baby[] = [];
-        if (payload.mother?.babyCollection) {
+        if (payload.mother?.babyCollection && payload.mother.hospital) {
           const babyCreatedAt = new Date();
           for (const babyData of payload.mother.babyCollection) {
             // add new baby to the collection
@@ -389,26 +395,26 @@ export const signUpMotherWithGoogle =
           }
 
           // add mother with baby collections and set mother to redux
+          const hospitalRef = doc(
+            firestore,
+            "hospitals",
+            payload.mother.hospital.value
+          );
           const motherData = {
             ...payload.mother,
+            displayName: payload.user.displayName,
             babyCollection: babyRefCollection,
+            hospital: (await getDoc(hospitalRef)).data(),
           };
           const motherRef = doc(firestore, "mothers", payload.user.uid);
           await setDoc(motherRef, motherData)
-            .then(() => {
+            .then(async () => {
               dispatch(setMotherData({ ...motherData, babyCollection }));
               dispatch(fetchAuthenticationSuccess());
-              if (motherData.hospitalCode?.value) {
-                const hospitalRef = doc(
-                  firestore,
-                  "hospitals",
-                  motherData.hospitalCode.value
-                );
-                const motherCollection = collection(hospitalRef, "mothers");
-                addDoc(motherCollection, {
-                  motherRef: motherRef,
-                });
-              }
+              const motherCollection = collection(hospitalRef, "mothers");
+              await addDoc(motherCollection, {
+                motherRef: motherRef,
+              });
             })
             .catch(() => {
               throw new Error();
@@ -429,13 +435,7 @@ export const signUpNurseWithGoogle =
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     try {
-      if (
-        payload.user &&
-        payload.nurse &&
-        payload.user.uid &&
-        payload.nurse.hospitalCode &&
-        payload.nurse.hospitalCode.value
-      ) {
+      if (payload.user && payload.user.uid) {
         // set user docs
         await setDoc(doc(firestore, "users", payload.user.uid), {
           displayName: payload.user.displayName,
@@ -451,30 +451,68 @@ export const signUpNurseWithGoogle =
           });
 
         // add hospital ref to nurse
-        const hospitalRef = doc(
-          firestore,
-          "hospitals",
-          payload.nurse.hospitalCode.value
-        );
-        setDoc(doc(firestore, "nurses", payload.user.uid), {
-          phoneNumber: payload.nurse.phoneNumber,
-          hospital: hospitalRef,
-        }).then(() => {
-          const motherCollection = [];
-          getDocs(collection(hospitalRef, "mothers")).then((querySnapshots) => {
-            querySnapshots.forEach((snapshot) => {
-              motherCollection.push(snapshot.data());
-            });
-            dispatch(
-              setNurseData({
-                phoneNumber: payload.nurse?.phoneNumber,
-                hospitalCode: payload.nurse?.hospitalCode,
-              })
-            );
+        if (payload.nurse && payload.nurse.hospital) {
+          const hospitalRef = doc(
+            firestore,
+            "hospitals",
+            payload.nurse.hospital.value
+          );
+          const hospitalData = (await getDoc(hospitalRef)).data();
+          setDoc(doc(firestore, "nurses", payload.user.uid), {
+            phoneNumber: payload.nurse.phoneNumber,
+            hospital: hospitalRef,
+          }).then(async () => {
+            const motherCollection: any[] = [];
+            const motherCollectionRef = collection(hospitalRef, "mothers");
+            const mothers = (await getDocs(motherCollectionRef)).docs;
+            // if rumah sakit have mothers collection
+            if (mothers.length > 0) {
+              const fetchAllMotherAndBaby = mothers.map(async (mother) => {
+                const motherData = (
+                  await getDoc(mother.data().motherRef)
+                ).data() as Mother;
+                const babyCollection: any[] = [];
+                const fetchBaby = motherData.babyCollection?.map(
+                  async (babyRef) => {
+                    const babyData = (
+                      await getDoc(babyRef as DocumentReference)
+                    ).data();
+                    babyCollection.push(babyData);
+                  }
+                );
+                fetchBaby &&
+                  (await Promise.all(fetchBaby).then(() => {
+                    motherCollection.push({
+                      ...motherData,
+                      babyCollection,
+                    });
+                  }));
+              });
+              await Promise.all(fetchAllMotherAndBaby).then(() => {
+                dispatch(
+                  setNurseData({
+                    displayName: payload.user?.displayName,
+                    phoneNumber: payload.nurse?.phoneNumber,
+                    hospital: hospitalData,
+                    motherCollection,
+                  })
+                );
+                dispatch(fetchAuthenticationSuccess());
+              });
+            } else {
+              dispatch(
+                setNurseData({
+                  displayName: payload.user?.displayName,
+                  phoneNumber: payload.nurse?.phoneNumber,
+                  hospital: hospitalData,
+                  motherCollection: [],
+                })
+              );
+              dispatch(fetchAuthenticationSuccess());
+            }
           });
-        });
+        }
       }
-      dispatch(fetchAuthenticationSuccess());
     } catch {
       dispatch(fetchAuthenticationError(""));
     }
@@ -495,7 +533,7 @@ export const addNewBaby =
         .then(async (querySnapshot) => {
           // update mother baby collections
           updateDoc(motherRef, {
-            babyCollection: arrayUnion(querySnapshot.id),
+            babyCollection: arrayUnion(querySnapshot),
           });
           babyDocument.id = querySnapshot.id;
           babyDocument.createdAt = Timestamp.fromMillis(
@@ -523,7 +561,7 @@ export const addNewBaby =
     }
   };
 
-export const bindAnonymousAccoutToGoogle =
+export const bindAnonymousAccountToGoogle =
   (
     credential: OAuthCredential
   ): ThunkAction<void, RootState, unknown, AnyAction> =>

@@ -56,7 +56,7 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
         temperature: formField.temperature,
       })
     );
-    navigation.replace("pmk-care");
+    navigation.navigate("pmk-care");
   }
   return (
     <ScrollView>

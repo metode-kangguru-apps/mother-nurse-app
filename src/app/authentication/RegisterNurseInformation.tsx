@@ -45,7 +45,7 @@ interface Props
 interface NursePayload {
   displayName: string;
   phoneNumber: string;
-  hospitalCode: Hostpital;
+  hospital: Hostpital;
 }
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
@@ -59,9 +59,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
   const { user, nurse } = useSelector(
     (state: RootState) => state.authentication
   );
-  const { hospitalList } = useSelector(
-    (state: RootState) => state.global
-  );
+  const { hospitalList } = useSelector((state: RootState) => state.global);
 
   const [searchHospital, setSearchHospital] = useState<string>("");
   const [formField, setFormField] = useState({} as NursePayload);
@@ -78,7 +76,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
       mother: undefined,
       nurse: {
         phoneNumber: formField.phoneNumber,
-        hospitalCode: formField.hospitalCode,
+        hospital: formField.hospital,
       },
     };
     dispatch(signUpNurseWithGoogle(newUserObj as AuthenticationState));
@@ -102,9 +100,9 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
-            <View style={style.welcomeImage}>
+            <View style={{ flex: 1 }}>
               <Image
-                style={{ flex: 1 }}
+                style={style.welcomeImage}
                 source={require("../../../assets/nurse-icon.png")}
               />
             </View>
@@ -146,7 +144,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
                   onChange={(value) => {
                     setFormField((prev) => ({
                       ...prev,
-                      hospitalCode: value,
+                      hospital: value,
                     }));
                   }}
                   onSearch={(value) => {
@@ -240,6 +238,7 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
+      marginBottom: Spacing.small
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

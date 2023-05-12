@@ -42,7 +42,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     if (Object.keys(selectedTerapiBaby).length) {
-      navigation.navigate("home");
+      navigation.replace("home");
     }
   }, [selectedTerapiBaby]);
 
@@ -124,7 +124,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
                 return renderItemList(element, index);
               })}
             <TouchableWithoutFeedback
-              onPress={() => navigation.navigate("add-new-baby")}
+              onPress={() => navigation.push("add-new-baby")}
             >
               <View style={style.addBabyButton} pointerEvents="box-only">
                 <Text style={style.addBabyTitle}>Tambah Bayi</Text>

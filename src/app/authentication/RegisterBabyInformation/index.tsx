@@ -35,7 +35,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
       },
       mother: {
         phoneNumber: mother?.phoneNumber,
-        hospitalCode: mother?.hospitalCode,
+        hospital: mother?.hospital,
         babyCollection: [
           {
             displayName: babyData.displayName,

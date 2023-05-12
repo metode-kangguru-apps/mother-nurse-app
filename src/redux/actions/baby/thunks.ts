@@ -22,7 +22,7 @@ import {
   setBabyProgress,
 } from ".";
 import { BabyProgressPayload, Progress } from "./types";
-import { setSelectedTerapiBaby } from "../global";
+import { updateBabyProgress } from "../global";
 import { Baby } from "../authentication/types";
 import { updateMotherBabyCollectionData } from "../authentication";
 
@@ -56,7 +56,12 @@ export const addProgressBaby =
                 id: babyRefDocs.id,
                 ...babyUpdated.data(),
               } as Baby;
-              dispatch(setSelectedTerapiBaby(babyDocument));
+              dispatch(
+                updateBabyProgress({
+                  currentWeight: payload.weight,
+                  currentLength: payload.length,
+                })
+              );
               dispatch(updateMotherBabyCollectionData(babyDocument));
             })
             .catch(() => {
@@ -65,7 +70,7 @@ export const addProgressBaby =
           // get progress list baby and set to redux
           const progressOrderByCreatedAt = query(
             progressRef,
-            orderBy("createdAt", 'desc')
+            orderBy("createdAt", "desc")
           );
           await getDocs(progressOrderByCreatedAt)
             .then((querySnapshot) => {
@@ -97,7 +102,7 @@ export const getProgressBaby =
       const babyRefDocs = doc(firestore, "babies", payload);
       const progressRef = query(
         collection(babyRefDocs, "progress"),
-        orderBy("createdAt", 'desc')
+        orderBy("createdAt", "desc")
       );
       const progressList: Progress[] = [];
       await getDocs(progressRef)

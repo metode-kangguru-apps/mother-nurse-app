@@ -19,6 +19,12 @@ const global = createSlice({
         ...action.payload,
       };
     },
+    updateBabyProgress: (state, action: PayloadAction<any>) => {
+      if (state.selectedTerapiBaby) {
+        state.selectedTerapiBaby.currentWeight = action.payload.currentWeight
+        state.selectedTerapiBaby.currentLength = action.payload.currentLength
+      }
+    },
     setHospitalList: (state, action: PayloadAction<Hostpital[]>) => {
       state.hospitalList = action.payload
     },
@@ -39,6 +45,7 @@ const global = createSlice({
 export const {
   setSelectedTerapiBaby,
   setHospitalList,
+  updateBabyProgress,
   fetchGlobalRequest,
   fetchGlobalError,
   fetchGlobalSuccess,

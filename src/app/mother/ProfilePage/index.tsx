@@ -24,7 +24,7 @@ import ProfileCard from "./ProfileCard";
 import BabyCard from "./BabyCard";
 
 import { useAppDispatch } from "@redux/hooks";
-import { bindAnonymousAccoutToGoogle, logOutUser } from "@redux/actions/authentication/thunks";
+import { bindAnonymousAccountToGoogle, logOutUser } from "@redux/actions/authentication/thunks";
 import { useEffect } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { Baby } from "@redux/actions/authentication/types";
@@ -59,7 +59,6 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
 
   const handleLogOutUser = () => {
     dispatch(logOutUser());
-    persistor.purge()
   };
 
   function handleSelectedBabyTerapi(babyObj: Baby) {
@@ -71,7 +70,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      dispatch(bindAnonymousAccoutToGoogle(credential))
+      dispatch(bindAnonymousAccountToGoogle(credential))
     }
   }, [response, dispatch]);
 
@@ -130,8 +129,8 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 type="mother"
                 name={user.displayName}
                 phoneNumber={"+62 " + mother.phoneNumber}
-                hospitalName={mother.hospitalCode.key.split(" - ")[0]}
-                bangsal={mother.hospitalCode.key.split(" - ")[1]}
+                hospitalName={mother.hospital.name}
+                bangsal={mother.hospital.bangsal}
               />
               {user.isAnonymous && (
                 <TouchableOpacity
@@ -147,7 +146,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
             </View>
             <View style={style.babyContainer}>
               <Text style={style.titleBabyProfile}>Profil Bayi</Text>
-              <TouchableWithoutFeedback onPress={() => navigation.navigate("add-new-baby")}>
+              <TouchableWithoutFeedback onPress={() => navigation.push("add-new-baby")}>
                 <View style={style.header} pointerEvents="box-only">
                   <Text style={style.headerTitle}>Tambah Bayi</Text>
                   <View>
