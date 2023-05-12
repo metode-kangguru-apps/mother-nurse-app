@@ -145,7 +145,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         </View>
       </View>
       <View style={style.buttonStartContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("monitoring")}>
+        <TouchableOpacity onPress={() => navigation.navigate("pmk-care")}>
           <View style={style.buttonStart}>
             <Text style={style.buttonStartTitle}>Mulai Sesi PMK</Text>
           </View>

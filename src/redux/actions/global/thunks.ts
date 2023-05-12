@@ -39,8 +39,9 @@ export const getHospitalList =
       await getDocs(getHospitalQuery)
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
+            const hospitalData = doc.data()
             hospitalList.push({
-              key: doc.data().name,
+              key: `${hospitalData.name} - ${hospitalData.bangsal}` ,
               value: doc.id,
             });
           });

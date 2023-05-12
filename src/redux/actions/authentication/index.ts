@@ -1,12 +1,13 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Authentication, Baby, Mother, Nurse } from "./types";
+import { AuthenticationState, Baby, Mother, Nurse } from "./types";
 
-const initialState: Authentication = {
+const initialState: AuthenticationState = {
   mother: undefined,
   user: undefined,
   nurse: undefined,
-  loading: false,
-  error: false,
+  loading: undefined,
+  success: undefined,
+  error: undefined,
 };
 
 const authentication = createSlice({
@@ -15,6 +16,8 @@ const authentication = createSlice({
   reducers: {
     fetchAuthenticationRequest: (state) => {
       state.loading = true;
+      state.success = undefined;
+      state.error = undefined;
     },
     setUserData: (state, action: PayloadAction<any>) => {
       // set user state
@@ -41,17 +44,19 @@ const authentication = createSlice({
     },
     fetchAuthenticationSuccess: (state) => {
       state.loading = false;
-      state.error = false;
+      state.success = true;
+      state.error = undefined
+    },
+    fetchAuthenticationError: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = true;
+      state.success = undefined;
+      state.errorMessage = action.payload;
     },
     clearAuthenticationDataSuccess: (state) => {
       state.mother = undefined;
       state.user = undefined;
       state.nurse = undefined;
-    },
-    fetchAuthenticationError: (state, action: PayloadAction<string>) => {
-      state.error = true;
-      state.loading = false;
-      state.errorMessage = action.payload;
     },
   },
 });

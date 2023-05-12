@@ -1,4 +1,8 @@
-import { FIREBASE_WEB_CLIENT_ID } from "@env";
+import {
+  FIREBASE_IOS_CLIENT_ID,
+  FIREBASE_WEB_CLIENT_ID,
+  FIREBASE_ANDROID_CLIENT_ID,
+} from "@env";
 import { useEffect, useRef, useState } from "react";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
 import { AuthStackParamList, RootStackParamList } from "src/router/types";
@@ -11,7 +15,7 @@ import { useAppDispatch } from "@redux/hooks";
 import * as WebBrowser from "expo-web-browser";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { loginMotherWithGoogle } from "@redux/actions/authentication/thunks";
+import { loginWithGoogle } from "@redux/actions/authentication/thunks";
 import {
   Animated,
   Dimensions,
@@ -49,7 +53,7 @@ interface Props
 interface FormField {
   name?: string;
   phoneNumber?: string;
-  hospitalCode?: Hostpital;
+  hospital?: Hostpital;
 }
 
 const LoginPage2: React.FC<Props> = ({ navigation }) => {
@@ -62,7 +66,10 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   const [searchHospital, setSearchHospital] = useState<string>("");
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: FIREBASE_WEB_CLIENT_ID,
+    expoClientId: FIREBASE_WEB_CLIENT_ID,
+    // webClientId: FIREBASE_WEB_CLIENT_ID,
+    // iosClientId: FIREBASE_IOS_CLIENT_ID,
+    // androidClientId: FIREBASE_ANDROID_CLIENT_ID,
   });
 
   const { user, loading, error, errorMessage } = useSelector(
@@ -80,7 +87,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      dispatch(loginMotherWithGoogle(credential, selectedRegisterRole));
+      dispatch(loginWithGoogle(credential, selectedRegisterRole));
     }
   }, [response, dispatch]);
 
@@ -93,7 +100,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     if (user?.userType !== "guest") {
       // login mother
       if (user?.userRole === "mother") {
-        navigation.navigate("mother", {
+        navigation.replace("mother", {
           screen: "select-baby",
         });
       }
@@ -102,16 +109,16 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
 
     if (user?.userRole === "nurse") {
       // google nurse
-      navigation.navigate("register-nurse-information");
+      navigation.replace("register-nurse-information");
       return;
     }
 
     if (user?.isAnonymous) {
       // anonymous mother
-      navigation.navigate("register-baby-information");
+      navigation.replace("register-baby-information");
     } else {
       // google mother
-      navigation.navigate("register-user-information");
+      navigation.replace("register-user-information");
     }
   }, [user, loading]);
 
@@ -132,7 +139,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     try {
       if (
         !motherFormField.phoneNumber ||
-        !motherFormField.hospitalCode ||
+        !motherFormField.hospital ||
         !motherFormField.name
       ) {
         throw new Error();
@@ -145,7 +152,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
       };
       const motherAnonymousInitialData: Mother = {
         phoneNumber: motherFormField.phoneNumber,
-        hospitalCode: motherFormField.hospitalCode as Hostpital,
+        hospital: motherFormField.hospital as Hostpital,
       };
       dispatch(setUserData(userAnonymousInitialData));
       dispatch(setMotherData(motherAnonymousInitialData));
@@ -197,8 +204,8 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
           ]}
         >
           <ImageBackground
-            source={require("../../../assets/baby-pattern.png")}
             style={style.backgroundPattern}
+            source={require("../../../assets/baby-pattern.png")}
           />
           <View style={style.topContent}></View>
           <View style={style.bottomContent}>
@@ -279,7 +286,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
                         ...prev,
-                        hospitalCode: value,
+                        hospital: value,
                       }));
                     }}
                     onSearch={(value) => {

@@ -29,7 +29,7 @@ import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
-import { Authentication } from "@redux/actions/authentication/types";
+import { AuthenticationState } from "@redux/actions/authentication/types";
 import PickerFiled from "src/common/PickerField";
 import { getHospitalList } from "@redux/actions/global/thunks";
 import { Hostpital } from "@redux/actions/global/type";
@@ -45,7 +45,7 @@ interface Props
 interface NursePayload {
   displayName: string;
   phoneNumber: string;
-  hospitalCode: Hostpital;
+  hospital: Hostpital;
 }
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
@@ -59,9 +59,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
   const { user, nurse } = useSelector(
     (state: RootState) => state.authentication
   );
-  const { hospitalList, loading: loadingHospital } = useSelector(
-    (state: RootState) => state.global
-  );
+  const { hospitalList } = useSelector((state: RootState) => state.global);
 
   const [searchHospital, setSearchHospital] = useState<string>("");
   const [formField, setFormField] = useState({} as NursePayload);
@@ -78,20 +76,11 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
       mother: undefined,
       nurse: {
         phoneNumber: formField.phoneNumber,
-        hospitalCode: formField.hospitalCode,
+        hospital: formField.hospital,
       },
     };
-    dispatch(signUpNurseWithGoogle(newUserObj as Authentication));
+    dispatch(signUpNurseWithGoogle(newUserObj as AuthenticationState));
   }
-
-  // redierect to new page if field mother already filled
-  useEffect(() => {
-    if (nurse) {
-      navigation.navigate("nurse", {
-        screen: "profile",
-      });
-    }
-  }, [nurse]);
 
   useEffect(() => {
     dispatch(getHospitalList(searchHospital));
@@ -111,9 +100,9 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
-            <View style={style.welcomeImage}>
+            <View style={{ flex: 1 }}>
               <Image
-                style={{ flex: 1 }}
+                style={style.welcomeImage}
                 source={require("../../../assets/nurse-icon.png")}
               />
             </View>
@@ -155,7 +144,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
                   onChange={(value) => {
                     setFormField((prev) => ({
                       ...prev,
-                      hospitalCode: value,
+                      hospital: value,
                     }));
                   }}
                   onSearch={(value) => {
@@ -249,6 +238,7 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
+      marginBottom: Spacing.small
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

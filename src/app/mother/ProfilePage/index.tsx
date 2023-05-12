@@ -24,7 +24,7 @@ import ProfileCard from "./ProfileCard";
 import BabyCard from "./BabyCard";
 
 import { useAppDispatch } from "@redux/hooks";
-import { bindAnonymousAccoutToGoogle, logOutUser } from "@redux/actions/authentication/thunks";
+import { bindAnonymousAccountToGoogle, logOutUser } from "@redux/actions/authentication/thunks";
 import { useEffect } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { Baby } from "@redux/actions/authentication/types";
@@ -34,6 +34,7 @@ import * as Google from "expo-auth-session/providers/google";
 import { FIREBASE_WEB_CLIENT_ID } from "@env";
 import * as WebBrowser from "expo-web-browser";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
+import { persistor } from "@redux/store";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -69,11 +70,11 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      dispatch(bindAnonymousAccoutToGoogle(credential))
+      dispatch(bindAnonymousAccountToGoogle(credential))
     }
   }, [response, dispatch]);
 
-  function renderBabyItem(item: Baby) {
+  function renderBabyItem(item: Baby, index: number) {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
     );
@@ -84,7 +85,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
         name={item.displayName}
         weight={item.currentWeight}
         length={item.currentLength}
-        key={item.id}
+        key={index}
         handleSelectedBabyTerapi={() => handleSelectedBabyTerapi(item)}
       ></BabyCard>
     );
@@ -128,8 +129,8 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 type="mother"
                 name={user.displayName}
                 phoneNumber={"+62 " + mother.phoneNumber}
-                nurseName="Riska Larasati"
-                hospitalName="RS Sehati"
+                hospitalName={mother.hospital.name}
+                bangsal={mother.hospital.bangsal}
               />
               {user.isAnonymous && (
                 <TouchableOpacity
@@ -145,7 +146,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
             </View>
             <View style={style.babyContainer}>
               <Text style={style.titleBabyProfile}>Profil Bayi</Text>
-              <TouchableWithoutFeedback onPress={() => navigation.navigate("add-new-baby")}>
+              <TouchableWithoutFeedback onPress={() => navigation.push("add-new-baby")}>
                 <View style={style.header} pointerEvents="box-only">
                   <Text style={style.headerTitle}>Tambah Bayi</Text>
                   <View>
@@ -158,8 +159,8 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 </View>
               </TouchableWithoutFeedback>
               <View>
-                {mother.babyCollection.map((baby: Baby, _: any) =>
-                  renderBabyItem(baby)
+                {mother.babyCollection.map((baby: Baby, key: number) =>
+                  renderBabyItem(baby, key)
                 )}
               </View>
             </View>

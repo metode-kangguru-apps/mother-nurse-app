@@ -10,7 +10,7 @@ import {
 } from ".";
 import { auth, firestore } from "../../../../firebaseConfig";
 
-import { RootState } from "../../types";
+import { AppDispatch, RootState } from "../../types";
 import { ThunkAction } from "redux-thunk";
 import {
   OAuthCredential,
@@ -21,7 +21,6 @@ import {
 import { linkWithCredential, signInWithCredential } from "firebase/auth";
 import {
   doc,
-  onSnapshot,
   setDoc,
   addDoc,
   collection,
@@ -29,20 +28,31 @@ import {
   Timestamp,
   updateDoc,
   arrayUnion,
+  getDocs,
+  DocumentReference,
 } from "firebase/firestore";
-import { AddBabyPayload, Authentication, Baby, Mother, User } from "./types";
+import {
+  AddBabyPayload,
+  AuthenticationState,
+  Baby,
+  Mother,
+  User,
+} from "./types";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { persistor } from "@redux/store";
 
 export const loginUser =
-  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (
+    payload: AuthenticationState
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     try {
       signInAnonymously(auth)
         .then((credential) => {
-          let userInformation: Authentication = payload;
+          let userInformation: AuthenticationState = payload;
           // get user data from firestore cloud
-          onSnapshot(
-            doc(firestore, "users", credential.user.uid),
+          getDoc(doc(firestore, "users", credential.user.uid)).then(
             async (user) => {
               // check if user not exist
               if (!user.exists()) {
@@ -65,9 +75,12 @@ export const loginUser =
                   });
 
                 // add all baby doc to firebase
-                const babyRefID: string[] = [];
+                const babyRefID: any[] = [];
                 const babyCollection: Baby[] = [];
-                if (userInformation.mother?.babyCollection) {
+                if (
+                  userInformation.mother?.babyCollection &&
+                  payload.mother?.hospital
+                ) {
                   const babyCreatedAt = new Date();
                   for (const baby of userInformation.mother.babyCollection) {
                     const babyDocument = {
@@ -77,7 +90,7 @@ export const loginUser =
                     // add baby document
                     await addDoc(collection(firestore, "babies"), babyDocument)
                       .then(async (querySnapshot) => {
-                        babyRefID.push(querySnapshot.id);
+                        babyRefID.push(querySnapshot);
                         babyCollection.push({
                           ...babyDocument,
                           id: querySnapshot.id,
@@ -104,15 +117,24 @@ export const loginUser =
                   }
 
                   // add mother with baby refs collection id to firebase
+                  const hospitalRef = doc(
+                    firestore,
+                    "hospitals",
+                    payload.mother?.hospital.value
+                  );
                   const motherData = {
                     ...userInformation.mother,
+                    displayName: userInformation.user?.displayName,
                     babyCollection: babyRefID,
+                    hospital: (await getDoc(hospitalRef)).data(),
                   };
-                  await setDoc(
-                    doc(firestore, "mothers", credential.user.uid),
-                    motherData
-                  )
-                    .then(() => {
+                  const motherRef = doc(
+                    firestore,
+                    "mothers",
+                    credential.user.uid
+                  );
+                  await setDoc(motherRef, motherData)
+                    .then(async () => {
                       dispatch(
                         setMotherData({
                           ...motherData,
@@ -120,6 +142,13 @@ export const loginUser =
                         })
                       );
                       dispatch(fetchAuthenticationSuccess());
+                      const motherCollection = collection(
+                        hospitalRef,
+                        "mothers"
+                      );
+                      await addDoc(motherCollection, {
+                        motherRef: motherRef,
+                      });
                     })
                     .catch((error) => {
                       throw new Error(error);
@@ -147,6 +176,7 @@ export const logOutUser =
           // clear data from local storage
           dispatch({ type: "CLEAR_SESSION" });
           dispatch(fetchAuthenticationSuccess());
+          persistor.purge();
         })
         .catch(() => {
           throw new Error();
@@ -156,7 +186,7 @@ export const logOutUser =
     }
   };
 
-export const loginMotherWithGoogle =
+export const loginWithGoogle =
   (
     credential: OAuthCredential,
     selectedUserRole: "mother" | "nurse"
@@ -167,84 +197,134 @@ export const loginMotherWithGoogle =
       await signInWithCredential(auth, credential)
         .then((result) => {
           // get user based on user uid
-          onSnapshot(doc(firestore, "users", result.user.uid), async (user) => {
-            // check is user exist
-            if (user.exists()) {
-              // get user data
-              const userRef = await getDoc(
-                doc(firestore, "users", result.user.uid)
-              );
-              // save user data to local storage
-              dispatch(
-                setUserData({
-                  uid: result.user.uid,
-                  ...userRef.data(),
-                })
-              );
-              
-              if (userRef.data()?.userType === "guest") {
-                dispatch(fetchAuthenticationSuccess());
-                return
-              }
-
-              // fetch user based on userRole
-              const userRole = userRef.get("userRole");
-
-              if (userRole !== selectedUserRole) {
-                throw Error(
-                  "Email yang anda gunakan sepertinya sudah terdaftar pada peran lain"
+          getDoc(doc(firestore, "users", result.user.uid)).then(
+            async (user) => {
+              // check is user exist
+              if (user.exists()) {
+                // get user data
+                const userRef = await getDoc(
+                  doc(firestore, "users", result.user.uid)
                 );
-              }
-              if (userRole === "mother") {
-                await getDoc(doc(firestore, "mothers", result.user.uid)).then(
-                  async (querySnapshot) => {
-                    const motherData = querySnapshot.data();
-                    const babyCollection: Baby[] = [];
-                    if (motherData?.babyCollection) {
-                      for (const babyRefID of motherData.babyCollection) {
-                        await getDoc(doc(firestore, "babies", babyRefID)).then(
-                          (document) => {
-                            babyCollection.push({
-                              id: document.id,
-                              ...document.data(),
-                            } as Baby);
-                          }
-                        );
-                      }
-                      const savedMotherData: Mother = {
-                        ...motherData,
-                        babyCollection,
-                      };
-                      dispatch(setMotherData(savedMotherData));
-                      dispatch(fetchAuthenticationSuccess());
-                    }
-                  }
+                const userData = userRef.data();
+                // save user data to local storage
+                dispatch(
+                  setUserData({
+                    uid: result.user.uid,
+                    ...userData,
+                  })
                 );
-              }
-            } else {
-              const userGoogleInitialData: User = {
-                isAnonymous: false,
-                userType: "guest",
-                userRole: selectedUserRole,
-              };
-              await setDoc(
-                doc(firestore, "users", result.user.uid),
-                userGoogleInitialData
-              )
-                .then(() => {
-                  dispatch(
-                    setUserData({
-                      ...userGoogleInitialData,
-                      uid: result.user.uid,
-                    })
-                  );
+
+                if (userData?.userType === "guest") {
                   dispatch(fetchAuthenticationSuccess());
-                })
-                .catch(() => {
-                  throw new Error();
-                });
+                  return;
+                }
+
+                // get user rele
+                const userRole = userRef.get("userRole");
+
+                // not set user data if role login diff
+                if (userRole !== selectedUserRole) {
+                  throw Error(
+                    "Email yang anda gunakan sepertinya sudah terdaftar pada peran lain"
+                  );
+                }
+
+                if (userRole === "mother") {
+                  await getDoc(doc(firestore, "mothers", result.user.uid)).then(
+                    async (querySnapshot) => {
+                      const motherData = querySnapshot.data();
+                      const babyCollection: Baby[] = [];
+                      if (motherData && motherData.babyCollection) {
+                        for (const babyRefID of motherData.babyCollection) {
+                          const babySnapshot = await getDoc(babyRefID);
+                          babyCollection.push({
+                            id: babySnapshot.id,
+                            ...(babySnapshot.data() as Baby),
+                          });
+                        }
+                        const savedMotherData: Mother = {
+                          ...motherData,
+                          babyCollection,
+                        };
+                        dispatch(setMotherData(savedMotherData));
+                        dispatch(fetchAuthenticationSuccess());
+                      }
+                    }
+                  );
+                } else if (userRole === "nurse") {
+                  await getDoc(doc(firestore, "nurses", result.user.uid)).then(
+                    async (querySnapshot) => {
+                      const nursesData = querySnapshot.data();
+                      const hospitalData = (
+                        await getDoc(nursesData?.hospital)
+                      ).data();
+                      const motherCollectionRef = collection(
+                        nursesData?.hospital,
+                        "mothers"
+                      );
+                      const motherCollection: any[] = [];
+                      const mothers = (await getDocs(motherCollectionRef)).docs;
+                      const fetchAllMotherAndBaby = mothers.map(
+                        async (mother) => {
+                          const motherData = (
+                            await getDoc(mother.data().motherRef)
+                          ).data() as Mother;
+                          const babyCollection: any[] = [];
+                          const fetchBaby = motherData.babyCollection?.map(
+                            async (babyRef) => {
+                              const babyData = (
+                                await getDoc(babyRef as DocumentReference)
+                              ).data();
+                              babyCollection.push(babyData);
+                            }
+                          );
+                          fetchBaby &&
+                            (await Promise.all(fetchBaby).then(() => {
+                              motherCollection.push({
+                                ...motherData,
+                                babyCollection,
+                              });
+                            }));
+                        }
+                      );
+                      await Promise.all(fetchAllMotherAndBaby).then(() => {
+                        dispatch(
+                          setNurseData({
+                            phoneNumber: nursesData?.phoneNumber,
+                            hospital: hospitalData,
+                            motherCollection,
+                          })
+                        );
+                        dispatch(fetchAuthenticationSuccess());
+                      });
+                    }
+                  );
+                }
+              } else if (!user.exists()) {
+                const userGoogleInitialData: User = {
+                  isAnonymous: false,
+                  userType: "guest",
+                  userRole: selectedUserRole,
+                };
+                await setDoc(
+                  doc(firestore, "users", result.user.uid),
+                  userGoogleInitialData
+                )
+                  .then(() => {
+                    dispatch(
+                      setUserData({
+                        ...userGoogleInitialData,
+                        uid: result.user.uid,
+                      })
+                    );
+                    dispatch(fetchAuthenticationSuccess());
+                  })
+                  .catch(() => {
+                    throw new Error();
+                  });
+              }
             }
-          });
+          );
         })
         .catch((error) => {
           // if error save error message
@@ -257,7 +337,9 @@ export const loginMotherWithGoogle =
   };
 
 export const signUpMotherWithGoogle =
-  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (
+    payload: AuthenticationState
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     try {
@@ -277,9 +359,9 @@ export const signUpMotherWithGoogle =
           });
 
         // create all baby and add to firestore
-        const babyRefCollection: string[] = [];
+        const babyRefCollection: DocumentReference[] = [];
         const babyCollection: Baby[] = [];
-        if (payload.mother?.babyCollection) {
+        if (payload.mother?.babyCollection && payload.mother.hospital) {
           const babyCreatedAt = new Date();
           for (const babyData of payload.mother.babyCollection) {
             // add new baby to the collection
@@ -290,7 +372,7 @@ export const signUpMotherWithGoogle =
             await addDoc(collection(firestore, "babies"), babyDocument)
               .then(async (querySnapshot) => {
                 // ref id collection for firebase mother baby collection
-                babyRefCollection.push(querySnapshot.id);
+                babyRefCollection.push(querySnapshot);
                 // data to save in redux
                 babyCollection.push({
                   ...babyDocument,
@@ -313,14 +395,26 @@ export const signUpMotherWithGoogle =
           }
 
           // add mother with baby collections and set mother to redux
+          const hospitalRef = doc(
+            firestore,
+            "hospitals",
+            payload.mother.hospital.value
+          );
           const motherData = {
             ...payload.mother,
+            displayName: payload.user.displayName,
             babyCollection: babyRefCollection,
+            hospital: (await getDoc(hospitalRef)).data(),
           };
-          await setDoc(doc(firestore, "mothers", payload.user.uid), motherData)
-            .then(() => {
+          const motherRef = doc(firestore, "mothers", payload.user.uid);
+          await setDoc(motherRef, motherData)
+            .then(async () => {
               dispatch(setMotherData({ ...motherData, babyCollection }));
               dispatch(fetchAuthenticationSuccess());
+              const motherCollection = collection(hospitalRef, "mothers");
+              await addDoc(motherCollection, {
+                motherRef: motherRef,
+              });
             })
             .catch(() => {
               throw new Error();
@@ -335,11 +429,14 @@ export const signUpMotherWithGoogle =
   };
 
 export const signUpNurseWithGoogle =
-  (payload: Authentication): ThunkAction<void, RootState, unknown, AnyAction> =>
+  (
+    payload: AuthenticationState
+  ): ThunkAction<void, RootState, unknown, AnyAction> =>
   async (dispatch) => {
     dispatch(fetchAuthenticationRequest());
     try {
-      if (payload.user && payload.nurse && payload.user.uid) {
+      if (payload.user && payload.user.uid) {
+        // set user docs
         await setDoc(doc(firestore, "users", payload.user.uid), {
           displayName: payload.user.displayName,
           userRole: payload.user.userRole,
@@ -352,49 +449,70 @@ export const signUpNurseWithGoogle =
           .catch(() => {
             throw new Error();
           });
-        await setDoc(doc(firestore, "nurses", payload.user.uid), {
-          phoneNumber: payload.nurse.phoneNumber,
-          hospitalCode: payload.nurse.hospitalCode,
-        })
-          .then(() => {
-            dispatch(setNurseData({ ...payload.nurse }));
-          })
-          .catch(() => {
-            throw new Error();
-          });
-        dispatch(fetchAuthenticationSuccess());
-      }
-    } catch {
-      dispatch(fetchAuthenticationError(""));
-    }
-  };
 
-export const getMotherData =
-  (motherId: string): ThunkAction<void, RootState, unknown, AnyAction> =>
-  async (dispatch) => {
-    dispatch(fetchAuthenticationRequest());
-    try {
-      await getDoc(doc(firestore, "mothers", motherId)).then(
-        async (querySnapshot) => {
-          const motherData = querySnapshot.data();
-          const babyCollection: Baby[] = [];
-          if (motherData?.babyCollection) {
-            for (const babyRefID of motherData.babyCollection) {
-              await getDoc(doc(firestore, "babies", babyRefID)).then(
-                (document) => {
-                  babyCollection.push(document.data() as Baby);
-                }
+        // add hospital ref to nurse
+        if (payload.nurse && payload.nurse.hospital) {
+          const hospitalRef = doc(
+            firestore,
+            "hospitals",
+            payload.nurse.hospital.value
+          );
+          const hospitalData = (await getDoc(hospitalRef)).data();
+          setDoc(doc(firestore, "nurses", payload.user.uid), {
+            phoneNumber: payload.nurse.phoneNumber,
+            hospital: hospitalRef,
+          }).then(async () => {
+            const motherCollection: any[] = [];
+            const motherCollectionRef = collection(hospitalRef, "mothers");
+            const mothers = (await getDocs(motherCollectionRef)).docs;
+            // if rumah sakit have mothers collection
+            if (mothers.length > 0) {
+              const fetchAllMotherAndBaby = mothers.map(async (mother) => {
+                const motherData = (
+                  await getDoc(mother.data().motherRef)
+                ).data() as Mother;
+                const babyCollection: any[] = [];
+                const fetchBaby = motherData.babyCollection?.map(
+                  async (babyRef) => {
+                    const babyData = (
+                      await getDoc(babyRef as DocumentReference)
+                    ).data();
+                    babyCollection.push(babyData);
+                  }
+                );
+                fetchBaby &&
+                  (await Promise.all(fetchBaby).then(() => {
+                    motherCollection.push({
+                      ...motherData,
+                      babyCollection,
+                    });
+                  }));
+              });
+              await Promise.all(fetchAllMotherAndBaby).then(() => {
+                dispatch(
+                  setNurseData({
+                    displayName: payload.user?.displayName,
+                    phoneNumber: payload.nurse?.phoneNumber,
+                    hospital: hospitalData,
+                    motherCollection,
+                  })
+                );
+                dispatch(fetchAuthenticationSuccess());
+              });
+            } else {
+              dispatch(
+                setNurseData({
+                  displayName: payload.user?.displayName,
+                  phoneNumber: payload.nurse?.phoneNumber,
+                  hospital: hospitalData,
+                  motherCollection: [],
+                })
               );
+              dispatch(fetchAuthenticationSuccess());
             }
-            const savedMotherData: Mother = {
-              ...motherData,
-              babyCollection,
-            };
-            dispatch(setMotherData(savedMotherData));
-            dispatch(fetchAuthenticationSuccess());
-          }
+          });
         }
-      );
+      }
     } catch {
       dispatch(fetchAuthenticationError(""));
     }
@@ -415,7 +533,7 @@ export const addNewBaby =
         .then(async (querySnapshot) => {
           // update mother baby collections
           updateDoc(motherRef, {
-            babyCollection: arrayUnion(querySnapshot.id),
+            babyCollection: arrayUnion(querySnapshot),
           });
           babyDocument.id = querySnapshot.id;
           babyDocument.createdAt = Timestamp.fromMillis(
@@ -443,7 +561,7 @@ export const addNewBaby =
     }
   };
 
-export const bindAnonymousAccoutToGoogle =
+export const bindAnonymousAccountToGoogle =
   (
     credential: OAuthCredential
   ): ThunkAction<void, RootState, unknown, AnyAction> =>
@@ -474,3 +592,91 @@ export const bindAnonymousAccoutToGoogle =
       dispatch(fetchAuthenticationError("Account Google sudah pernah dipakai"));
     }
   };
+
+export const getNurseData = createAsyncThunk<
+  unknown,
+  string,
+  {
+    dispatch: AppDispatch;
+  }
+>("", async (nurseId, { dispatch }) => {
+  try {
+    dispatch(fetchAuthenticationRequest());
+    await getDoc(doc(firestore, "nurses", nurseId)).then(
+      async (querySnapshot) => {
+        const nurseData = querySnapshot.data();
+        const hospitalData = (await getDoc(nurseData?.hospital)).data();
+        const motherCollectionRef = collection(nurseData?.hospital, "mothers");
+        const motherCollection: any[] = [];
+        const mothers = (await getDocs(motherCollectionRef)).docs;
+        const fetchAllMotherAndBaby = mothers.map(async (mother) => {
+          const motherData = (
+            await getDoc(mother.data().motherRef)
+          ).data() as Mother;
+          const babyCollection: any[] = [];
+          const fetchBaby = motherData.babyCollection?.map(async (babyRef) => {
+            const babyData = (
+              await getDoc(babyRef as DocumentReference)
+            ).data();
+            babyCollection.push(babyData);
+          });
+          fetchBaby &&
+            (await Promise.all(fetchBaby).then(() => {
+              motherCollection.push({
+                ...motherData,
+                babyCollection,
+              });
+            }));
+        });
+        await Promise.all(fetchAllMotherAndBaby).then(() => {
+          dispatch(
+            setNurseData({
+              phoneNumber: nurseData?.phoneNumber,
+              hospital: hospitalData,
+              motherCollection,
+            })
+          );
+          dispatch(fetchAuthenticationSuccess());
+        });
+      }
+    );
+  } catch {
+    dispatch(fetchAuthenticationError(""));
+  }
+});
+
+export const getMotherData = createAsyncThunk<
+  unknown,
+  string,
+  {
+    dispatch: AppDispatch;
+  }
+>("", async (motherId, { dispatch }) => {
+  try {
+    dispatch(fetchAuthenticationRequest());
+    await getDoc(doc(firestore, "mothers", motherId)).then(
+      async (querySnapshot) => {
+        const motherData = querySnapshot.data();
+        const babyCollection: Baby[] = [];
+        if (motherData?.babyCollection) {
+          for (const babyRef of motherData.babyCollection) {
+            await getDoc(babyRef).then((document) => {
+              babyCollection.push({
+                ...(document.data() as Baby),
+                id: document.id,
+              });
+            });
+          }
+          const savedMotherData: Mother = {
+            ...motherData,
+            babyCollection,
+          };
+          dispatch(setMotherData(savedMotherData));
+          dispatch(fetchAuthenticationSuccess());
+        }
+      }
+    );
+  } catch (e) {
+    dispatch(fetchAuthenticationError(""));
+  }
+});

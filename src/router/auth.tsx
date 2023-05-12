@@ -13,7 +13,7 @@ import RegisterBabyInformation from "@app/authentication/RegisterBabyInformation
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthRouter: React.FC<{}> = () => {
-  const { user, mother } = useSelector(
+  const { user, mother, nurse } = useSelector(
     (state: RootState) => state.authentication
   );
   return (
@@ -58,7 +58,8 @@ const AuthRouter: React.FC<{}> = () => {
           />
         </>
       )}
-      {user && user.userType === "guest" && user.userRole === "nurse" && (
+      {((user && user.userType === "guest" && user.userRole === "nurse") ||
+        !nurse) && (
         <>
           <AuthStack.Screen
             name="register-nurse-information"

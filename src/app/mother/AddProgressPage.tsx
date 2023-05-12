@@ -56,7 +56,7 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
         temperature: formField.temperature,
       })
     );
-    navigation.replace("pmk-care");
+    navigation.navigate("pmk-care");
   }
   return (
     <ScrollView>
@@ -69,7 +69,7 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
         <View style={style.content}>
           <View style={style.babyReportImage}>
             <Image
-              style={{ flex: 1 }}
+              style={style.babyReportImage}
               source={require("../../../assets/baby-report.png")}
             />
           </View>

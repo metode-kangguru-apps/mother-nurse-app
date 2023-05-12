@@ -27,7 +27,7 @@ import { Baby } from "@redux/actions/authentication/types";
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
 interface Props {
-  title: string,
+  title: string;
   handleBackButton: () => void;
   handleRegisterBaby: (babyData: Baby) => void;
 }
@@ -49,9 +49,9 @@ const RegisterBabyPage: React.FC<Props> = ({
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
-            <View style={style.welcomeImage}>
+            <View style={{ flex: 1 }}>
               <Image
-                style={{ flex: 1 }}
+                style={style.welcomeImage}
                 source={require("../../../../assets/info-baby.png")}
               />
             </View>

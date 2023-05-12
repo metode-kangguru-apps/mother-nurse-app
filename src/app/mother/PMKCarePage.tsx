@@ -29,9 +29,9 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
     <ScrollView>
       <View style={style.container}>
         <View style={style.content}>
-          <View style={style.pmkCareImage}>
+          <View style={{flex: 1}}>
             <Image
-              style={{ flex: 1 }}
+              style={style.pmkCareImage}
               source={require("../../../assets/example-pmk-care.png")}
             />
           </View>

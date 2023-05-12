@@ -40,8 +40,18 @@ const AddNewBabyInformation: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     // if baby increase redierect to select baby
+    // refactor this using async thunk
     if (rememberBabyCount === mother.babyCollection.length) {
-      navigation.replace("select-baby");
+      const routes = navigation.getState().routes
+      if (routes.length > 2) {
+        if (routes[routes.length - 2].name === 'select-baby') {
+          navigation.replace("select-baby");   
+        } else {
+          navigation.replace('profile')
+        }
+      } else {
+        navigation.replace("select-baby");
+      }
     }
   }, [mother.babyCollection]);
 

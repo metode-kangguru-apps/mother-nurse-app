@@ -1,8 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthStackParamList, RootStackParamList } from "src/router/types";
 
-import { useEffect} from "react";
-import { Baby, Authentication } from "@redux/actions/authentication/types";
+import { Baby, AuthenticationState } from "@redux/actions/authentication/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { useAppDispatch } from "@redux/hooks";
@@ -36,7 +35,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
       },
       mother: {
         phoneNumber: mother?.phoneNumber,
-        hospitalCode: mother?.hospitalCode,
+        hospital: mother?.hospital,
         babyCollection: [
           {
             displayName: babyData.displayName,
@@ -53,7 +52,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
       nurse: undefined,
     };
     if (user?.isAnonymous) {
-      dispatch(loginUser(newUserObj as Authentication));
+      dispatch(loginUser(newUserObj as AuthenticationState));
     } else {
       const newGoogleUserObj = {
         ...newUserObj,
@@ -63,7 +62,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
           isAnonymous: false,
         },
       };
-      dispatch(signUpMotherWithGoogle(newGoogleUserObj as Authentication));
+      dispatch(signUpMotherWithGoogle(newGoogleUserObj as AuthenticationState));
     }
   }
 
@@ -73,7 +72,6 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
       navigation.canGoBack() &&
       routes[routes.length - 2].name == "register-user-information"
     ) {
-      console.log("mantap")
       navigation.goBack();
     } else {
       Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
