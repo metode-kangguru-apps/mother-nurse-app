@@ -59,6 +59,9 @@ const linking = {
           },
           'mother-detail': {
             path: "/mother/detail"
+          },
+          'baby-detail': {
+            path: "/mother/baby/detail"
           }
         }
       },

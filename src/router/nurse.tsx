@@ -6,11 +6,12 @@ import ProfilePage from "@app/nurse/ProfilePage";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import MotherDetailPage from "@app/nurse/MotherDetailPage";
+import DetailBabyPage from "@app/nurse/DetailBabyPage";
 
 const NurseStack = createNativeStackNavigator<NurseStackParamList>();
 
 const NurseRouter: React.FC<{}> = () => {
-  const { selectedMotherDetail } = useSelector(
+  const { selectedMotherDetail, selectedTerapiBaby } = useSelector(
     (state: RootState) => state.global
   );
   return (
@@ -30,14 +31,26 @@ const NurseRouter: React.FC<{}> = () => {
         }}
       />
       {Object.keys(selectedMotherDetail).length > 0 && (
-        <NurseStack.Screen
-          name="mother-detail"
-          component={MotherDetailPage}
-          options={{
-            title: "Profil Pasien",
-            animation: "slide_from_right",
-          }}
-        />
+        <>
+          <NurseStack.Screen
+            name="mother-detail"
+            component={MotherDetailPage}
+            options={{
+              title: "Profil Pasien",
+              animation: "slide_from_right",
+            }}
+          />
+          {Object.keys(selectedTerapiBaby).length > 0 && (
+            <NurseStack.Screen
+              name="baby-detail"
+              component={DetailBabyPage}
+              options={{
+                title: "Profil Bayi",
+                animation: "slide_from_right",
+              }}
+            />
+          )}
+        </>
       )}
     </NurseStack.Navigator>
   );

@@ -2,8 +2,11 @@ import BabyCard from "@app/mother/ProfilePage/BabyCard";
 import ProfileCard from "@app/mother/ProfilePage/ProfileCard";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Baby } from "@redux/actions/authentication/types";
+import { clearGlobalState, setSelectedTerapiBaby } from "@redux/actions/global";
+import { useAppDispatch } from "@redux/hooks";
 import { RootState } from "@redux/types";
 import moment from "moment";
+import { useEffect } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSelector } from "react-redux";
 import Header from "src/common/Header";
@@ -16,15 +19,33 @@ interface Props
   extends NativeStackScreenProps<NurseStackParamList, "mother-detail"> {}
 
 const MotherDetailPage: React.FC<Props> = ({ navigation }) => {
-  const { selectedMotherDetail } = useSelector(
+  const { selectedMotherDetail, selectedTerapiBaby } = useSelector(
     (state: RootState) => state.global
   );
+
+  const dispatch = useAppDispatch();
+
+  function handleSelectBaby(baby: Baby) {
+    dispatch(setSelectedTerapiBaby(baby));
+  }
+
+  function handleBack() {
+    dispatch(clearGlobalState())
+    navigation.pop()
+  }
+
+  useEffect(() => {
+    if (Object.keys(selectedTerapiBaby).length !== 0) {
+      navigation.push("baby-detail");
+    }
+  }, [selectedTerapiBaby]);
+
   return (
     <ScrollView contentContainerStyle={style.container}>
       <Header
         title="Profil Pasien"
         titleStyle={{ fontFamily: Font.Bold }}
-        onBackButton={() => navigation.pop()}
+        onBackButton={handleBack}
       ></Header>
       <View style={style.content}>
         <ProfileCard
@@ -53,6 +74,7 @@ const MotherDetailPage: React.FC<Props> = ({ navigation }) => {
                   length={baby.currentLength}
                   key={baby.id}
                   status={baby.currentStatus}
+                  handleSelectedBabyTerapi={() => handleSelectBaby(baby)}
                 />
               );
             })}

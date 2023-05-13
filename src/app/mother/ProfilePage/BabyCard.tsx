@@ -23,6 +23,7 @@ interface Props {
   weight?: number;
   length?: number;
   status?: string;
+  showSelectBaby?: boolean;
   handleSelectedBabyTerapi?: () => void;
 }
 
@@ -34,9 +35,10 @@ const BabyCard: React.FC<Props> = ({
   weight,
   length,
   status,
+  showSelectBaby = true,
   handleSelectedBabyTerapi,
 }) => {
-  const style = useMemo(() => createStyle(type), [type])
+  const style = useMemo(() => createStyle(type), [type]);
   return (
     <View style={style.container}>
       {status &&
@@ -50,7 +52,9 @@ const BabyCard: React.FC<Props> = ({
       <View style={style.header}>
         <View>
           <BabyIcon
-            width={type === "mother" ? 34 : 40} height={type === "mother" ? 36 : 42} viewBox="0 0 32 34"
+            width={type === "mother" ? 34 : 40}
+            height={type === "mother" ? 36 : 42}
+            viewBox="0 0 32 34"
             color={gender === "laki-laki" ? color.primary : color.secondary}
           />
         </View>
@@ -74,27 +78,30 @@ const BabyCard: React.FC<Props> = ({
           <Text style={style.babyInfoText}>Panjang {length} cm</Text>
         </View>
       )}
-      <TouchableOpacity onPress={handleSelectedBabyTerapi}>
-        <View style={style.buttonStartTerapi}>
-          <Text
-            style={[
-              style.buttonTitle,
-              {
-                color: gender === "laki-laki" ? color.primary : color.secondary,
-              },
-            ]}
-          >
-            {type === "mother" ? "Lakukan Terapi" : "Lihat Riwayat"}
-          </Text>
-          <View>
-            <EvilIcons
-              name="arrow-right"
-              size={24}
-              color={gender === "laki-laki" ? color.primary : color.secondary}
-            />
+      {showSelectBaby && (
+        <TouchableOpacity onPress={handleSelectedBabyTerapi}>
+          <View style={style.buttonStartTerapi}>
+            <Text
+              style={[
+                style.buttonTitle,
+                {
+                  color:
+                    gender === "laki-laki" ? color.primary : color.secondary,
+                },
+              ]}
+            >
+              {type === "mother" ? "Lakukan Terapi" : "Lihat Riwayat"}
+            </Text>
+            <View>
+              <EvilIcons
+                name="arrow-right"
+                size={24}
+                color={gender === "laki-laki" ? color.primary : color.secondary}
+              />
+            </View>
           </View>
-        </View>
-      </TouchableOpacity>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -105,7 +112,7 @@ const createStyle = (type: "mother" | "nurse") =>
       width: "100%",
       backgroundColor: color.lightneutral,
       borderRadius: 20,
-      padding: (type === "mother" ? Spacing.small : Spacing.base),
+      padding: type === "mother" ? Spacing.small : Spacing.base,
       marginBottom: Spacing.tiny,
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.1,

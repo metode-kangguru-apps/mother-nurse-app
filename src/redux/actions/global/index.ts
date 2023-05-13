@@ -35,6 +35,10 @@ const global = createSlice({
         ...action.payload,
       };
     },
+    clearGlobalState: (state) => {
+      state.selectedMotherDetail = {}
+      state.selectedTerapiBaby = {}
+    },
     fetchGlobalRequest: (state) => {
       state.loading = true;
     },
@@ -54,6 +58,7 @@ export const {
   setHospitalList,
   updateBabyProgress,
   setSelectedMotherDetail,
+  clearGlobalState,
   fetchGlobalRequest,
   fetchGlobalError,
   fetchGlobalSuccess,
