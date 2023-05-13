@@ -55,7 +55,10 @@ const linking = {
         path: "/nurse",
         screens: {
           profile: {
-            path: "/profile"
+            path: ""
+          },
+          'mother-detail': {
+            path: "/mother/detail"
           }
         }
       },

@@ -54,12 +54,13 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
         weight: formField.weight,
         length: formField.length,
         temperature: formField.temperature,
+        prevWeight: selectedTerapiBaby.weight
       })
     );
     navigation.navigate("pmk-care");
   }
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={style.container}>
       <View style={style.container}>
         <Header
           title="Pencatatan"
@@ -129,7 +130,6 @@ const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      minHeight: Dimensions.get("window").height,
     },
     content: {
       display: "flex",
@@ -142,7 +142,7 @@ const createStyle = (insets: EdgeInsets) =>
       marginBottom: Spacing.base,
     },
     formContainer: {
-      flex: 1,
+      flexGrow: 1,
       width: "100%",
       paddingHorizontal: Spacing.base,
       paddingTop: Spacing.base,

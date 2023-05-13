@@ -25,6 +25,7 @@ import { Mother } from "@redux/actions/authentication/types";
 import MotherBabyCard from "./MotherBabyCard";
 import { logOutUser } from "@redux/actions/authentication/thunks";
 import { persistor } from "@redux/store";
+import { setSelectedMotherDetail } from "@redux/actions/global";
 
 interface Props
   extends CompositeScreenProps<
@@ -37,6 +38,11 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
   const { user, nurse, loading } = useSelector(
     (state: RootState) => state.authentication
   );
+
+  const { selectedMotherDetail } = useSelector(
+    (state: RootState) => state.global
+  );
+
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
 
@@ -44,51 +50,66 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     dispatch(logOutUser());
   };
 
+  function handleOnClickMother(mother: Mother) {
+    dispatch(setSelectedMotherDetail(mother));
+  }
+
+  useEffect(() => {
+    if (Object.keys(selectedMotherDetail).length > 0) {
+      navigation.push("mother-detail");
+    }
+  }, [selectedMotherDetail]);
+
   return (
-    <ScrollView contentContainerStyle={style.flex}>
-      <View style={style.wrapper}>
-        <View style={style.nurseProfileCard}>
-          <View style={style.nurseIconContainer}>
-            <NurseIcon />
-          </View>
-          <View style={style.informationContainer}>
-            <View>
-              <Text style={style.caption}>Selamat bertugas,</Text>
-              <Text style={style.nurseName}>{user.displayName}</Text>
-            </View>
-            <View style={style.hospitalWrapper}>
-              <View style={style.hospitalInformationWrapper}>
-                <Text style={style.label}>Bangsal</Text>
-                <Text style={style.hospitalInformation}>
-                  {nurse.hospital.bangsal}
-                </Text>
-              </View>
-              <View style={style.hospitalInformationWrapper}>
-                <Text style={style.label}>Rumah Sakit</Text>
-                <Text style={style.hospitalInformation}>
-                  {nurse.hospital.name}
-                </Text>
-              </View>
-            </View>
-          </View>
+    <ScrollView
+      contentContainerStyle={style.container}
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={style.nurseProfileCard}>
+        <View style={style.nurseIconContainer}>
+          <NurseIcon />
         </View>
-        <View style={style.motherBabyContainer}>
+        <View style={style.informationContainer}>
           <View>
-            <Text style={style.titleMotherBaby}>Daftar Ibu dan Bayi</Text>
-            <View>
-              {nurse.motherCollection &&
-                nurse.motherCollection.map((mother: Mother, key: number) => (
-                  <MotherBabyCard key={key} motherData={mother} />
-                ))}
+            <Text style={style.caption}>Selamat bertugas,</Text>
+            <Text style={style.nurseName}>{user.displayName}</Text>
+          </View>
+          <View style={style.hospitalWrapper}>
+            <View style={style.hospitalInformationWrapper}>
+              <Text style={style.label}>Bangsal</Text>
+              <Text style={style.hospitalInformation}>
+                {nurse.hospital.bangsal}
+              </Text>
+            </View>
+            <View style={style.hospitalInformationWrapper}>
+              <Text style={style.label}>Rumah Sakit</Text>
+              <Text style={style.hospitalInformation}>
+                {nurse.hospital.name}
+              </Text>
             </View>
           </View>
-          <TouchableOpacity
-            style={style.logoutButton}
-            onPress={handleLogOutUser}
-          >
-            <Text style={style.logoutButtonTitle}>Keluar</Text>
-          </TouchableOpacity>
         </View>
+      </View>
+      <View style={style.motherBabyContainer}>
+        <View>
+          <Text style={style.titleMotherBaby}>Daftar Ibu dan Bayi</Text>
+          <View>
+            {nurse.motherCollection &&
+              nurse.motherCollection.map((mother: Mother) => {
+                return (
+                  <TouchableOpacity
+                    key={mother.id}
+                    onPress={() => handleOnClickMother(mother)}
+                  >
+                    <MotherBabyCard motherData={mother} />
+                  </TouchableOpacity>
+                );
+              })}
+          </View>
+        </View>
+        <TouchableOpacity style={style.logoutButton} onPress={handleLogOutUser}>
+          <Text style={style.logoutButtonTitle}>Keluar</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
@@ -96,10 +117,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
 
 const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
-    flex: {
-      flex: 1,
-    },
-    wrapper: {
+    container: {
       flexGrow: 1,
       display: "flex",
     },
@@ -169,6 +187,7 @@ const createStyle = (insets: EdgeInsets) =>
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
+      marginBottom: insets.bottom
     },
     logoutButtonTitle: {
       fontFamily: Font.Bold,

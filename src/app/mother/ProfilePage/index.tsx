@@ -24,8 +24,11 @@ import ProfileCard from "./ProfileCard";
 import BabyCard from "./BabyCard";
 
 import { useAppDispatch } from "@redux/hooks";
-import { bindAnonymousAccountToGoogle, logOutUser } from "@redux/actions/authentication/thunks";
-import { useEffect } from "react";
+import {
+  bindAnonymousAccountToGoogle,
+  logOutUser,
+} from "@redux/actions/authentication/thunks";
+import { useEffect, useMemo } from "react";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { Baby } from "@redux/actions/authentication/types";
 import { setSelectedTerapiBaby } from "@redux/actions/global";
@@ -35,6 +38,7 @@ import { FIREBASE_WEB_CLIENT_ID } from "@env";
 import * as WebBrowser from "expo-web-browser";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
 import { persistor } from "@redux/store";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -57,20 +61,23 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
     clientId: FIREBASE_WEB_CLIENT_ID,
   });
 
+  const insets = useSafeAreaInsets()
+  const style = useMemo(() => createStyle(insets), [insets])
+
   const handleLogOutUser = () => {
     dispatch(logOutUser());
   };
 
   function handleSelectedBabyTerapi(babyObj: Baby) {
-    dispatch(setSelectedTerapiBaby(babyObj))
-    navigation.navigate("home")
+    dispatch(setSelectedTerapiBaby(babyObj));
+    navigation.navigate("home");
   }
 
   useEffect(() => {
     if (response?.type === "success") {
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      dispatch(bindAnonymousAccountToGoogle(credential))
+      dispatch(bindAnonymousAccountToGoogle(credential));
     }
   }, [response, dispatch]);
 
@@ -139,14 +146,18 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
                 >
                   <View style={style.buttonBindGoogle}>
                     <GoogleIcon style={style.googleIcon} />
-                    <Text style={style.bindGoogleText}>Sambungkan ke Google</Text>
+                    <Text style={style.bindGoogleText}>
+                      Sambungkan ke Google
+                    </Text>
                   </View>
                 </TouchableOpacity>
               )}
             </View>
             <View style={style.babyContainer}>
               <Text style={style.titleBabyProfile}>Profil Bayi</Text>
-              <TouchableWithoutFeedback onPress={() => navigation.push("add-new-baby")}>
+              <TouchableWithoutFeedback
+                onPress={() => navigation.push("add-new-baby")}
+              >
                 <View style={style.header} pointerEvents="box-only">
                   <Text style={style.headerTitle}>Tambah Bayi</Text>
                   <View>
@@ -177,76 +188,78 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
   );
 };
 
-const style = StyleSheet.create({
-  flex: {
-    flex: 1,
-  },
-  content: {
-    padding: Spacing.base,
-    width: "100%",
-  },
-  profileWrapper: {
-    marginBottom: Spacing.xlarge / 2,
-  },
-  buttonBindGoogle: {
-    width: "100%",
-    marginTop: Spacing.small,
-    paddingHorizontal: Spacing.xlarge / 2,
-    paddingVertical: Spacing.small,
-    borderRadius: 50,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: color.lightneutral,
-  },
-  googleIcon: {
-    marginRight: Spacing.small,
-  },
-  bindGoogleText: {
-    fontSize: TextSize.title,
-    color: color.neutral,
-    fontFamily: Font.Bold,
-  },
-  babyContainer: {
-    width: "100%",
-  },
-  titleBabyProfile: {
-    fontFamily: Font.Bold,
-    fontSize: TextSize.h5,
-  },
-  header: {
-    marginVertical: Spacing.small,
-    alignSelf: "flex-end",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  headerTitle: {
-    fontSize: TextSize.title,
-    color: color.secondary,
-    marginRight: Spacing.tiny,
-  },
-  logoutButton: {
-    width: "100%",
-    backgroundColor: color.lightneutral,
-    marginTop: Spacing.large,
-    borderWidth: 2,
-    borderColor: color.apple,
-    borderRadius: 50,
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  logoutButtonTitle: {
-    fontFamily: Font.Bold,
-    padding: Spacing.small,
-    fontSize: TextSize.title,
-    color: color.apple,
-  },
-});
+const createStyle = (insets: EdgeInsets) =>
+  StyleSheet.create({
+    flex: {
+      flex: 1,
+    },
+    content: {
+      padding: Spacing.base,
+      width: "100%",
+    },
+    profileWrapper: {
+      marginBottom: Spacing.xlarge / 2,
+    },
+    buttonBindGoogle: {
+      width: "100%",
+      marginTop: Spacing.small,
+      paddingHorizontal: Spacing.xlarge / 2,
+      paddingVertical: Spacing.small,
+      borderRadius: 50,
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.05,
+      shadowRadius: 4,
+      display: "flex",
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: color.lightneutral,
+    },
+    googleIcon: {
+      marginRight: Spacing.small,
+    },
+    bindGoogleText: {
+      fontSize: TextSize.title,
+      color: color.neutral,
+      fontFamily: Font.Bold,
+    },
+    babyContainer: {
+      width: "100%",
+    },
+    titleBabyProfile: {
+      fontFamily: Font.Bold,
+      fontSize: TextSize.h5,
+    },
+    header: {
+      marginVertical: Spacing.small,
+      alignSelf: "flex-end",
+      display: "flex",
+      flexDirection: "row",
+      alignItems: "center",
+    },
+    headerTitle: {
+      fontSize: TextSize.title,
+      color: color.secondary,
+      marginRight: Spacing.tiny,
+    },
+    logoutButton: {
+      width: "100%",
+      backgroundColor: color.lightneutral,
+      marginTop: Spacing.large,
+      borderWidth: 2,
+      borderColor: color.apple,
+      borderRadius: 50,
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: insets.bottom,
+    },
+    logoutButtonTitle: {
+      fontFamily: Font.Bold,
+      padding: Spacing.small,
+      fontSize: TextSize.title,
+      color: color.apple,
+    },
+  });
 
 export default ProfilePage;

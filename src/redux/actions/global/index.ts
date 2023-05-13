@@ -1,10 +1,11 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GlobalState, Hostpital } from "./type";
-import { Baby } from "../authentication/types";
+import { Baby, Mother } from "../authentication/types";
 
 const initialState: GlobalState = {
   loading: false,
   selectedTerapiBaby: {} as Baby,
+  selectedMotherDetail: {} as Mother,
   hospitalList: [] as Hostpital[],
   error: false,
 };
@@ -21,12 +22,18 @@ const global = createSlice({
     },
     updateBabyProgress: (state, action: PayloadAction<any>) => {
       if (state.selectedTerapiBaby) {
-        state.selectedTerapiBaby.currentWeight = action.payload.currentWeight
-        state.selectedTerapiBaby.currentLength = action.payload.currentLength
+        state.selectedTerapiBaby.currentWeight = action.payload.currentWeight;
+        state.selectedTerapiBaby.currentLength = action.payload.currentLength;
       }
     },
     setHospitalList: (state, action: PayloadAction<Hostpital[]>) => {
-      state.hospitalList = action.payload
+      state.hospitalList = action.payload;
+    },
+    setSelectedMotherDetail: (state, action: PayloadAction<Mother>) => {
+      state.selectedMotherDetail = {
+        ...state.selectedMotherDetail,
+        ...action.payload,
+      };
     },
     fetchGlobalRequest: (state) => {
       state.loading = true;
@@ -46,6 +53,7 @@ export const {
   setSelectedTerapiBaby,
   setHospitalList,
   updateBabyProgress,
+  setSelectedMotherDetail,
   fetchGlobalRequest,
   fetchGlobalError,
   fetchGlobalSuccess,

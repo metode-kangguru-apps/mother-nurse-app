@@ -26,7 +26,7 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{flex: 1}}>
       <View style={style.container}>
         <View style={style.content}>
           <View style={{flex: 1}}>
@@ -64,7 +64,6 @@ const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
     container: {
       flex: 1,
-      minHeight: Dimensions.get("window").height,
       backgroundColor: color.primary,
       paddingTop: insets.top + Spacing.base,
     },

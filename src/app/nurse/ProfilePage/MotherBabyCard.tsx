@@ -1,15 +1,32 @@
-import { Mother } from "@redux/actions/authentication/types";
-import { StyleSheet, Text, View } from "react-native";
+import { Baby, Mother } from "@redux/actions/authentication/types";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
 import { AntDesign } from "@expo/vector-icons";
 import { TextSize } from "src/lib/ui/textSize";
 import { Font } from "src/lib/ui/font";
 import { weekDifference } from "src/lib/utils/calculate";
+import { BabyStatus } from "@redux/actions/baby/types";
 
 interface Props {
   motherData: Mother;
 }
+
+const babyStatusStyle = (babyStatus: string) => {
+  let colorStyle;
+  switch (babyStatus) {
+    case BabyStatus.FINNISH:
+      colorStyle = color.primary;
+      break;
+    case BabyStatus.ON_PROGRESS:
+      colorStyle = color.accent2;
+      break;
+    default:
+      colorStyle = color.apple;
+      break;
+  }
+  return colorStyle;
+};
 
 const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
   return (
@@ -19,7 +36,7 @@ const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
         <AntDesign name="arrowright" size={20} color="black" />
       </View>
       {motherData.babyCollection &&
-        motherData.babyCollection.map((baby, key) => {
+        motherData.babyCollection.map((baby) => {
           let babyCreatedAt: any = baby.createdAt;
           babyCreatedAt = new Date(
             babyCreatedAt.seconds * 1000 + babyCreatedAt.nanoseconds / 1000000
@@ -27,9 +44,18 @@ const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
           const weekDiff = weekDifference(babyCreatedAt);
           const currentWeek = baby.gestationAge && baby.gestationAge + weekDiff;
           return (
-            <View key={key}>
+            <View key={baby.id}>
               <View style={style.deviderGap}></View>
-              <View style={style.babyContainer}>
+              <View
+                style={[
+                  style.babyContainer,
+                  {
+                    borderColor: baby.currentStatus
+                      ? babyStatusStyle(baby.currentStatus)
+                      : color.accent2,
+                  },
+                ]}
+              >
                 <Text style={style.babyName}>{baby.displayName}</Text>
                 <View style={style.babyWrapperInformation}>
                   <Text style={style.babyInformation}>{baby.weight} gram</Text>
@@ -38,7 +64,18 @@ const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
                     {currentWeek} Minggu
                   </Text>
                 </View>
-                <Text style={style.babyStatus}>PMK Selesai</Text>
+                <Text
+                  style={[
+                    style.babyStatus,
+                    {
+                      color: baby.currentStatus
+                        ? babyStatusStyle(baby.currentStatus)
+                        : color.accent2,
+                    },
+                  ]}
+                >
+                  {baby.currentStatus || "Status tidak terdaftar"}
+                </Text>
               </View>
             </View>
           );
@@ -72,8 +109,7 @@ const style = StyleSheet.create({
   },
   babyContainer: {
     paddingLeft: Spacing.xsmall,
-    borderLeftWidth: Spacing.extratiny,
-    borderColor: color.primary,
+    borderLeftWidth: 3,
   },
   babyName: {
     fontFamily: Font.Bold,
@@ -87,18 +123,17 @@ const style = StyleSheet.create({
   babyInformation: {
     fontSize: TextSize.body,
     fontFamily: Font.Medium,
-    color: color.neutral,
+    color: color.accent2,
   },
   babyInformationDevider: {
     width: 1,
     height: "100%",
-    backgroundColor: color.neutral,
+    backgroundColor: color.accent2,
     marginHorizontal: Spacing.extratiny,
   },
   babyStatus: {
-    fontFamily: Font.Bold,
+    fontFamily: Font.Medium,
     marginTop: Spacing.small,
-    color: color.primary,
     fontSize: TextSize.body,
   },
 });
