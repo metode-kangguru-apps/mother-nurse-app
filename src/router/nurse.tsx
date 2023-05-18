@@ -7,6 +7,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import MotherDetailPage from "@app/nurse/MotherDetailPage";
 import DetailBabyPage from "@app/nurse/DetailBabyPage";
+import HistoryProgressPage from "@app/nurse/HistoryProgressPage";
 
 const NurseStack = createNativeStackNavigator<NurseStackParamList>();
 
@@ -41,14 +42,24 @@ const NurseRouter: React.FC<{}> = () => {
             }}
           />
           {Object.keys(selectedTerapiBaby).length > 0 && (
-            <NurseStack.Screen
-              name="baby-detail"
-              component={DetailBabyPage}
-              options={{
-                title: "Profil Bayi",
-                animation: "slide_from_right",
-              }}
-            />
+            <>
+              <NurseStack.Screen
+                name="baby-detail"
+                component={DetailBabyPage}
+                options={{
+                  title: "Profil Bayi",
+                  animation: "slide_from_right",
+                }}
+              />
+              <NurseStack.Screen
+                name="history-progress"
+                component={HistoryProgressPage}
+                options={{
+                  title: "Progres Bayi",
+                  animation: "slide_from_right",
+                }}
+              />
+            </>
           )}
         </>
       )}

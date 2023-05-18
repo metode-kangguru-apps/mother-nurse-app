@@ -167,7 +167,7 @@ const createStyle = (type: "mother" | "nurse") =>
     },
     devider: {
       width: 1,
-      height: "80%",
+      height: Spacing.small,
       backgroundColor: color.accent2,
       marginHorizontal: Spacing.tiny,
     },

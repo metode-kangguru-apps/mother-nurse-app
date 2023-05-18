@@ -58,10 +58,13 @@ const linking = {
             path: ""
           },
           'mother-detail': {
-            path: "/mother/detail"
+            path: "/mother"
           },
           'baby-detail': {
-            path: "/mother/baby/detail"
+            path: "/mother/baby"
+          },
+          'history-progress': {
+            path: "mother/baby/progress"
           }
         }
       },

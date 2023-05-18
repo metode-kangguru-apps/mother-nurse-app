@@ -129,7 +129,7 @@ const style = StyleSheet.create({
     width: 1,
     height: "100%",
     backgroundColor: color.accent2,
-    marginHorizontal: Spacing.extratiny,
+    marginHorizontal: Spacing.tiny,
   },
   babyStatus: {
     fontFamily: Font.Medium,

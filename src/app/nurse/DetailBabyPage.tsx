@@ -18,6 +18,10 @@ import { color } from "src/lib/ui/color";
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { NurseStackParamList } from "src/router/types";
+import { TextSize } from "src/lib/ui/textSize";
+
+import { FontAwesome5 } from "@expo/vector-icons";
+import MotherIcons from "src/lib/ui/icons/mother";
 
 interface Props
   extends NativeStackScreenProps<NurseStackParamList, "baby-detail"> {}
@@ -61,20 +65,43 @@ const DetailBabyPage: React.FC<Props> = ({ navigation }) => {
           status={selectedTerapiBaby.currentStatus}
           showSelectBaby={false}
         />
-        <>
-          <TouchableOpacity onPress={handleSelectedBaby}>
-            <View style={style.buttonProgress}>
-              <Text style={style.progressText}>
-                Catat <Text style={style.bold}>Pertumbuhan</Text>
-              </Text>
-              <AntDesign
-                name="pluscircleo"
-                size={20}
-                color={color.lightneutral}
-              />
+        <View style={style.buttonNavigationContainer}>
+          <TouchableOpacity onPress={() => navigation.push("history-progress")}>
+            <View style={style.moduleMenu}>
+              <View style={style.moduleContent}>
+                <View style={style.moduleIcon}>
+                  <FontAwesome5
+                    name="thermometer-three-quarters"
+                    size={24}
+                    color={color.primary}
+                  />
+                </View>
+                <Text style={style.moduleTitle}>Riwayat Pertumbuhan</Text>
+              </View>
+              <View style={style.moduleGoToButton}>
+                <AntDesign name="arrowright" size={20} color={color.primary} />
+              </View>
             </View>
           </TouchableOpacity>
-        </>
+          <TouchableOpacity>
+            <View style={style.moduleMenu}>
+              <View style={style.moduleContent}>
+                <View style={style.moduleIcon}>
+                  <MotherIcons
+                    width={24}
+                    height={28}
+                    viewBox="0 0 30 34"
+                    color={color.primary}
+                  />
+                </View>
+                <Text style={style.moduleTitle}>Riwayat Sesi PMK</Text>
+              </View>
+              <View style={style.moduleGoToButton}>
+                <AntDesign name="arrowright" size={20} color={color.primary} />
+              </View>
+            </View>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -87,23 +114,42 @@ const style = StyleSheet.create({
   content: {
     padding: Spacing.base - Spacing.extratiny,
   },
-  buttonProgress: {
-    width: "100%",
-    borderRadius: Spacing.xlarge,
-    backgroundColor: color.secondary,
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.small + Spacing.extratiny / 2,
+  buttonNavigationContainer: {
+    marginTop: Spacing.base,
+  },
+  moduleMenu: {
+    flex: 1,
+    padding: Spacing.base,
+    backgroundColor: color.lightneutral,
+    borderRadius: 10,
+    marginBottom: Spacing.tiny,
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    shadowOffset: { width: 2, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 5,
+  },
+  moduleContent: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  moduleIcon: {
+    flex: 0.07,
+    marginRight: Spacing.base,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  moduleTitle: {
+    flex: 0.85,
+    fontFamily: Font.Medium,
+    fontSize: TextSize.title,
+  },
+  moduleGoToButton: {
     display: "flex",
     justifyContent: "center",
-    flexDirection: "row",
-    marginVertical: Spacing.xsmall,
-  },
-  bold: {
-    fontFamily: Font.Bold,
-  },
-  progressText: {
-    color: color.lightneutral,
-    marginRight: Spacing.xsmall,
   },
 });
 

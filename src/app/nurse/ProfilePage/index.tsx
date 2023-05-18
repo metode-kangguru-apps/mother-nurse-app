@@ -24,7 +24,6 @@ import { TextSize } from "src/lib/ui/textSize";
 import { Mother } from "@redux/actions/authentication/types";
 import MotherBabyCard from "./MotherBabyCard";
 import { logOutUser } from "@redux/actions/authentication/thunks";
-import { persistor } from "@redux/store";
 import { setSelectedMotherDetail } from "@redux/actions/global";
 
 interface Props

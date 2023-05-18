@@ -2,6 +2,7 @@ import BabyCard from "@app/mother/ProfilePage/BabyCard";
 import ProfileCard from "@app/mother/ProfilePage/ProfileCard";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Baby } from "@redux/actions/authentication/types";
+import { getProgressBaby } from "@redux/actions/baby/thunks";
 import { clearGlobalState, setSelectedTerapiBaby } from "@redux/actions/global";
 import { useAppDispatch } from "@redux/hooks";
 import { RootState } from "@redux/types";
@@ -27,11 +28,14 @@ const MotherDetailPage: React.FC<Props> = ({ navigation }) => {
 
   function handleSelectBaby(baby: Baby) {
     dispatch(setSelectedTerapiBaby(baby));
+    if (baby.id) {
+      dispatch(getProgressBaby(baby.id));
+    }
   }
 
   function handleBack() {
-    dispatch(clearGlobalState())
-    navigation.pop()
+    dispatch(clearGlobalState());
+    navigation.pop();
   }
 
   useEffect(() => {
