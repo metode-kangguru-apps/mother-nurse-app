@@ -65,6 +65,9 @@ const linking = {
           },
           'history-progress': {
             path: "mother/baby/progress"
+          },
+          'add-progress': {
+            path: "mother/baby/progress/add"
           }
         }
       },

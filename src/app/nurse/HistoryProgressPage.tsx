@@ -74,7 +74,7 @@ const HistoryProgressPage: React.FC<Props> = ({ navigation }) => {
         onBackButton={() => navigation.pop()}
       />
       <View style={style.buttonProgressWrapper}>
-        <TouchableOpacity onPress={() => console.log("")}>
+        <TouchableOpacity onPress={() => navigation.push("add-progress")}>
           <View style={style.buttonProgress}>
             <Text style={style.progressText}>
               Catat <Text style={style.bold}>Pertumbuhan</Text>

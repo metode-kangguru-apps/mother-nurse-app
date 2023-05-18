@@ -6,6 +6,7 @@ import { getProgressBaby } from "@redux/actions/baby/thunks";
 import { clearGlobalState, setSelectedTerapiBaby } from "@redux/actions/global";
 import { useAppDispatch } from "@redux/hooks";
 import { RootState } from "@redux/types";
+import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 import { useEffect } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -14,6 +15,7 @@ import Header from "src/common/Header";
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
+import { weekDifference } from "src/lib/utils/calculate";
 import { NurseStackParamList } from "src/router/types";
 
 interface Props
@@ -27,10 +29,20 @@ const MotherDetailPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
   function handleSelectBaby(baby: Baby) {
-    dispatch(setSelectedTerapiBaby(baby));
-    if (baby.id) {
-      dispatch(getProgressBaby(baby.id));
-    }
+    const babyCreatedAt = baby.createdAt as Timestamp;
+    const formatedBabyCreatedAt = new Date(
+      babyCreatedAt.seconds * 1000 + babyCreatedAt.nanoseconds / 1000000
+    );
+    const weekDiff = weekDifference(formatedBabyCreatedAt);
+    const currentWeek = baby.gestationAge && baby.gestationAge + weekDiff;
+
+    let selectedBabyDocument = {
+      ...baby,
+      currentWeek,
+    };
+
+    dispatch(setSelectedTerapiBaby(selectedBabyDocument));
+    baby.id && dispatch(getProgressBaby(baby.id));
   }
 
   function handleBack() {

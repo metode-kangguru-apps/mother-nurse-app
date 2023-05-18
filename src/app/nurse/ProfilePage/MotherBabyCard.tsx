@@ -58,7 +58,7 @@ const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
               >
                 <Text style={style.babyName}>{baby.displayName}</Text>
                 <View style={style.babyWrapperInformation}>
-                  <Text style={style.babyInformation}>{baby.weight} gram</Text>
+                  <Text style={style.babyInformation}>{baby.currentWeight} gram</Text>
                   <View style={style.babyInformationDevider}></View>
                   <Text style={style.babyInformation}>
                     {currentWeek} Minggu

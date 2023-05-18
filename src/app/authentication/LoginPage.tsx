@@ -21,6 +21,7 @@ import {
   Dimensions,
   ImageBackground,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -193,7 +194,10 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   });
 
   return (
-    <KeyboardAvoidingView style={style.flex}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={style.flex}
+    >
       <ScrollView
         contentContainerStyle={style.flex}
         scrollEnabled={selectedRegisterRole === "mother"}
@@ -421,7 +425,7 @@ const style = StyleSheet.create({
   motherField: {
     flex: 1,
     width: "100%",
-    paddingBottom: Spacing.xlarge
+    paddingBottom: Spacing.xlarge,
   },
   formFieldWrapper: {
     width: "100%",

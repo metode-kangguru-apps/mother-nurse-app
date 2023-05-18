@@ -13,7 +13,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { MotherStackParamList } from "src/router/types";
 
 import { color } from "src/lib/ui/color";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Spacing } from "src/lib/ui/spacing";
 import { Font } from "src/lib/ui/font";
@@ -26,10 +26,10 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
   return (
-    <ScrollView contentContainerStyle={{flex: 1}}>
+    <ScrollView contentContainerStyle={style.containerWrapper}>
       <View style={style.container}>
         <View style={style.content}>
-          <View style={{flex: 1}}>
+          <View style={style.imageHead}>
             <Image
               style={style.pmkCareImage}
               source={require("../../../assets/example-pmk-care.png")}
@@ -49,7 +49,14 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
           </View>
         </View>
         <View style={style.buttonWrapper}>
-          <TouchableOpacity onPress={() => navigation.replace("home")}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "home" }],
+              })
+            }
+          >
             <View style={style.buttonContainer}>
               <Text style={style.buttonTitle}>Tutup</Text>
             </View>
@@ -62,6 +69,9 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
 
 const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
+    containerWrapper: {
+      flexGrow: 1,
+    },
     container: {
       flex: 1,
       backgroundColor: color.primary,
@@ -70,6 +80,9 @@ const createStyle = (insets: EdgeInsets) =>
     content: {
       display: "flex",
       alignItems: "center",
+    },
+    imageHead: {
+      flex: 1,
     },
     pmkCareImage: {
       width: 193,

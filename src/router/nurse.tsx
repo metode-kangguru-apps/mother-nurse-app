@@ -8,6 +8,7 @@ import { RootState } from "@redux/types";
 import MotherDetailPage from "@app/nurse/MotherDetailPage";
 import DetailBabyPage from "@app/nurse/DetailBabyPage";
 import HistoryProgressPage from "@app/nurse/HistoryProgressPage";
+import AddProgressPage from "@app/nurse/AddProgressPage";
 
 const NurseStack = createNativeStackNavigator<NurseStackParamList>();
 
@@ -56,6 +57,14 @@ const NurseRouter: React.FC<{}> = () => {
                 component={HistoryProgressPage}
                 options={{
                   title: "Progres Bayi",
+                  animation: "slide_from_right",
+                }}
+              />
+              <NurseStack.Screen
+                name="add-progress"
+                component={AddProgressPage}
+                options={{
+                  title: "Tambah Progress Bayi",
                   animation: "slide_from_right",
                 }}
               />
