@@ -20,3 +20,13 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   AnyAction
 >;
+
+export enum FirebaseCollection {
+  USER = "users",
+  MOTHER = "mothers",
+  NURSE = "nurses",
+  BABIES = "babies",
+  HOSPITAL = "hospitals",
+  PROGRESS = "progress",
+  SESSION = "sessions"
+}

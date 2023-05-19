@@ -38,7 +38,7 @@ import { CompositeScreenProps } from "@react-navigation/native";
 import GoogleIcon from "src/lib/ui/icons/google";
 import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
-import { getHospitalList } from "@redux/actions/global/thunks";
+import { getHospitalList } from "@redux/actions/hospital/thunks";
 import PickerFiled from "src/common/PickerField";
 import { Hostpital } from "@redux/actions/global/type";
 
@@ -56,7 +56,7 @@ interface FormField {
   hospital?: Hostpital;
 }
 
-const LoginPage2: React.FC<Props> = ({ navigation }) => {
+const LoginPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
   const [selectedRegisterRole, setSelectedRegisterRole] = useState<
@@ -135,7 +135,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   }, [searchHospital]);
 
   // handle if user sign-up anonymous
-  const handleLoginUserAnonymously = async () => {
+  const handleLoginMotherAnonymously = async () => {
     try {
       if (
         !motherFormField.phoneNumber ||
@@ -296,7 +296,7 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                 </View>
                 <TouchableOpacity
                   style={style.nextButtonContainer}
-                  onPress={handleLoginUserAnonymously}
+                  onPress={handleLoginMotherAnonymously}
                 >
                   <Text style={style.nextButton}>Selanjutnya</Text>
                 </TouchableOpacity>
@@ -517,4 +517,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default LoginPage2;
+export default LoginPage;

@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthStackParamList, RootStackParamList } from "src/router/types";
 
 import { Baby, AuthenticationState } from "@redux/actions/authentication/types";
+import { Baby as BabyV2 } from "@redux/actions/pmkCare/types";
 import { useSelector } from "react-redux";
 import { RootState } from "@redux/types";
 import { useAppDispatch } from "@redux/hooks";
@@ -12,6 +13,8 @@ import {
 import { CompositeScreenProps } from "@react-navigation/native";
 import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
 import RegisterBabyPage from "./RegisterBabyPage";
+import { signInMotherAnonymously } from "@redux/actions/authenticationV2/thunks";
+import { MotherPayload } from "@redux/actions/authenticationV2/types";
 
 interface Props
   extends CompositeScreenProps<
@@ -25,7 +28,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
     (state: RootState) => state.authentication
   );
 
-  function handlerRegisterAccount(babyData: Baby) {
+  function handlerRegisterAccount(babyData: BabyV2) {
     const newUserObj = {
       user: {
         displayName: user?.displayName,
@@ -51,8 +54,31 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
       },
       nurse: undefined,
     };
+    const motherObj: MotherPayload = {
+      displayName: user?.displayName,
+      userType: "member",
+      userRole: "mother",
+      isAnonymous: true,
+      phoneNumber: mother?.phoneNumber,
+      hospital: mother?.hospital,
+      babyCollection: [
+        {
+          displayName: babyData.displayName,
+          gender: babyData.gender,
+          gestationAge: babyData.gestationAge,
+          weight: babyData.weight,
+          length: babyData.length,
+          currentWeek: babyData.gestationAge,
+          currentWeight: babyData.weight,
+          currentLength: babyData.length,
+          birthDate: babyData.birthDate,
+          createdAt: new Date(),
+        },
+      ],
+    };
     if (user?.isAnonymous) {
-      dispatch(loginUser(newUserObj as AuthenticationState));
+      // dispatch(loginUser(newUserObj as AuthenticationState));
+      dispatch(signInMotherAnonymously(motherObj));
     } else {
       const newGoogleUserObj = {
         ...newUserObj,

@@ -23,14 +23,17 @@ import PickerField from "src/common/PickerField";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { memo, useMemo, useState } from "react";
 import { Baby } from "@redux/actions/authentication/types";
+import { Baby as BabyV2 } from "@redux/actions/pmkCare/types";
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
 interface Props {
   title: string;
   handleBackButton: () => void;
-  handleRegisterBaby: (babyData: Baby) => void;
+  handleRegisterBaby: (babyData: BabyV2) => void;
 }
+
+interface FormField extends Partial<BabyV2> {}
 
 const RegisterBabyPage: React.FC<Props> = ({
   title,
@@ -38,8 +41,12 @@ const RegisterBabyPage: React.FC<Props> = ({
   handleRegisterBaby,
 }) => {
   const insets = useSafeAreaInsets();
-  const [formField, setFormField] = useState<Baby>({});
+  const [formField, setFormField] = useState<FormField>({});
   const style = useMemo(() => createStyle(insets), [insets]);
+
+  function handleButtonNextOnClick() {
+    handleRegisterBaby(formField as BabyV2)
+  }
 
   return (
     <KeyboardAvoidingView
@@ -131,7 +138,7 @@ const RegisterBabyPage: React.FC<Props> = ({
               <PickerField
                 label="Jenis Kelamin"
                 items={[
-                  { key: "Laki-laki", value: "laki-laki" },
+                  { key: "Laki-Laki", value: "laki-laki" },
                   { key: "Perempuan", value: "perempuan" },
                 ]}
                 onChange={(item) => {
@@ -156,7 +163,7 @@ const RegisterBabyPage: React.FC<Props> = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={style.nextButton}
-                onPress={() => handleRegisterBaby(formField)}
+                onPress={() => handleButtonNextOnClick()}
               >
                 <Text style={style.buttonTitle}>Selanjutnya</Text>
               </TouchableOpacity>
