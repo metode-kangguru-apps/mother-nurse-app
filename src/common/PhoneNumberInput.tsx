@@ -1,5 +1,5 @@
 import FloatingInput from "./FloatingInput";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 import { Spacing } from "src/lib/ui/spacing";
 import { color } from "src/lib/ui/color";
@@ -20,11 +20,25 @@ const PhoneNumberInput: React.FC<Props> = ({
 }) => {
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
   const [focus, setFocus] = useState(false);
+
+  const showErrorMessage = useCallback(() => {
+    if (required && onError && !inputValue) {
+      return (
+        <Text style={style.errorMessage}>Nomor telepon harus di isi!</Text>
+      );
+    } else if (onError && (inputValue.length < 8 || inputValue.length > 13)) {
+      return (
+        <Text style={style.errorMessage}>
+          Nomor telepon minimal 8 & maksimal 13 karakter
+        </Text>
+      );
+    }
+    return;
+  }, [inputValue, required, onError]);
+
   return (
     <View style={style.wrapper}>
-      {required && onError && !inputValue && (
-        <Text style={style.errorMessage}>Nomor telepon harus di isi!</Text>
-      )}
+      {showErrorMessage()}
       <View
         style={[
           style.inputContainer,

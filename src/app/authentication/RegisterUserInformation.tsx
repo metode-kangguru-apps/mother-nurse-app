@@ -36,6 +36,7 @@ import {
 import { Mother } from "@redux/actions/authentication/types";
 import PickerFiled from "src/common/PickerField";
 import { getHospitalList } from "@redux/actions/global/thunks";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
 interface Props
   extends NativeStackScreenProps<
@@ -59,6 +60,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   );
 
   const [searchHospital, setSearchHospital] = useState<string>("");
+  const [formValidationError, setFormValidationError] = useState<boolean>();
   const [formField, setFormField] = useState({
     displayName: user?.displayName,
     phoneNumber: mother?.phoneNumber,
@@ -66,17 +68,26 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   });
 
   function handlerGoToRegisterBaby() {
-    dispatch(
-      setUserData({
-        displayName: formField.displayName,
-      })
-    );
-    dispatch(
-      setMotherData({
-        phoneNumber: formField.phoneNumber,
-        hospital: formField.hospital,
-      } as Mother)
-    );
+    if (!isObjectContainUndefined(formField)) {
+      // TODO: change to authenticationV2
+      if (formField.phoneNumber.length < 8 || formField.hospital.length > 13) {
+        setFormValidationError(true);
+        return;
+      }
+      dispatch(
+        setUserData({
+          displayName: formField.displayName,
+        })
+      );
+      dispatch(
+        setMotherData({
+          phoneNumber: formField.phoneNumber,
+          hospital: formField.hospital,
+        } as Mother)
+      );
+    } else {
+      setFormValidationError(true);
+    }
   }
 
   // redierect to new page if field mother already filled
@@ -118,6 +129,8 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
               </View>
               <View style={style.inputContainer}>
                 <FloatingInput
+                  required
+                  onError={formValidationError}
                   label="Nama Ibu"
                   defaultValue={user?.displayName}
                   onChange={(value) =>
@@ -130,6 +143,8 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
               </View>
               <View style={style.inputContainer}>
                 <PhoneNumberInput
+                  required
+                  onError={formValidationError}
                   defaultValue={mother?.phoneNumber}
                   onChange={(value) => {
                     setFormField({
@@ -141,6 +156,8 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
               </View>
               <View style={style.inputContainer}>
                 <PickerFiled
+                  required
+                  onError={formValidationError}
                   label="Rumah Sakit"
                   searchable={true}
                   items={hospitalList}
@@ -244,7 +261,7 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: Spacing.small
+      marginBottom: Spacing.small,
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

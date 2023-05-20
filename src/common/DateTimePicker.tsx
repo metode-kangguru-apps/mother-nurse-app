@@ -1,5 +1,5 @@
 import Moment from "moment";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   View,
   StyleSheet,
@@ -13,10 +13,14 @@ import { Spacing } from "src/lib/ui/spacing";
 import CustomModal from "./Modal";
 import DatePicker from "react-native-modern-datepicker";
 import { color } from "src/lib/ui/color";
+import { firstCapital } from "src/lib/utils/string";
+import { TextSize } from "src/lib/ui/textSize";
 
 type Props = {
   label: string;
   defaultValue?: string;
+  required?: boolean;
+  onError?: boolean;
   onFocus?: (state: boolean) => void;
   onChange?: (value: string) => void;
 };
@@ -24,6 +28,8 @@ type Props = {
 const NativeDateTimePicker: React.FC<Props> = ({
   label,
   defaultValue,
+  required = false,
+  onError = false,
   onFocus,
   onChange,
 }) => {
@@ -49,6 +55,16 @@ const NativeDateTimePicker: React.FC<Props> = ({
     return !focus ? "transparent" : "rgba(0, 0, 255, 0.5)";
   }
 
+  const showErrorMessage = useCallback(() => {
+    if (required && onError && !inputValue) {
+      return (
+        <Text style={style.errorMessage}>
+          {firstCapital(label.toLowerCase())} harus di isi!
+        </Text>
+      );
+    }
+  }, [required, onError, inputValue]);
+
   useEffect(() => {
     Animated.timing(isFocusedAnimated, {
       toValue: focus || inputValue !== "" ? 1 : 0,
@@ -65,53 +81,56 @@ const NativeDateTimePicker: React.FC<Props> = ({
   }, [showDateTimePicker]);
 
   return (
-    <View style={{ width: "100%" }}>
-      <Animated.View
-        pointerEvents={"none"}
-        style={[
-          style.labelWrapper,
-          {
-            transform: [{ translateY: handleAnimatedOnFocusTop }],
-          },
-        ]}
-      >
-        <Animated.Text
-          style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+    <View style={style.wrapper}>
+      {showErrorMessage()}
+      <View style={{ width: "100%" }}>
+        <Animated.View
+          pointerEvents={"none"}
+          style={[
+            style.labelWrapper,
+            {
+              transform: [{ translateY: handleAnimatedOnFocusTop }],
+            },
+          ]}
         >
-          {label}
-        </Animated.Text>
-      </Animated.View>
-      <Pressable
-        style={style.textInput}
-        onPress={() => {
-          setFocus(true);
-          onFocus && onFocus(true);
-          setShowDateTimePicker(true);
-        }}
-      >
-        <Text>{inputValue}</Text>
-      </Pressable>
-      <CustomModal
-        visible={showDateTimePicker}
-        onModalClose={() => {
-          setShowDateTimePicker(false);
-        }}
-      >
-        <View style={style.modalContentContainer}>
-          <DatePicker
-            style={{ borderRadius: 20 }}
-            mode="calendar"
-            onDateChange={(dateString) => {
-              const resultString = Moment(new Date(dateString)).format(
-                "DD/MM/YYYY"
-              );
-              setShowDateTimePicker(false);
-              setInputValue(resultString);
-              onChange && onChange(resultString);
-            }}
-          ></DatePicker>
-        </View>
-      </CustomModal>
+          <Animated.Text
+            style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+          >
+            {label}
+          </Animated.Text>
+        </Animated.View>
+        <Pressable
+          style={style.textInput}
+          onPress={() => {
+            setFocus(true);
+            onFocus && onFocus(true);
+            setShowDateTimePicker(true);
+          }}
+        >
+          <Text>{inputValue}</Text>
+        </Pressable>
+        <CustomModal
+          visible={showDateTimePicker}
+          onModalClose={() => {
+            setShowDateTimePicker(false);
+          }}
+        >
+          <View style={style.modalContentContainer}>
+            <DatePicker
+              style={{ borderRadius: 20 }}
+              mode="calendar"
+              onDateChange={(dateString) => {
+                const resultString = Moment(new Date(dateString)).format(
+                  "DD/MM/YYYY"
+                );
+                setShowDateTimePicker(false);
+                setInputValue(resultString);
+                onChange && onChange(resultString);
+              }}
+            ></DatePicker>
+          </View>
+        </CustomModal>
+      </View>
     </View>
   );
 };
@@ -119,6 +138,15 @@ const NativeDateTimePicker: React.FC<Props> = ({
 const createStyle = (borderColor: string) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
+    wrapper: {
+      flex: 1,
+    },
+    errorMessage: {
+      marginLeft: Spacing.extratiny,
+      marginVertical: Spacing.extratiny,
+      fontSize: TextSize.caption,
+      color: color.apple,
+    },
     labelWrapper: {
       left: Platform.OS === "android" ? 12 : 14,
       zIndex: 1,

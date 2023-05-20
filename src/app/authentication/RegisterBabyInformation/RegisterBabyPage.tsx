@@ -24,6 +24,7 @@ import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { memo, useMemo, useState } from "react";
 import { Baby } from "@redux/actions/authentication/types";
 import { Baby as BabyV2 } from "@redux/actions/pmkCare/types";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
 const MEDIA_HEIGHT = Dimensions.get("window").height;
 
@@ -42,10 +43,15 @@ const RegisterBabyPage: React.FC<Props> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const [formField, setFormField] = useState<FormField>({});
+  const [formValidationError, setFormValidationError] = useState<boolean>();
   const style = useMemo(() => createStyle(insets), [insets]);
 
   function handleButtonNextOnClick() {
-    handleRegisterBaby(formField as BabyV2)
+    if (!isObjectContainUndefined(formField)) {
+      handleRegisterBaby(formField as BabyV2);
+    } else {
+      setFormValidationError(true);
+    }
   }
 
   return (
@@ -69,6 +75,8 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Nama"
                 onChange={(value) => {
                   setFormField({
@@ -80,11 +88,10 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Usia Gestasi (minggu)"
-                keyboardType={Platform.select({
-                  ios: "numbers-and-punctuation",
-                  android: "decimal-pad",
-                })}
+                keyboardType="decimal-pad"
                 onChange={(value) => {
                   setFormField({
                     ...formField,
@@ -95,6 +102,8 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={[style.inputContainer, { zIndex: 10 }]}>
               <DateTimePicker
+                required
+                onError={formValidationError}
                 label="Tanggal Lahir"
                 onChange={(value) => {
                   setFormField({
@@ -106,11 +115,10 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Berat (gram)"
-                keyboardType={Platform.select({
-                  ios: "numbers-and-punctuation",
-                  android: "decimal-pad",
-                })}
+                keyboardType="decimal-pad"
                 onChange={(value) => {
                   setFormField({
                     ...formField,
@@ -121,11 +129,10 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Tinggi Badan (cm)"
-                keyboardType={Platform.select({
-                  ios: "numbers-and-punctuation",
-                  android: "decimal-pad",
-                })}
+                keyboardType="decimal-pad"
                 onChange={(value) => {
                   setFormField({
                     ...formField,
@@ -136,6 +143,8 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={[style.inputContainer, { zIndex: 10 }]}>
               <PickerField
+                required
+                onError={formValidationError}
                 label="Jenis Kelamin"
                 items={[
                   { key: "Laki-Laki", value: "laki-laki" },

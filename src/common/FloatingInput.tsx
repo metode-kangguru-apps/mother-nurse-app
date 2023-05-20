@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   Platform,
   KeyboardTypeOptions,
   Keyboard,
+  NativeSyntheticEvent,
+  TextInputChangeEventData,
 } from "react-native";
 import { color } from "src/lib/ui/color";
 
@@ -41,9 +43,7 @@ const FloatingInput: React.FC<Props> = ({
   onChange,
 }) => {
   const [focus, setFocus] = useState<boolean>(bindFocus);
-  const [inputValue, setInputValue] = useState<string>(
-    defaultValue || statePrefix || ""
-  );
+  const [inputValue, setInputValue] = useState<string>(defaultValue || "");
   const isFocusedAnimated = useRef(new Animated.Value(0)).current;
   const textField = useRef<TextInput>(null);
 
@@ -77,6 +77,32 @@ const FloatingInput: React.FC<Props> = ({
     }
   }
 
+  function handleOnchange(
+    state: NativeSyntheticEvent<TextInputChangeEventData>
+  ) {
+    const result = state.nativeEvent.text;
+    if (
+      Platform.OS === "web" &&
+      (keyboardType === "phone-pad" || keyboardType === "decimal-pad")
+    ) {
+      if (!(/^[0-9]+$/.test(result) || result === "")) {
+        return;
+      }
+    }
+    setInputValue(result);
+    onChange && onChange(result);
+  }
+
+  const showErrorMessage = useCallback(() => {
+    if (required && onError && !inputValue) {
+      return (
+        <Text style={style.errorMessage}>
+          {firstCapital(label.toLowerCase())} harus di isi!
+        </Text>
+      );
+    }
+  }, [inputValue, required, onError]);
+
   useEffect(() => {
     Animated.timing(isFocusedAnimated, {
       toValue: focus || inputValue !== "" || statePrefix ? 1 : 0,
@@ -91,12 +117,8 @@ const FloatingInput: React.FC<Props> = ({
   }, [focus]);
 
   return (
-    <View style={style.wrapper}>
-      {required && onError && !inputValue && (
-        <Text style={style.errorMessage}>
-          {firstCapital(label.toLowerCase())} harus di isi!
-        </Text>
-      )}
+    <>
+      {showErrorMessage()}
       <View>
         <Animated.View
           pointerEvents={"none"}
@@ -123,6 +145,7 @@ const FloatingInput: React.FC<Props> = ({
           ref={textField}
           style={[style.textInput, { borderColor: borderColor }]}
           keyboardType={keyboardType}
+          value={inputValue}
           onFocus={() => {
             setFocus(true);
             onFocus && onFocus(true);
@@ -132,14 +155,13 @@ const FloatingInput: React.FC<Props> = ({
             onFocus && onFocus(false);
           }}
           onChange={(state) => {
-            setInputValue(state.nativeEvent.text);
-            onChange && onChange(state.nativeEvent.text);
+            handleOnchange(state);
           }}
           defaultValue={defaultValue}
           returnKeyType="default"
         />
       </View>
-    </View>
+    </>
   );
 };
 
@@ -147,6 +169,9 @@ const createStyle = (type: "no-border" | undefined, isStatePrefix: boolean) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
     wrapper: {
+      flex: 1,
+    },
+    container: {
       flex: 1,
     },
     errorMessage: {

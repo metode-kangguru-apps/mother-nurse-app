@@ -63,6 +63,7 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
 
   const [searchHospital, setSearchHospital] = useState<string>("");
   const [formField, setFormField] = useState({} as NursePayload);
+  // TODO: Form Validation and refactor to authenticationV2
 
   function registerNurse() {
     const newUserObj = {

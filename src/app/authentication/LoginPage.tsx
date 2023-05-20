@@ -65,7 +65,8 @@ const LoginPage: React.FC<Props> = () => {
   const [motherFormField, setMotherFormField] = useState<Partial<FormField>>(
     {}
   );
-  const [formValidationError, setFormValidationError] = useState<boolean>(false);
+  const [formValidationError, setFormValidationError] =
+    useState<boolean>(false);
   const [selectedRegisterRole, setSelectedRegisterRole] = useState<
     "mother" | "nurse"
   >("mother");
@@ -108,6 +109,13 @@ const LoginPage: React.FC<Props> = () => {
       !!motherFormField.hospital &&
       !!motherFormField.name
     ) {
+      if (
+        motherFormField.phoneNumber.length < 8 ||
+        motherFormField.phoneNumber.length > 13
+      ) {
+        setFormValidationError(true)
+        return
+      }
       const userAnonymousInitialData: Partial<MotherPayload> = {
         isAnonymous: true,
         userType: "guest",
