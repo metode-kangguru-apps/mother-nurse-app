@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Hospital, HospitalPayload, InitialState } from "./types";
+import { HospitalPayload, HospitalInitialState } from "./types";
 
-const initialState: InitialState = {
+const initialState: HospitalInitialState = {
   loading: false,
   selectedHospital: undefined,
   hospitalList: [] as HospitalPayload[],

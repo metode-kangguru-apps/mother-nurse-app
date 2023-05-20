@@ -9,7 +9,7 @@ import { color } from "src/lib/ui/color";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList } from "src/router/types";
 import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
+import { RootState, RootStateV2 } from "@redux/types";
 import NotFoundPage from "src/common/NotFoundPage";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -20,6 +20,9 @@ const RootRouter: React.FC<Props> = () => {
   const { user, mother, nurse } = useSelector(
     (state: RootState) => state.authentication
   );
+  const { user: userV2 } = useSelector(
+    (state: RootStateV2) => state.authentication
+  );
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator
@@ -29,11 +32,9 @@ const RootRouter: React.FC<Props> = () => {
           animation: "none",
         }}
       >
-        {(!user ||
-          !mother ||
-          user.userType === "guest" ||
-          (mother && !mother.babyCollection)) &&
-          !nurse && <Stack.Screen name="auth" component={AuthRouter} />}
+        {(!userV2 || userV2.userType === "guest") && (
+          <Stack.Screen name="auth" component={AuthRouter} />
+        )}
         {user &&
           user.userType === "member" &&
           user.userRole == "mother" &&

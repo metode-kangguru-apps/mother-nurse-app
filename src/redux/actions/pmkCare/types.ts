@@ -27,7 +27,7 @@ export type Session = {
   duration: string;
 };
 
-export type InitialState = {
+export type PMKCareInitialState = {
   baby: Baby;
   progress: Progress;
   session: Session;
@@ -35,3 +35,9 @@ export type InitialState = {
   error: boolean;
   message: string;
 };
+
+// Payload
+export type BabyPayload = Omit<Baby, "id">
+
+// Response
+export type BabyResponse = BabyPayload

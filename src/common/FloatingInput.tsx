@@ -12,9 +12,13 @@ import {
 import { color } from "src/lib/ui/color";
 
 import { Spacing } from "src/lib/ui/spacing";
+import { TextSize } from "src/lib/ui/textSize";
+import { firstCapital } from "src/lib/utils/string";
 
 type Props = {
   label: string;
+  required?: boolean;
+  onError?: boolean;
   defaultValue?: string;
   type?: "no-border";
   keyboardType?: KeyboardTypeOptions;
@@ -30,7 +34,9 @@ const FloatingInput: React.FC<Props> = ({
   type,
   keyboardType = "default",
   statePrefix,
+  required = false,
   bindFocus = false,
+  onError = false,
   onFocus,
   onChange,
 }) => {
@@ -81,51 +87,58 @@ const FloatingInput: React.FC<Props> = ({
       if (focus && textField.current) {
         textField.current.focus();
       }
-    }, Platform.select({ios: 700, android: 400}));
+    }, Platform.select({ ios: 700, android: 400 }));
   }, [focus]);
 
   return (
-    <View>
-      <Animated.View
-        pointerEvents={"none"}
-        style={[
-          style.labelContainer,
-          {
-            transform: [{ translateY: handleAnimatedOnFocusTop }],
-          },
-        ]}
-      >
-        <Animated.Text
+    <View style={style.wrapper}>
+      {required && onError && !inputValue && (
+        <Text style={style.errorMessage}>
+          {firstCapital(label.toLowerCase())} harus di isi!
+        </Text>
+      )}
+      <View>
+        <Animated.View
+          pointerEvents={"none"}
           style={[
-            style.labelStyle,
+            style.labelContainer,
             {
-              fontSize: handleAnimatedOnFocusSize,
+              transform: [{ translateY: handleAnimatedOnFocusTop }],
             },
           ]}
         >
-          {label}
-        </Animated.Text>
-      </Animated.View>
-      {statePrefix && <Text style={style.statePrefix}>{statePrefix}</Text>}
-      <TextInput
-        ref={textField}
-        style={[style.textInput, { borderColor: borderColor }]}
-        keyboardType={keyboardType}
-        onFocus={() => {
-          setFocus(true);
-          onFocus && onFocus(true);
-        }}
-        onBlur={() => {
-          setFocus(false);
-          onFocus && onFocus(false);
-        }}
-        onChange={(state) => {
-          setInputValue(state.nativeEvent.text);
-          onChange && onChange(state.nativeEvent.text);
-        }}
-        defaultValue={defaultValue}
-        returnKeyType="default"
-      />
+          <Animated.Text
+            style={[
+              style.labelStyle,
+              {
+                fontSize: handleAnimatedOnFocusSize,
+              },
+            ]}
+          >
+            {label}
+          </Animated.Text>
+        </Animated.View>
+        {statePrefix && <Text style={style.statePrefix}>{statePrefix}</Text>}
+        <TextInput
+          ref={textField}
+          style={[style.textInput, { borderColor: borderColor }]}
+          keyboardType={keyboardType}
+          onFocus={() => {
+            setFocus(true);
+            onFocus && onFocus(true);
+          }}
+          onBlur={() => {
+            setFocus(false);
+            onFocus && onFocus(false);
+          }}
+          onChange={(state) => {
+            setInputValue(state.nativeEvent.text);
+            onChange && onChange(state.nativeEvent.text);
+          }}
+          defaultValue={defaultValue}
+          returnKeyType="default"
+        />
+      </View>
     </View>
   );
 };
@@ -133,6 +146,15 @@ const FloatingInput: React.FC<Props> = ({
 const createStyle = (type: "no-border" | undefined, isStatePrefix: boolean) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
+    wrapper: {
+      flex: 1,
+    },
+    errorMessage: {
+      marginLeft: Spacing.extratiny,
+      marginVertical: Spacing.extratiny,
+      fontSize: TextSize.caption,
+      color: color.apple,
+    },
     labelContainer: {
       left: Platform.OS === "android" ? 12 : 14,
       zIndex: 1,

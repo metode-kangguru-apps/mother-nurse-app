@@ -1,3 +1,4 @@
+import { DocumentReference } from "firebase/firestore";
 import { Mother } from "../authenticationV2/types";
 
 export type Hospital = {
@@ -9,7 +10,7 @@ export interface HospitalWithMother extends Hospital {
   motherCollection: Mother[];
 }
 
-export type InitialState = {
+export type HospitalInitialState = {
     loading: boolean,
     selectedHospital: HospitalPayload | undefined,
     hospitalList: HospitalPayload[]
@@ -17,7 +18,13 @@ export type InitialState = {
     message: string
 }
 
+// Payload
 export type HospitalPayload = {
   key: string;
   value: string;
 };
+
+// Response
+export interface HospitalResponse extends Hospital {
+  motherCollection: DocumentReference[]
+}
