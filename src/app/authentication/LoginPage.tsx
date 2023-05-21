@@ -5,7 +5,7 @@ import {
 } from "@env";
 import { useEffect, useRef, useState } from "react";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
-import { AuthStackParamList, RootStackParamList } from "src/router/types";
+import { AuthStackParamList } from "src/router/types";
 
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
@@ -31,7 +31,6 @@ import * as Google from "expo-auth-session/providers/google";
 import { color } from "src/lib/ui/color";
 import { useSelector } from "react-redux";
 import { RootStateV2 } from "@redux/types";
-import { CompositeScreenProps } from "@react-navigation/native";
 import GoogleIcon from "src/lib/ui/icons/google";
 import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
@@ -41,6 +40,8 @@ import { MotherPayload } from "@redux/actions/authenticationV2/types";
 import { setUserData } from "@redux/actions/authenticationV2";
 import { signInUserWithGoogle } from "@redux/actions/authenticationV2/thunks";
 import { HospitalPayload } from "@redux/actions/hospital/types";
+import { setSelectedHospital } from "@redux/actions/hospital";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -62,8 +63,8 @@ const LoginPage: React.FC<Props> = () => {
   });
 
   const [searchHospital, setSearchHospital] = useState<string>("");
-  const [motherFormField, setMotherFormField] = useState<Partial<FormField>>(
-    {}
+  const [motherFormField, setMotherFormField] = useState<FormField>(
+    {} as FormField
   );
   const [formValidationError, setFormValidationError] =
     useState<boolean>(false);
@@ -104,17 +105,13 @@ const LoginPage: React.FC<Props> = () => {
   }, [searchHospital]);
 
   function handleLoginMotherAnonymously() {
-    if (
-      !!motherFormField.phoneNumber &&
-      !!motherFormField.hospital &&
-      !!motherFormField.name
-    ) {
+    if (!isObjectContainUndefined(motherFormField)) {
       if (
         motherFormField.phoneNumber.length < 8 ||
         motherFormField.phoneNumber.length > 13
       ) {
-        setFormValidationError(true)
-        return
+        setFormValidationError(true);
+        return;
       }
       const userAnonymousInitialData: Partial<MotherPayload> = {
         isAnonymous: true,
@@ -122,14 +119,15 @@ const LoginPage: React.FC<Props> = () => {
         userRole: "mother",
         displayName: motherFormField.name,
         phoneNumber: motherFormField.phoneNumber,
-        hospital: motherFormField.hospital,
       };
       dispatch(setUserData(userAnonymousInitialData));
+      dispatch(setSelectedHospital(motherFormField.hospital));
     } else {
       setFormValidationError(true);
     }
   }
 
+  // animated interpolate switch role
   const handleSwitchRoleOnSelect = selectedRoleAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [0, Spacing.base * 4.8],

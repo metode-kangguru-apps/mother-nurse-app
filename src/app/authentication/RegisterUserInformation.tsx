@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
 
-import { RootState } from "@redux/types";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dimensions,
   Image,
@@ -13,30 +13,31 @@ import {
   View,
 } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
+
+import { RootStateV2 } from "@redux/types";
+import { useAppDispatch } from "@redux/hooks";
 
 import { Font } from "src/lib/ui/font";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 
-import { AuthStackParamList } from "src/router/types";
+import PickerFiled from "src/common/PickerField";
 import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
 
+import { AuthStackParamList } from "src/router/types";
+
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
+
 import { AntDesign } from "@expo/vector-icons";
 
-import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
-import { useEffect, useMemo, useState } from "react";
-import { useAppDispatch } from "@redux/hooks";
-import {
-  clearAuthenticationDataSuccess,
-  setMotherData,
-  setUserData,
-} from "@redux/actions/authentication";
-import { Mother } from "@redux/actions/authentication/types";
-import PickerFiled from "src/common/PickerField";
-import { getHospitalList } from "@redux/actions/global/thunks";
-import { isObjectContainUndefined } from "src/lib/utils/calculate";
+import { setUserData } from "@redux/actions/authenticationV2";
+import { MotherPayload } from "@redux/actions/authenticationV2/types";
+import { logingOutUser } from "@redux/actions/authenticationV2/thunks";
+import { setSelectedHospital } from "@redux/actions/hospital";
+import { getHospitalList } from "@redux/actions/hospital/thunks";
 
 interface Props
   extends NativeStackScreenProps<
@@ -52,149 +53,129 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
 
-  const { user, mother } = useSelector(
-    (state: RootState) => state.authentication
-  );
-  const { hospitalList, loading: loadingHospital } = useSelector(
-    (state: RootState) => state.global
-  );
+  const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   const [searchHospital, setSearchHospital] = useState<string>("");
   const [formValidationError, setFormValidationError] = useState<boolean>();
-  const [formField, setFormField] = useState({
-    displayName: user?.displayName,
-    phoneNumber: mother?.phoneNumber,
-    hospital: mother?.hospital,
-  });
+  const [formField, setFormField] = useState<MotherPayload>(
+    {} as MotherPayload
+  );
 
   function handlerGoToRegisterBaby() {
     if (!isObjectContainUndefined(formField)) {
-      // TODO: change to authenticationV2
-      if (formField.phoneNumber.length < 8 || formField.hospital.length > 13) {
+      if (
+        formField.phoneNumber.length < 8 ||
+        formField.phoneNumber.length > 13
+      ) {
         setFormValidationError(true);
         return;
       }
-      dispatch(
-        setUserData({
-          displayName: formField.displayName,
-        })
-      );
-      dispatch(
-        setMotherData({
-          phoneNumber: formField.phoneNumber,
-          hospital: formField.hospital,
-        } as Mother)
-      );
+      const savedUserData: Partial<MotherPayload> = {
+        displayName: formField.displayName,
+        phoneNumber: formField.phoneNumber,
+      };
+      dispatch(setUserData(savedUserData));
+      dispatch(setSelectedHospital(formField.hospital));
+      navigation.navigate("register-baby-information");
     } else {
       setFormValidationError(true);
     }
   }
-
-  // redierect to new page if field mother already filled
-  useEffect(() => {
-    if (mother) {
-      navigation.navigate("register-baby-information");
-    }
-  }, [mother]);
-
   useEffect(() => {
     dispatch(getHospitalList(searchHospital));
   }, [searchHospital]);
 
   function handlerGoBackToLogin() {
-    Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
-      navigation.navigate("login");
-    });
+    dispatch(logingOutUser());
   }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, paddingTop: insets.top }}
+      style={style.wrapper}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={style.container}>
-          <View style={style.welcomeImageContainer}>
-            <View style={{ flex: 1 }}>
-              <Image
-                style={style.welcomeImage}
-                source={require("../../../assets/info-mother.png")}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.container}
+      >
+        <View style={style.welcomeImageContainer}>
+          <View style={{ flex: 1 }}>
+            <Image
+              style={style.welcomeImage}
+              source={require("../../../assets/info-mother.png")}
+            />
+          </View>
+        </View>
+        <View style={style.contentContainer}>
+          <View style={style.formRegistration}>
+            <View style={style.titleContainer}>
+              <Text style={style.title}>Daftar</Text>
+            </View>
+            <View style={style.inputContainer}>
+              <FloatingInput
+                required
+                onError={formValidationError}
+                label="Nama Ibu"
+                onChange={(value) =>
+                  setFormField({
+                    ...formField,
+                    displayName: value,
+                  })
+                }
+              />
+            </View>
+            <View style={style.inputContainer}>
+              <PhoneNumberInput
+                required
+                onError={formValidationError}
+                onChange={(value) => {
+                  setFormField({
+                    ...formField,
+                    phoneNumber: value,
+                  });
+                }}
+              />
+            </View>
+            <View style={style.inputContainer}>
+              <PickerFiled
+                required
+                onError={formValidationError}
+                label="Rumah Sakit"
+                searchable={true}
+                items={hospitalList}
+                onFocus={() => {
+                  setSearchHospital("");
+                }}
+                onChange={(value) => {
+                  setFormField((prev) => ({
+                    ...prev,
+                    hospital: value,
+                  }));
+                }}
+                onSearch={(value) => {
+                  setSearchHospital(value);
+                }}
               />
             </View>
           </View>
-          <View style={style.contentContainer}>
-            <View style={style.formRegistration}>
-              <View style={style.titleContainer}>
-                <Text style={style.title}>Daftar</Text>
-              </View>
-              <View style={style.inputContainer}>
-                <FloatingInput
-                  required
-                  onError={formValidationError}
-                  label="Nama Ibu"
-                  defaultValue={user?.displayName}
-                  onChange={(value) =>
-                    setFormField({
-                      ...formField,
-                      displayName: value,
-                    })
-                  }
-                />
-              </View>
-              <View style={style.inputContainer}>
-                <PhoneNumberInput
-                  required
-                  onError={formValidationError}
-                  defaultValue={mother?.phoneNumber}
-                  onChange={(value) => {
-                    setFormField({
-                      ...formField,
-                      phoneNumber: value,
-                    });
-                  }}
-                />
-              </View>
-              <View style={style.inputContainer}>
-                <PickerFiled
-                  required
-                  onError={formValidationError}
-                  label="Rumah Sakit"
-                  searchable={true}
-                  items={hospitalList}
-                  onFocus={() => {
-                    setSearchHospital("");
-                  }}
-                  onChange={(value) => {
-                    setFormField((prev) => ({
-                      ...prev,
-                      hospital: value,
-                    }));
-                  }}
-                  onSearch={(value) => {
-                    setSearchHospital(value);
-                  }}
-                />
-              </View>
-            </View>
-            <View style={style.buttonContainer}>
-              <TouchableOpacity
-                style={style.prevButton}
-                onPress={handlerGoBackToLogin}
-              >
-                <AntDesign
-                  name="arrowleft"
-                  size={TextSize.h6}
-                  color={color.accent2}
-                />
-                <Text style={style.prevButtonTitle}>Kembali</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={style.nextButton}
-                onPress={handlerGoToRegisterBaby}
-              >
-                <Text style={style.buttonTitle}>Selanjutnya</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={style.buttonContainer}>
+            <TouchableOpacity
+              style={style.prevButton}
+              onPress={handlerGoBackToLogin}
+            >
+              <AntDesign
+                name="arrowleft"
+                size={TextSize.h6}
+                color={color.accent2}
+              />
+              <Text style={style.prevButtonTitle}>Kembali</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={style.nextButton}
+              onPress={handlerGoToRegisterBaby}
+            >
+              <Text style={style.buttonTitle}>Selanjutnya</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -204,8 +185,12 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
 
 const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
-    container: {
+    wrapper: {
       flex: 1,
+      paddingTop: insets.top,
+    },
+    container: {
+      flexGrow: 1,
       justifyContent: "space-between",
     },
     welcomeImageContainer: {
@@ -215,16 +200,12 @@ const createStyle = (insets: EdgeInsets) =>
       padding: Spacing.small,
     },
     welcomeImage: {
-      width: MEDIA_HEIGHT / 4,
-      height: MEDIA_HEIGHT / 4,
+      width: 200,
+      height: 200,
     },
     contentContainer: {
       width: "100%",
-      height:
-        (MEDIA_HEIGHT * 3) / 4 -
-        Spacing.xlarge -
-        2 * Spacing.small -
-        insets.top,
+      flex: 1,
       backgroundColor: color.lightneutral,
       padding: Spacing.base - Spacing.extratiny,
       borderTopLeftRadius: Spacing.xlarge / 2,
@@ -261,6 +242,7 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
+      marginTop: (Spacing.xlarge * 3) / 2,
       marginBottom: Spacing.small,
     },
     nextButton: {

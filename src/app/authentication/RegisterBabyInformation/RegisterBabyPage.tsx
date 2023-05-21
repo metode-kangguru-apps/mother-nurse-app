@@ -57,7 +57,7 @@ const RegisterBabyPage: React.FC<Props> = ({
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, paddingTop: insets.top }}
+      style={style.wrapper}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={style.container}>
@@ -186,6 +186,10 @@ const RegisterBabyPage: React.FC<Props> = ({
 
 const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      paddingTop: insets.top,
+    },
     container: {
       flex: 1,
       justifyContent: "space-between",
