@@ -4,7 +4,7 @@ import {
   HospitalPayload,
   HospitalWithMother,
 } from "../hospital/types";
-import { Baby } from "../pmkCare/types";
+import { Baby, BabyPayload } from "../pmkCare/types";
 
 export type User = {
   uid: string;
@@ -41,8 +41,12 @@ export interface NursePayload extends Omit<Nurse, "hospital"> {
   hospital: HospitalPayload;
 }
 
-// Response
+export interface AddBabyPayload {
+  uid: string;
+  baby: BabyPayload;
+}
 
+// Response
 export interface UserResponse extends Omit<User, "uid"> {}
 
 export interface MotherResponse {

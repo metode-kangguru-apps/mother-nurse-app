@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { logOutUser } from "@redux/actions/authentication/thunks";
 import { useAppDispatch } from "@redux/hooks";
 import { persistor } from "@redux/store";
-import { RootState } from "@redux/types";
+import { RootState, RootStateV2 } from "@redux/types";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootStackParamList } from "src/router/types";
@@ -10,28 +10,35 @@ import { RootStackParamList } from "src/router/types";
 interface Props
   extends NativeStackScreenProps<RootStackParamList, "NotFound"> {}
 
-const NotFoundPage: React.FC<Props> = ({navigation}) => {
-  const { user, mother, nurse } = useSelector((state: RootState) => state.authentication)
-  const dispatch = useAppDispatch()
+const NotFoundPage: React.FC<Props> = ({ navigation }) => {
+  const { user } = useSelector((state: RootStateV2) => state.authentication);
+  const dispatch = useAppDispatch();
+  function resetToAuth() {
+    dispatch(logOutUser());
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "auth" }],
+    });
+  }
   useEffect(() => {
-    if (user.userType === 'member') {
-      if (user.userRole === 'nurse') {
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'nurse'}],
-        })
-      } else if (user.userRole === 'mother') {
-        navigation.reset({
-          index: 0,
-          routes: [{name: 'mother'}],
-        })
+    if (user) {
+      if (user.userType === "member") {
+        if (user.userRole === "nurse") {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "nurse" }],
+          });
+        } else if (user.userRole === "mother") {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: "mother" }],
+          });
+        }
+      } else {
+        resetToAuth();
       }
     } else {
-      dispatch(logOutUser())
-      navigation.reset({
-        index: 0,
-        routes: [{name: 'auth'}],
-      })
+      resetToAuth();
     }
   }, []);
   return <></>;

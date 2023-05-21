@@ -15,11 +15,11 @@ export type Baby = {
 };
 
 export type Progress = {
-  createdAt: Timestamp;
+  createdAt: Timestamp | Date;
   week: number;
   weight: number;
   length: number;
-  temperature: number;
+  temperature?: number;
 };
 
 export type Session = {
@@ -29,15 +29,20 @@ export type Session = {
 
 export type PMKCareInitialState = {
   baby: Baby;
-  progress: Progress;
-  session: Session;
+  progress: Progress[];
+  sessions: Session[];
   loading: boolean;
   error: boolean;
   message: string;
 };
 
+export type SelectBabyPayload = Pick<
+  PMKCareInitialState,
+  "progress" | "sessions"
+>;
+
 // Payload
-export type BabyPayload = Omit<Baby, "id">
+export type BabyPayload = Omit<Baby, "id">;
 
 // Response
-export type BabyResponse = BabyPayload
+export type BabyResponse = BabyPayload;

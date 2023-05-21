@@ -22,12 +22,17 @@ const RootRouter: React.FC<Props> = () => {
     (state: RootStateV2) => state.authentication
   );
   const renderStackNavigator = useCallback(() => {
+    console.log("masuk 1")
     if (!user || user.userType === "guest") {
+      console.log("masuk 2")
       return <Stack.Screen name="auth" component={AuthRouter} />;
     } else {
+      console.log("masuk 3")
       if (user.userRole === "mother") {
+        console.log("masuk 4")
         return <Stack.Screen name="mother" component={MotherRouter} />;
       } else {
+        console.log("masuk 5")
         return <Stack.Screen name="nurse" component={NurseRouter} />;
       }
     }

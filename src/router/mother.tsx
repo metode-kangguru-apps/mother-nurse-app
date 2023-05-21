@@ -1,26 +1,26 @@
+import { Platform } from "react-native";
+import { useSelector } from "react-redux";
+import { RootStateV2 } from "@redux/types";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+import HomePage from "@app/mother/HomePage";
+import ModulePage from "@app/mother/ModulePage";
+import PMKCarePage from "@app/mother/PMKCarePage";
+import ProfilePage from "@app/mother/ProfilePage";
+import MonitoringPage from "@app/mother/MonitoringPage";
+import SelectBabyPage from "@app/mother/SelectedBabyPage";
+import AddProgressPage from "@app/mother/AddProgressPage";
+import HistoryProgressPage from "@app/mother/HistoryProgressPage";
+import AddNewBabyInformation from "@app/mother/AddNewBabyInformation";
+
 import { MotherStackParamList } from "./types";
 
-import SelectBabyPage from "@app/mother/SelectedBabyPage";
-import HomePage from "@app/mother/HomePage";
 import { color } from "src/lib/ui/color";
-import ProfilePage from "@app/mother/ProfilePage";
-import AddProgressPage from "@app/mother/AddProgressPage";
-import MonitoringPage from "@app/mother/MonitoringPage";
-import PMKCarePage from "@app/mother/PMKCarePage";
-import { Platform } from "react-native";
-import HistoryProgressPage from "@app/mother/HistoryProgressPage";
-import ModulePage from "@app/mother/ModulePage";
-import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
-import AddNewBabyInformation from "@app/mother/AddNewBabyInformation";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
 const MotherRouter: React.FC<{}> = () => {
-  const { selectedTerapiBaby } = useSelector(
-    (state: RootState) => state.global
-  );
+  const { baby } = useSelector((state: RootStateV2) => state.pmkCare);
   return (
     <MotherStack.Navigator
       screenOptions={{
@@ -29,13 +29,15 @@ const MotherRouter: React.FC<{}> = () => {
         animation: "none",
       }}
     >
-      <MotherStack.Screen
-        name="select-baby"
-        component={SelectBabyPage}
-        options={{
-          title: "Pilih Bayi",
-        }}
-      />
+      {!Object.keys(baby).length && (
+        <MotherStack.Screen
+          name="select-baby"
+          component={SelectBabyPage}
+          options={{
+            title: "Pilih Bayi",
+          }}
+        />
+      )}
       <MotherStack.Screen
         name="add-new-baby"
         component={AddNewBabyInformation}
@@ -48,7 +50,7 @@ const MotherRouter: React.FC<{}> = () => {
           }),
         }}
       />
-      {!!Object.keys(selectedTerapiBaby).length && (
+      {/* {baby && (
         <>
           <MotherStack.Screen
             name="home"
@@ -114,7 +116,7 @@ const MotherRouter: React.FC<{}> = () => {
             }}
           />
         </>
-      )}
+      )} */}
     </MotherStack.Navigator>
   );
 };
