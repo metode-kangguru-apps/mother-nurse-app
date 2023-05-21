@@ -37,6 +37,10 @@ export interface MotherPayload extends Omit<User, "uid"> {
   hospital: HospitalPayload;
 }
 
+export interface NursePayload extends Omit<Nurse, "hospital"> {
+  hospital: HospitalPayload;
+}
+
 // Response
 
 export interface UserResponse extends Omit<User, "uid"> {}

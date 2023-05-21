@@ -239,7 +239,6 @@ const createStyle = (insets: EdgeInsets) =>
       flexDirection: "row",
       justifyContent: "space-between",
       marginTop: (Spacing.xlarge * 3) / 2,
-      marginBottom: Spacing.small,
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

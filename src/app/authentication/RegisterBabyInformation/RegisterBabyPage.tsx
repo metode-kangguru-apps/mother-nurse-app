@@ -26,8 +26,6 @@ import { Baby } from "@redux/actions/authentication/types";
 import { Baby as BabyV2 } from "@redux/actions/pmkCare/types";
 import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
-const MEDIA_HEIGHT = Dimensions.get("window").height;
-
 interface Props {
   title: string;
   handleBackButton: () => void;
@@ -195,17 +193,13 @@ const createStyle = (insets: EdgeInsets) =>
       justifyContent: "space-between",
     },
     contentContainer: {
+      flexGrow: 1,
       width: "100%",
       backgroundColor: color.lightneutral,
       padding: Spacing.base - Spacing.extratiny,
       borderTopLeftRadius: Spacing.xlarge / 2,
       borderTopRightRadius: Spacing.xlarge / 2,
       justifyContent: "space-between",
-      minHeight:
-        (MEDIA_HEIGHT * 3) / 4 -
-        (Spacing.base - Spacing.extratiny) -
-        Spacing.xlarge -
-        insets.top,
       ...Platform.select({
         native: {
           paddingBottom: insets.top,
@@ -222,8 +216,8 @@ const createStyle = (insets: EdgeInsets) =>
       padding: Spacing.small,
     },
     welcomeImage: {
-      width: MEDIA_HEIGHT / 4,
-      height: MEDIA_HEIGHT / 4,
+      width: 200,
+      height: 200,
     },
     titleContainer: {
       display: "flex",
@@ -243,7 +237,7 @@ const createStyle = (insets: EdgeInsets) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignSelf: "flex-end",
-      marginTop: Spacing.base,
+      marginTop: (Spacing.large * 2) / 3,
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

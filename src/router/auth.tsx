@@ -3,7 +3,7 @@ import RegisterUserInformationPage from "@app/authentication/RegisterUserInforma
 import RegisterNurseInformationPage from "@app/authentication/RegisterNurseInformation";
 
 import { color } from "src/lib/ui/color";
-import { RootState, RootStateV2 } from "@redux/types";
+import { RootStateV2 } from "@redux/types";
 import { useSelector } from "react-redux";
 import { AuthStackParamList } from "./types";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
@@ -13,10 +13,7 @@ import RegisterBabyInformation from "@app/authentication/RegisterBabyInformation
 const AuthStack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthRouter: React.FC<{}> = () => {
-  const { user, mother, nurse } = useSelector(
-    (state: RootState) => state.authentication
-  );
-  const { user: userV2 } = useSelector(
+  const { user } = useSelector(
     (state: RootStateV2) => state.authentication
   );
   return (
@@ -30,7 +27,7 @@ const AuthRouter: React.FC<{}> = () => {
         animation: "slide_from_right",
       }}
     >
-      {!userV2 && (
+      {!user && (
         <AuthStack.Screen
           name="login"
           component={LoginPage}
@@ -44,11 +41,11 @@ const AuthRouter: React.FC<{}> = () => {
           }}
         />
       )}
-      {userV2 &&
-        userV2.userType === "guest" &&
-        userV2.userRole === "mother" && (
+      {user &&
+        user.userType === "guest" &&
+        user.userRole === "mother" && (
           <>
-            {!userV2.isAnonymous && (
+            {!user.isAnonymous && (
               <AuthStack.Screen
                 name="register-user-information"
                 component={RegisterUserInformationPage}
@@ -66,7 +63,7 @@ const AuthRouter: React.FC<{}> = () => {
             />
           </>
         )}
-      {userV2 && userV2.userType === "guest" && userV2.userRole === "nurse" && (
+      {user && user.userType === "guest" && user.userRole === "nurse" && (
         <AuthStack.Screen
           name="register-nurse-information"
           component={RegisterNurseInformationPage}

@@ -1,8 +1,7 @@
 import { useSelector } from "react-redux";
 
-import { RootState } from "@redux/types";
+import { RootStateV2 } from "@redux/types";
 import {
-  Dimensions,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -28,13 +27,15 @@ import { AntDesign } from "@expo/vector-icons";
 import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
-import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
-import { AuthenticationState } from "@redux/actions/authentication/types";
 import PickerFiled from "src/common/PickerField";
-import { getHospitalList } from "@redux/actions/global/thunks";
-import { Hostpital } from "@redux/actions/global/type";
-import { signUpNurseWithGoogle } from "@redux/actions/authentication/thunks";
 import { CompositeScreenProps } from "@react-navigation/native";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
+import { NursePayload } from "@redux/actions/authenticationV2/types";
+import { getHospitalList } from "@redux/actions/hospital/thunks";
+import {
+  logingOutUser,
+  signUpNurseAccount,
+} from "@redux/actions/authenticationV2/thunks";
 
 interface Props
   extends CompositeScreenProps<
@@ -42,45 +43,35 @@ interface Props
     NativeStackScreenProps<RootStackParamList>
   > {}
 
-interface NursePayload {
-  displayName: string;
-  phoneNumber: string;
-  hospital: Hostpital;
-}
-
-const MEDIA_HEIGHT = Dimensions.get("window").height;
-
-const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
+const RegisterNurseInformation: React.FC<Props> = () => {
   const dispatch = useAppDispatch();
 
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
 
-  const { user, nurse } = useSelector(
-    (state: RootState) => state.authentication
-  );
-  const { hospitalList } = useSelector((state: RootState) => state.global);
+  const { user } = useSelector((state: RootStateV2) => state.authentication);
+  const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   const [searchHospital, setSearchHospital] = useState<string>("");
-  const [formField, setFormField] = useState({} as NursePayload);
+  const [formField, setFormField] = useState<NursePayload>({} as NursePayload);
+  const [formValidationError, setFormValidationError] = useState<boolean>();
   // TODO: Form Validation and refactor to authenticationV2
 
   function registerNurse() {
-    const newUserObj = {
-      user: {
+    if (!isObjectContainUndefined(formField) && user) {
+      const nurseData: NursePayload = {
+        uid: user.uid,
         displayName: formField.displayName,
+        isAnonymous: user.isAnonymous,
+        userRole: user.userRole,
         userType: "member",
-        userRole: "nurse",
-        isAnonymous: false,
-        uid: user?.uid,
-      },
-      mother: undefined,
-      nurse: {
         phoneNumber: formField.phoneNumber,
         hospital: formField.hospital,
-      },
-    };
-    dispatch(signUpNurseWithGoogle(newUserObj as AuthenticationState));
+      };
+      dispatch(signUpNurseAccount(nurseData));
+    } else {
+      setFormValidationError(true);
+    }
   }
 
   useEffect(() => {
@@ -88,91 +79,91 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
   }, [searchHospital]);
 
   function handlerGoBackToLogin() {
-    Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
-      navigation.navigate("login");
-    });
+    dispatch(logingOutUser());
   }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, paddingTop: insets.top }}
+      style={style.wrapper}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={style.container}>
-          <View style={style.welcomeImageContainer}>
-            <View style={{ flex: 1 }}>
-              <Image
-                style={style.welcomeImage}
-                source={require("../../../assets/nurse-icon.png")}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.container}
+      >
+        <View style={style.welcomeImageContainer}>
+          <Image
+            style={style.welcomeImage}
+            source={require("../../../assets/nurse-icon.png")}
+          />
+        </View>
+        <View style={style.contentContainer}>
+          <View style={style.formRegistration}>
+            <View style={style.titleContainer}>
+              <Text style={style.title}>Daftar Sebagai Perawat</Text>
+            </View>
+            <View style={style.inputContainer}>
+              <FloatingInput
+                required
+                onError={formValidationError}
+                label="Nama Lengkap"
+                onChange={(value) =>
+                  setFormField({
+                    ...formField,
+                    displayName: value,
+                  })
+                }
+              />
+            </View>
+            <View style={style.inputContainer}>
+              <PhoneNumberInput
+                required
+                onError={formValidationError}
+                onChange={(value) => {
+                  setFormField({
+                    ...formField,
+                    phoneNumber: value,
+                  });
+                }}
+              />
+            </View>
+            <View style={style.inputContainer}>
+              <PickerFiled
+                label="Rumah Sakit"
+                required
+                onError={formValidationError}
+                searchable={true}
+                items={hospitalList}
+                onFocus={() => {
+                  setSearchHospital("");
+                }}
+                onChange={(value) => {
+                  setFormField((prev) => ({
+                    ...prev,
+                    hospital: value,
+                  }));
+                }}
+                onSearch={(value) => {
+                  setSearchHospital(value);
+                }}
               />
             </View>
           </View>
-          <View style={style.contentContainer}>
-            <View style={style.formRegistration}>
-              <View style={style.titleContainer}>
-                <Text style={style.title}>Daftar Sebagai Perawat</Text>
-              </View>
-              <View style={style.inputContainer}>
-                <FloatingInput
-                  label="Nama Lengkap"
-                  onChange={(value) =>
-                    setFormField({
-                      ...formField,
-                      displayName: value,
-                    })
-                  }
-                />
-              </View>
-              <View style={style.inputContainer}>
-                <PhoneNumberInput
-                  onChange={(value) => {
-                    setFormField({
-                      ...formField,
-                      phoneNumber: value,
-                    });
-                  }}
-                />
-              </View>
-              <View style={style.inputContainer}>
-                <PickerFiled
-                  label="Rumah Sakit"
-                  searchable={true}
-                  items={hospitalList}
-                  onFocus={() => {
-                    setSearchHospital("");
-                  }}
-                  onChange={(value) => {
-                    setFormField((prev) => ({
-                      ...prev,
-                      hospital: value,
-                    }));
-                  }}
-                  onSearch={(value) => {
-                    setSearchHospital(value);
-                  }}
-                />
-              </View>
-            </View>
-            <View style={style.buttonContainer}>
-              <TouchableOpacity
-                style={style.prevButton}
-                onPress={handlerGoBackToLogin}
-              >
-                <AntDesign
-                  name="arrowleft"
-                  size={TextSize.h6}
-                  color={color.accent2}
-                />
-                <Text style={style.prevButtonTitle}>Kembali</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={style.nextButton}
-                onPress={registerNurse}
-              >
-                <Text style={style.buttonTitle}>Daftar</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={style.buttonContainer}>
+            <TouchableOpacity
+              style={style.prevButton}
+              onPress={handlerGoBackToLogin}
+            >
+              <AntDesign
+                name="arrowleft"
+                size={TextSize.h6}
+                color={color.accent2}
+              />
+              <Text style={style.prevButtonTitle}>Kembali</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={style.nextButton} onPress={registerNurse}>
+              <Text style={style.buttonTitle}>Daftar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -182,6 +173,10 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
 
 const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      paddingTop: insets.top,
+    },
     container: {
       flex: 1,
       justifyContent: "space-between",
@@ -193,16 +188,12 @@ const createStyle = (insets: EdgeInsets) =>
       padding: Spacing.small,
     },
     welcomeImage: {
-      width: MEDIA_HEIGHT / 4,
-      height: MEDIA_HEIGHT / 4,
+      width: 200,
+      height: 200,
     },
     contentContainer: {
+      flexGrow: 1,
       width: "100%",
-      height:
-        (MEDIA_HEIGHT * 3) / 4 -
-        Spacing.xlarge -
-        2 * Spacing.small -
-        insets.top,
       backgroundColor: color.lightneutral,
       padding: Spacing.base - Spacing.extratiny,
       borderTopLeftRadius: Spacing.xlarge / 2,
@@ -239,7 +230,6 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: Spacing.small
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,
