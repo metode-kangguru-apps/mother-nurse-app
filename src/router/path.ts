@@ -55,7 +55,19 @@ const linking = {
         path: "/nurse",
         screens: {
           profile: {
-            path: "/profile"
+            path: ""
+          },
+          'mother-detail': {
+            path: "/mother"
+          },
+          'baby-detail': {
+            path: "/mother/baby"
+          },
+          'history-progress': {
+            path: "mother/baby/progress"
+          },
+          'add-progress': {
+            path: "mother/baby/progress/add"
           }
         }
       },

@@ -21,6 +21,7 @@ import {
   Dimensions,
   ImageBackground,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -66,10 +67,11 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   const [searchHospital, setSearchHospital] = useState<string>("");
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    expoClientId: FIREBASE_WEB_CLIENT_ID,
-    webClientId: FIREBASE_WEB_CLIENT_ID,
-    iosClientId: FIREBASE_IOS_CLIENT_ID,
-    androidClientId: FIREBASE_ANDROID_CLIENT_ID,
+    clientId: FIREBASE_WEB_CLIENT_ID,
+    // expoClientId: FIREBASE_WEB_CLIENT_ID,
+    // webClientId: FIREBASE_WEB_CLIENT_ID,
+    // iosClientId: FIREBASE_IOS_CLIENT_ID,
+    // androidClientId: FIREBASE_ANDROID_CLIENT_ID,
   });
 
   const { user, loading, error, errorMessage } = useSelector(
@@ -192,9 +194,12 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   });
 
   return (
-    <KeyboardAvoidingView style={style.flex}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={style.flex}
+    >
       <ScrollView
-        style={style.flex}
+        contentContainerStyle={style.flex}
         scrollEnabled={selectedRegisterRole === "mother"}
       >
         <Animated.View
@@ -358,20 +363,19 @@ const style = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 1,
-    minHeight: Dimensions.get("window").height,
+    flexGrow: 1,
     backgroundColor: color.primary,
   },
   backgroundPattern: {
     flex: 1,
     width: "100%",
-    height: "100%",
+    height: Dimensions.get("window").height,
     position: "absolute",
     opacity: 0.25,
   },
   topContent: {
     width: "100%",
-    height: (Dimensions.get("window").height * 30) / 100,
+    height: 200,
   },
   roleSwitcher: {
     borderWidth: 4,
@@ -411,7 +415,6 @@ const style = StyleSheet.create({
     backgroundColor: color.lightneutral,
     alignItems: "center",
     position: "relative",
-    paddingBottom: Spacing.xlarge,
   },
   title: {
     fontFamily: Font.Bold,
@@ -422,6 +425,7 @@ const style = StyleSheet.create({
   motherField: {
     flex: 1,
     width: "100%",
+    paddingBottom: Spacing.xlarge,
   },
   formFieldWrapper: {
     width: "100%",

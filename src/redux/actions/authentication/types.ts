@@ -29,6 +29,7 @@ export type Baby = {
   currentWeight?: number;
   currentLength?: number;
   currentWeek?: number;
+  currentStatus?: string;
   createdAt?: Date | Timestamp;
   gender?: "laki-laki" | "perempuan";
 };

@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { color } from "src/lib/ui/color";
 import { Font } from "src/lib/ui/font";
 import MotherIcons from "src/lib/ui/icons/mother";
+import WhatsappIcon from "src/lib/ui/icons/whatsapp";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 
@@ -9,6 +10,7 @@ interface Props {
   type: "mother" | "nurse";
   name: string;
   phoneNumber: string;
+  isAbleToCall?: boolean;
   hospitalName: string;
   bangsal: string;
 }
@@ -17,9 +19,15 @@ const ProfileCard: React.FC<Props> = ({
   type,
   name,
   phoneNumber,
+  isAbleToCall,
   hospitalName,
   bangsal,
 }) => {
+  async function handleCallNumber() {
+    await Linking.openURL(`whatsapp://send?phone=+62${phoneNumber}`).catch(() => {
+      console.log("error")
+    })
+  }
   return (
     <View style={style.container}>
       <View style={style.header}>
@@ -28,7 +36,14 @@ const ProfileCard: React.FC<Props> = ({
         </View>
         <View style={style.userInformation}>
           <Text style={style.userName}>{name}</Text>
-          <Text style={style.userPhoneNumber}>{phoneNumber}</Text>
+          <TouchableOpacity
+            disabled={!isAbleToCall}
+            style={style.phoneNumberContainer}
+            onPress={handleCallNumber}
+          >
+            <Text style={style.userPhoneNumber}>+62 {phoneNumber}</Text>
+            {isAbleToCall && <WhatsappIcon />}
+          </TouchableOpacity>
         </View>
       </View>
       <View style={style.content}>
@@ -66,8 +81,13 @@ const style = StyleSheet.create({
     fontSize: TextSize.h6,
     color: color.lightneutral,
   },
+  phoneNumberContainer: {
+    display: "flex",
+    flexDirection: "row",
+  },
   userPhoneNumber: {
     color: color.lightneutral,
+    marginRight: Spacing.extratiny,
     opacity: 0.6,
   },
   content: {

@@ -40,6 +40,7 @@ import {
 } from "./types";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { persistor } from "@redux/store";
+import { BabyStatus } from "../baby/types";
 
 export const loginUser =
   (
@@ -85,6 +86,7 @@ export const loginUser =
                   for (const baby of userInformation.mother.babyCollection) {
                     const babyDocument = {
                       createdAt: babyCreatedAt,
+                      currentStatus: BabyStatus.ON_PROGRESS,
                       ...baby,
                     };
                     // add baby document
@@ -266,15 +268,23 @@ export const loginWithGoogle =
                       const mothers = (await getDocs(motherCollectionRef)).docs;
                       const fetchAllMotherAndBaby = mothers.map(
                         async (mother) => {
-                          const motherData = (
-                            await getDoc(mother.data().motherRef)
-                          ).data() as Mother;
+                          const motherSnapshot = await getDoc(
+                            mother.data().motherRef
+                          );
+                          const motherData = {
+                            id: motherSnapshot.id,
+                            ...(motherSnapshot.data() as Mother),
+                          } as Mother;
                           const babyCollection: any[] = [];
                           const fetchBaby = motherData.babyCollection?.map(
                             async (babyRef) => {
-                              const babyData = (
-                                await getDoc(babyRef as DocumentReference)
-                              ).data();
+                              const babySnapshot = await getDoc(
+                                babyRef as DocumentReference
+                              );
+                              const babyData = {
+                                id: babySnapshot.id,
+                                ...babySnapshot.data(),
+                              };
                               babyCollection.push(babyData);
                             }
                           );
@@ -367,6 +377,7 @@ export const signUpMotherWithGoogle =
             // add new baby to the collection
             const babyDocument: Baby = {
               createdAt: babyCreatedAt,
+              currentStatus: BabyStatus.ON_PROGRESS,
               ...babyData,
             };
             await addDoc(collection(firestore, "babies"), babyDocument)
@@ -468,15 +479,21 @@ export const signUpNurseWithGoogle =
             // if rumah sakit have mothers collection
             if (mothers.length > 0) {
               const fetchAllMotherAndBaby = mothers.map(async (mother) => {
-                const motherData = (
-                  await getDoc(mother.data().motherRef)
-                ).data() as Mother;
+                const motherSnapshot = await getDoc(mother.data().motherRef);
+                const motherData = {
+                  id: motherSnapshot.id,
+                  ...(motherSnapshot.data() as Mother),
+                };
                 const babyCollection: any[] = [];
                 const fetchBaby = motherData.babyCollection?.map(
                   async (babyRef) => {
-                    const babyData = (
-                      await getDoc(babyRef as DocumentReference)
-                    ).data();
+                    const babySnapshot = await getDoc(
+                      babyRef as DocumentReference
+                    );
+                    const babyData = {
+                      id: babySnapshot.id,
+                      ...babySnapshot.data(),
+                    };
                     babyCollection.push(babyData);
                   }
                 );
@@ -526,6 +543,7 @@ export const addNewBaby =
       const babyCreatedAt = new Date();
       const babyDocument: Baby = {
         createdAt: babyCreatedAt,
+        currentStatus: BabyStatus.ON_PROGRESS,
         ...payload.babyData,
       };
       const motherRef = doc(firestore, "mothers", payload.userId);
@@ -610,14 +628,18 @@ export const getNurseData = createAsyncThunk<
         const motherCollection: any[] = [];
         const mothers = (await getDocs(motherCollectionRef)).docs;
         const fetchAllMotherAndBaby = mothers.map(async (mother) => {
-          const motherData = (
-            await getDoc(mother.data().motherRef)
-          ).data() as Mother;
+          const motherSnapshot = await getDoc(mother.data().motherRef);
+          const motherData = {
+            id: motherSnapshot.id,
+            ...(motherSnapshot.data() as Mother),
+          };
           const babyCollection: any[] = [];
           const fetchBaby = motherData.babyCollection?.map(async (babyRef) => {
-            const babyData = (
-              await getDoc(babyRef as DocumentReference)
-            ).data();
+            const babySnapshot = await getDoc(babyRef as DocumentReference);
+            const babyData = {
+              id: babySnapshot.id,
+              ...babySnapshot.data(),
+            };
             babyCollection.push(babyData);
           });
           fetchBaby &&
