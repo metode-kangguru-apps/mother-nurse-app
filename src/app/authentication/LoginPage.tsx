@@ -73,6 +73,7 @@ const LoginPage: React.FC<Props> = () => {
   >("mother");
 
   const selectedRoleAnimation = useRef(new Animated.Value(0)).current;
+  const scrollRef = useRef<ScrollView>(null);
   const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   // handle if user login with oAuth google
@@ -127,6 +128,11 @@ const LoginPage: React.FC<Props> = () => {
     }
   }
 
+  function handleChangeRole(role: "mother" | "nurse") {
+    scrollRef.current?.scrollTo({ y: 0, animated: true })
+    setSelectedRegisterRole(role)
+  }
+
   // animated interpolate switch role
   const handleSwitchRoleOnSelect = selectedRoleAnimation.interpolate({
     inputRange: [0, 1],
@@ -161,7 +167,8 @@ const LoginPage: React.FC<Props> = () => {
   return (
     <KeyboardAvoidingView style={style.flex}>
       <ScrollView
-        style={style.flex}
+        ref={scrollRef}
+        contentContainerStyle={style.flex}
         scrollEnabled={selectedRegisterRole === "mother"}
       >
         <Animated.View
@@ -179,12 +186,12 @@ const LoginPage: React.FC<Props> = () => {
             {/* Tab Role Switcher */}
             <View style={style.roleSwitcher}>
               <TouchableOpacity
-                onPress={() => setSelectedRegisterRole("mother")}
+                onPress={() => handleChangeRole("mother")}
               >
                 <Text style={[style.roleItem, style.mother]}>Ibu</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => setSelectedRegisterRole("nurse")}
+                onPress={() => handleChangeRole("nurse")}
               >
                 <Text style={[style.roleItem, style.nurse]}>Perawat</Text>
               </TouchableOpacity>
@@ -204,9 +211,9 @@ const LoginPage: React.FC<Props> = () => {
               </Animated.View>
             </View>
             {/* Tab Title */}
-            <Animated.Text style={style.title}>
+            <Text style={style.title}>
               {selectedRegisterRole === "mother" ? "Daftar" : "Masuk"}
-            </Animated.Text>
+            </Text>
             {/* Mother Form Field */}
             <Animated.View
               pointerEvents={
@@ -331,8 +338,7 @@ const style = StyleSheet.create({
     flex: 1,
   },
   container: {
-    flex: 1,
-    minHeight: Dimensions.get("window").height,
+    flexGrow: 1,
     backgroundColor: color.primary,
   },
   backgroundPattern: {
@@ -344,7 +350,7 @@ const style = StyleSheet.create({
   },
   topContent: {
     width: "100%",
-    height: (Dimensions.get("window").height * 30) / 100,
+    height: "30%",
   },
   roleSwitcher: {
     borderWidth: 4,
@@ -378,13 +384,13 @@ const style = StyleSheet.create({
     color: color.lightneutral,
   },
   bottomContent: {
-    flex: 1,
+    flexGrow: 1,
     borderTopRightRadius: 35,
     borderTopLeftRadius: 35,
     backgroundColor: color.lightneutral,
     alignItems: "center",
     position: "relative",
-    paddingBottom: Spacing.xlarge,
+    paddingBottom: (Spacing.xlarge * 3) / 2,
   },
   title: {
     fontFamily: Font.Bold,
@@ -393,7 +399,6 @@ const style = StyleSheet.create({
   },
   // mother field
   motherField: {
-    flex: 1,
     width: "100%",
   },
   formFieldWrapper: {

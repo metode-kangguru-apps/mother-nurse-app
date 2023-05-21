@@ -225,14 +225,6 @@ export const signUpMotherAccount = createAsyncThunk<
   });
 });
 
-export const signUpMotherWithGoogle = createAsyncThunk<
-  unknown,
-  MotherPayload,
-  {
-    dispatch: AppDispatch;
-  }
->("signUpMotherWithGoogle", async () => {});
-
 export const logingOutUser = createAsyncThunk<
   unknown,
   undefined,

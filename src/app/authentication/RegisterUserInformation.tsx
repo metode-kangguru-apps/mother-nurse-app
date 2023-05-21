@@ -45,8 +45,6 @@ interface Props
     "register-user-information"
   > {}
 
-const MEDIA_HEIGHT = Dimensions.get("window").height;
-
 const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
 
@@ -99,12 +97,10 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
         contentContainerStyle={style.container}
       >
         <View style={style.welcomeImageContainer}>
-          <View style={{ flex: 1 }}>
-            <Image
-              style={style.welcomeImage}
-              source={require("../../../assets/info-mother.png")}
-            />
-          </View>
+          <Image
+            style={style.welcomeImage}
+            source={require("../../../assets/info-mother.png")}
+          />
         </View>
         <View style={style.contentContainer}>
           <View style={style.formRegistration}>
