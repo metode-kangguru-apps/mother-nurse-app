@@ -25,6 +25,7 @@ import { BabyProgressPayload, Progress } from "./types";
 import { updateBabyProgress } from "../global";
 import { Baby } from "../authentication/types";
 import { updateMotherBabyCollectionData } from "../authentication";
+import { selectBabyCurrentStatus } from "./helper";
 
 export const addProgressBaby =
   (
@@ -46,9 +47,15 @@ export const addProgressBaby =
       })
         .then(async () => {
           // update existing baby current data and set to redux
+          const currentStatus = selectBabyCurrentStatus(
+            payload.weight,
+            payload.temperature,
+            payload.prevWeight
+          );
           await updateDoc(babyRefDocs, {
             currentWeight: payload.weight,
             currentLength: payload.length,
+            currentStatus: currentStatus,
           })
             .then(async () => {
               const babyUpdated = await getDoc(babyRefDocs);

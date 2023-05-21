@@ -1,8 +1,9 @@
-import { Baby } from "../authentication/types";
+import { Baby, Mother } from "../authentication/types";
 
 export type GlobalState = {
   loading: boolean;
   selectedTerapiBaby: Baby | undefined;
+  selectedMotherDetail: Mother | undefined;
   hospitalList: Hostpital[]
   error: boolean;
 };

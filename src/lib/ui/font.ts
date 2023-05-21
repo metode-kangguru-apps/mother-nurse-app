@@ -2,6 +2,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { EvilIcons } from "@expo/vector-icons";
 import { Ionicons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 export enum Font {
   Light = "WorkSans-Light",
@@ -25,6 +26,7 @@ export const customFont = [
   EvilIcons.font,
   Ionicons.font,
   FontAwesome.font,
+  FontAwesome5.font,
   {"WorkSans-Black": require("../../../assets/fonts/WorkSans-Black.ttf")},
   {"WorkSans-BlackItalic": require("../../../assets/fonts/WorkSans-BlackItalic.ttf")},
   {"WorkSans-Bold": require("../../../assets/fonts/WorkSans-Bold.ttf")},

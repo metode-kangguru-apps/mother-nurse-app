@@ -1,6 +1,4 @@
 import { useMemo } from "react";
-import { RootState } from "@redux/types";
-import { useSelector } from "react-redux";
 
 import {
   FlatList,
@@ -31,7 +29,6 @@ interface Props
   extends NativeStackScreenProps<MotherStackParamList, "module"> {}
 
 const ModulePage: React.FC<Props> = ({ navigation }) => {
-  const { progress } = useSelector((state: RootState) => state.baby);
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), []);
 

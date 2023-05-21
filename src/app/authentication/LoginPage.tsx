@@ -20,6 +20,7 @@ import {
   Dimensions,
   ImageBackground,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -55,6 +56,7 @@ interface FormField {
 
 const LoginPage: React.FC<Props> = () => {
   const dispatch = useAppDispatch();
+
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     expoClientId: FIREBASE_WEB_CLIENT_ID,
     webClientId: FIREBASE_WEB_CLIENT_ID,
@@ -165,7 +167,10 @@ const LoginPage: React.FC<Props> = () => {
   });
 
   return (
-    <KeyboardAvoidingView style={style.flex}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={style.flex}
+    >
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={style.flex}
@@ -350,7 +355,7 @@ const style = StyleSheet.create({
   },
   topContent: {
     width: "100%",
-    height: "30%",
+    height: 200,
   },
   roleSwitcher: {
     borderWidth: 4,

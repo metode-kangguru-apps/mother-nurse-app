@@ -14,6 +14,10 @@ export type MotherStackParamList = {
 
 export type NurseStackParamList = {
   profile: undefined;
+  "mother-detail": undefined
+  "baby-detail": undefined
+  "history-progress": undefined
+  "add-progress": undefined
 };
 
 export type AuthStackParamList = {

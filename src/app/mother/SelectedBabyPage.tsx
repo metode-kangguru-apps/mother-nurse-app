@@ -17,7 +17,7 @@ import { MotherStackParamList } from "src/router/types";
 import { color } from "src/lib/ui/color";
 
 import { EvilIcons } from "@expo/vector-icons";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
 import { setSelectedTerapiBaby } from "@redux/actions/global";
 import moment from "moment";
