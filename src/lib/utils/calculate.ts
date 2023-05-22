@@ -6,7 +6,5 @@ export function weekDifference(date: Date) {
 }
 
 export function isObjectContainUndefined(object: Record<string, any>) {
-  return Object.keys(object).every(
-    (key) => object[key] === "" || object[key] === undefined
-  );
+  return Object.values(object).includes(undefined);
 }

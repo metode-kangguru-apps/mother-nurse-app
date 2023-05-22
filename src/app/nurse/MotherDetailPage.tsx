@@ -63,10 +63,6 @@ const MotherDetailPage: React.FC<Props> = ({ navigation }) => {
 
   function handleBack() {
     dispatch(clearPMKCareState());
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "profile" }],
-    });
   }
 
   return (

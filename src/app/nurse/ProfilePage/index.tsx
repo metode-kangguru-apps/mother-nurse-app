@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import {
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -50,12 +51,6 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
   function handleOnClickMother(mother: Mother) {
     dispatch(setFocusedMother(mother));
   }
-
-  useEffect(() => {
-    if (Object.keys(mother).length > 0) {
-      navigation.push("mother-detail");
-    }
-  }, [mother]);
 
   return (
     <ScrollView
@@ -169,6 +164,11 @@ const createStyle = (insets: EdgeInsets) =>
       flex: 1,
       justifyContent: "space-between",
       padding: Spacing.large / 2,
+      ...Platform.select({
+        native: {
+          paddingBottom: insets.bottom,
+        },
+      }),
     },
     titleMotherBaby: {
       fontSize: TextSize.title,
@@ -184,7 +184,6 @@ const createStyle = (insets: EdgeInsets) =>
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      marginBottom: insets.bottom,
     },
     logoutButtonTitle: {
       fontFamily: Font.Bold,

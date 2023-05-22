@@ -1,5 +1,6 @@
 import {
   CollectionReference,
+  Timestamp,
   addDoc,
   collection,
   doc,
@@ -26,9 +27,11 @@ export function addAllBabyInCollection(
       weight: babyData.currentWeight,
       length: babyData.currentLength,
     };
+    const { createdAt, ...savedBabyData } = babyData;
     babyResultCollection.push({
       id: babySnapshot.id,
-      ...babyData,
+      createdAt: Timestamp.fromMillis(babyCreatedAt.getTime()),
+      ...savedBabyData,
     });
     const babyProgressCollectionRef = collection(
       babySnapshot,

@@ -51,10 +51,7 @@ export const getBabyProgressAndSession = createAsyncThunk<
 
     const savedProgress: Progress[] = [];
     const savedSession: Session[] = [];
-    await getDocs(progressCollectionRef).then((snapshot) => {
-      console.log(snapshot.docs);
-    });
-    console.log(progressSnapshots);
+    await getDocs(progressCollectionRef)
 
     progressSnapshots.map((snapshot) => {
       savedProgress.push(snapshot.data() as Progress);
@@ -95,15 +92,10 @@ export const addBabyProgress = createAsyncThunk<
       FirebaseCollection.PROGRESS
     );
     const { userID, babyID, ...savedProgressBaby } = payload;
-    const currentStatus = selectBabyCurrentStatus(
-      payload.weight,
-      payload.temperature,
-      payload.previousWeight
-    );
     const updatedBabyData = {
       currentWeight: payload.weight,
       currentLength: payload.length,
-      currentStatus: currentStatus,
+      currentStatus: payload.currentStatus,
     };
     await addDoc(progressCollectionRef, savedProgressBaby);
     await updateDoc(babyDocumentRef, updatedBabyData);

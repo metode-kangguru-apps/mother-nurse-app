@@ -76,7 +76,7 @@ const HistoryProgressPage: React.FC<Props> = ({ navigation }) => {
       <Header
         title="Riwayat Pertumbuhan"
         titleStyle={{ fontFamily: Font.Bold }}
-        onBackButton={() => navigation.push("baby-detail")}
+        onBackButton={() => navigation.pop()}
       />
       <View style={style.buttonProgressWrapper}>
         <TouchableOpacity onPress={() => navigation.push("add-progress")}>

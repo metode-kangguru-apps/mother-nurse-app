@@ -36,13 +36,17 @@ const AddProgressForm: React.FC<Props> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const [validationFormError, setValidationFormError] = useState<boolean>();
-  const [formField, setFormField] = useState({} as FormField);
+  const [formField, setFormField] = useState<Partial<FormField>>({
+    weight: undefined,
+    length: undefined,
+  });
 
   const style = useMemo(() => createStyle(insets), [insets]);
 
   function handleSubmitOnClick() {
     if (!isObjectContainUndefined(formField)) {
-      handleProgressSubmit(formField);
+      const progressFormField = formField as FormField;
+      handleProgressSubmit(progressFormField);
     } else {
       setValidationFormError(true);
     }

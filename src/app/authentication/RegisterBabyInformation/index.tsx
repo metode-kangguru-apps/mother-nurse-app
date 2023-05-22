@@ -12,6 +12,7 @@ import {
   signUpMotherAccount,
 } from "@redux/actions/authentication/thunks";
 import { MotherPayload } from "@redux/actions/authentication/types";
+import { useState } from "react";
 
 interface Props
   extends CompositeScreenProps<
@@ -22,12 +23,14 @@ interface Props
 const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { user } = useSelector((state: RootStateV2) => state.authentication);
+  const [loading, setLoading] = useState<boolean>();
   const { selectedHospital } = useSelector(
     (state: RootStateV2) => state.hospital
   );
 
   function handlerRegisterAccount(babyData: BabyV2) {
     if (user && selectedHospital) {
+      setLoading(true);
       const motherData: MotherPayload = {
         displayName: user.displayName,
         userRole: user.userRole,
@@ -47,11 +50,15 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
             currentLength: babyData.length,
             birthDate: babyData.birthDate,
             createdAt: new Date(),
-            currentStatus: BabyStatus.ON_PROGRESS
+            currentStatus: BabyStatus.ON_PROGRESS,
           },
         ],
       };
-      dispatch(signUpMotherAccount({ uid: user.uid, payload: motherData }));
+      dispatch(
+        signUpMotherAccount({ uid: user.uid, payload: motherData })
+      ).then(() => {
+        setLoading(false);
+      });
     }
   }
 
@@ -68,9 +75,9 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
   }
 
   return (
-    // TODO: Implement loading state
     <RegisterBabyPage
       title="Daftar Bayi"
+      loading={loading}
       handleBackButton={handleBackButton}
       handleRegisterBaby={(babyData) => handlerRegisterAccount(babyData)}
     />

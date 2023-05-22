@@ -25,7 +25,7 @@ const ProfileCard: React.FC<Props> = ({
 }) => {
   async function handleCallNumber() {
     await Linking.openURL(`whatsapp://send?phone=+62${phoneNumber}`).catch(() => {
-      console.log("error")
+      console.log("Terjadi permasalahan saat mengirim whatsapp")
     })
   }
   return (

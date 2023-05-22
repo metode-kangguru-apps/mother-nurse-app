@@ -13,10 +13,11 @@ const NotFoundPage: React.FC<Props> = ({ navigation }) => {
   const { user } = useSelector((state: RootStateV2) => state.authentication);
   const dispatch = useAppDispatch();
   function resetToAuth() {
-    dispatch(logingOutUser());
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "auth" }],
+    dispatch(logingOutUser()).then(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "auth" }],
+      });
     });
   }
   useEffect(() => {

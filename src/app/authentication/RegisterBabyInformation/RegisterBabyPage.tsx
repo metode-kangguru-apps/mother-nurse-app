@@ -1,3 +1,4 @@
+import { memo, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -9,21 +10,22 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 import { color } from "src/lib/ui/color";
 
-import FloatingInput from "src/common/FloatingInput";
-
-import { AntDesign } from "@expo/vector-icons";
-import DateTimePicker from "src/common/DateTimePicker";
-import PickerField from "src/common/PickerField";
-import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { memo, useMemo, useState } from "react";
 import { Baby } from "@redux/actions/pmkCare/types";
+
+import PickerField from "src/common/PickerField";
+import FloatingInput from "src/common/FloatingInput";
+import DateTimePicker from "src/common/DateTimePicker";
 import { isObjectContainUndefined } from "src/lib/utils/calculate";
+
+
 
 interface Props {
   title: string;
@@ -41,7 +43,14 @@ const RegisterBabyPage: React.FC<Props> = ({
   handleRegisterBaby,
 }) => {
   const insets = useSafeAreaInsets();
-  const [formField, setFormField] = useState<FormField>({});
+  const [formField, setFormField] = useState<FormField>({
+    displayName: undefined,
+    gender: undefined,
+    gestationAge: undefined,
+    birthDate: undefined,
+    weight: undefined,
+    length: undefined,
+  });
   const [formValidationError, setFormValidationError] = useState<boolean>();
   const style = useMemo(() => createStyle(insets), [insets]);
 

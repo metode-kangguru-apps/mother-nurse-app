@@ -11,16 +11,22 @@ import AddProgressForm, {
 
 import { NurseStackParamList } from "src/router/types";
 import { updateNurseBabyDataAtCollection } from "@redux/actions/authentication";
+import { selectBabyCurrentStatus } from "@redux/actions/pmkCare/helper";
 
 interface Props
   extends NativeStackScreenProps<NurseStackParamList, "add-progress"> {}
 
 const AddProgressPage: React.FC<Props> = ({ navigation }) => {
-  const userID = useSelector((state: RootStateV2) => state.pmkCare.mother.uid);
-  const { baby } = useSelector((state: RootStateV2) => state.pmkCare);
-
   const dispatch = useAppDispatch();
+  const { baby } = useSelector((state: RootStateV2) => state.pmkCare);
+  const userID = useSelector((state: RootStateV2) => state.pmkCare.mother.uid);
+
   function handleProgressSubmit(value: FormField) {
+    const currentStatus = selectBabyCurrentStatus(
+      value.weight,
+      value.temperature,
+      baby.weight
+    );
     const updateProgressData = {
       userID: userID,
       babyID: baby.id,
@@ -29,11 +35,11 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
       weight: value.weight,
       length: value.length,
       temperature: value.temperature,
-      previousWeight: baby.weight,
+      currentStatus: currentStatus
     };
     dispatch(addBabyProgress(updateProgressData)).then(() => {
       dispatch(updateNurseBabyDataAtCollection(updateProgressData));
-      navigation.push("history-progress");
+      navigation.pop()
     });
   }
   return (

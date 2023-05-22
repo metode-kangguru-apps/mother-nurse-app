@@ -69,9 +69,11 @@ const LoginPage: React.FC<Props> = () => {
 
   const [loading, setLoading] = useState<boolean>();
   const [searchHospital, setSearchHospital] = useState<string>("");
-  const [motherFormField, setMotherFormField] = useState<FormField>(
-    {} as FormField
-  );
+  const [motherFormField, setMotherFormField] = useState<Partial<FormField>>({
+    name: undefined,
+    phoneNumber: undefined,
+    hospital: undefined,
+  });
   const [formValidationError, setFormValidationError] =
     useState<boolean>(false);
   const [selectedRegisterRole, setSelectedRegisterRole] = useState<
@@ -115,9 +117,10 @@ const LoginPage: React.FC<Props> = () => {
 
   function handleLoginMotherAnonymously() {
     if (!isObjectContainUndefined(motherFormField)) {
+      const formField = motherFormField as FormField;
       if (
-        motherFormField.phoneNumber.length < 8 ||
-        motherFormField.phoneNumber.length > 13
+        formField.phoneNumber.length < 8 ||
+        formField.phoneNumber.length > 13
       ) {
         setFormValidationError(true);
         return;
@@ -126,11 +129,11 @@ const LoginPage: React.FC<Props> = () => {
         isAnonymous: true,
         userType: "guest",
         userRole: "mother",
-        displayName: motherFormField.name,
-        phoneNumber: motherFormField.phoneNumber,
+        displayName: formField.name,
+        phoneNumber: formField.phoneNumber,
       };
       dispatch(setUserData(userAnonymousInitialData));
-      dispatch(setSelectedHospital(motherFormField.hospital));
+      dispatch(setSelectedHospital(formField.hospital));
     } else {
       setFormValidationError(true);
     }

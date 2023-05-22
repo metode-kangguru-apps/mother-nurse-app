@@ -34,6 +34,10 @@ const authentication = createSlice({
             ];
             mother.babyCollection.map((baby, idxBaby) => {
               if (baby.id === action.payload.babyID) {
+                const baby = (state.user as Nurse).hospital.motherCollection[
+                  idxMother
+                ].babyCollection[idxBaby];
+                
                 (state.user as Nurse).hospital.motherCollection[
                   idxMother
                 ].babyCollection[idxBaby] = {
@@ -41,6 +45,8 @@ const authentication = createSlice({
                     .babyCollection[idxBaby],
                   currentWeight: action.payload.weight,
                   currentLength: action.payload.length,
+                  currentStatus:
+                    action.payload.currentStatus || baby.currentStatus,
                 };
               }
             });
@@ -54,10 +60,12 @@ const authentication = createSlice({
     ) => {
       (state.user as Mother).babyCollection.map((baby, idxBaby) => {
         if (baby.id === action.payload.babyID) {
+          const baby = (state.user as Mother).babyCollection[idxBaby];
           (state.user as Mother).babyCollection[idxBaby] = {
-            ...(state.user as Mother).babyCollection[idxBaby],
+            ...baby,
             currentWeight: action.payload.weight,
             currentLength: action.payload.length,
+            currentStatus: action.payload.currentStatus || baby.currentStatus,
           };
         }
       });

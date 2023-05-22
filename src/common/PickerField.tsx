@@ -81,7 +81,7 @@ const PickerFiled: React.FC<Props> = ({
   useEffect(() => {});
 
   return (
-    <View style={style.wrapper}>
+    <>
       {required && onError && !inputValue && (
         <Text style={style.errorMessage}>
           {firstCapital(label.toLowerCase())} harus di isi!
@@ -157,14 +157,11 @@ const PickerFiled: React.FC<Props> = ({
           ></FlatList>
         </BottomSheet>
       </View>
-    </View>
+    </>
   );
 };
 
 const style = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-  },
   errorMessage: {
     marginLeft: Spacing.extratiny,
     marginVertical: Spacing.extratiny,

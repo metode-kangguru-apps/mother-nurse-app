@@ -13,7 +13,7 @@ export type Baby = {
   currentLength: number;
   currentWeek: number;
   createdAt: Date | Timestamp;
-  currentStatus: BabyStatus
+  currentStatus: string
 };
 
 export type Progress = {
@@ -50,7 +50,7 @@ export interface AddProgressBabyPayload extends Progress {
   userID: string;
   babyID: string;
   temperature: number
-  previousWeight: number
+  currentStatus: string
 }
 
 // Response

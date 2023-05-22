@@ -33,7 +33,7 @@ const DetailBabyPage: React.FC<Props> = ({ navigation }) => {
   );
 
   function handleBack() {
-    navigation.push("mother-detail")
+    navigation.pop()
   }
 
   return (

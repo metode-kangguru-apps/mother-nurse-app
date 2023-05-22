@@ -13,9 +13,7 @@ import AddProgressPage from "@app/nurse/AddProgressPage";
 const NurseStack = createNativeStackNavigator<NurseStackParamList>();
 
 const NurseRouter: React.FC<{}> = () => {
-  const { mother, baby } = useSelector(
-    (state: RootStateV2) => state.pmkCare
-  );
+  const { mother, baby } = useSelector((state: RootStateV2) => state.pmkCare);
   return (
     <NurseStack.Navigator
       screenOptions={{
@@ -24,15 +22,7 @@ const NurseRouter: React.FC<{}> = () => {
         animation: "none",
       }}
     >
-      <NurseStack.Screen
-        name="profile"
-        component={ProfilePage}
-        options={{
-          title: "Perawatan Metode Kangguru",
-          animation: "slide_from_right",
-        }}
-      />
-      {Object.keys(mother).length > 0 && (
+      {Object.keys(mother).length ? (
         <>
           <NurseStack.Screen
             name="mother-detail"
@@ -49,6 +39,7 @@ const NurseRouter: React.FC<{}> = () => {
                 component={DetailBabyPage}
                 options={{
                   title: "Profil Bayi",
+                  animationTypeForReplace: "pop",
                   animation: "slide_from_right",
                 }}
               />
@@ -57,6 +48,7 @@ const NurseRouter: React.FC<{}> = () => {
                 component={HistoryProgressPage}
                 options={{
                   title: "Progres Bayi",
+                  animationTypeForReplace: "pop",
                   animation: "slide_from_right",
                 }}
               />
@@ -71,6 +63,16 @@ const NurseRouter: React.FC<{}> = () => {
             </>
           )}
         </>
+      ) : (
+        <NurseStack.Screen
+          name="profile"
+          component={ProfilePage}
+          options={{
+            title: "Perawatan Metode Kangguru",
+            animationTypeForReplace: "pop",
+            animation: "slide_from_right",
+          }}
+        />
       )}
     </NurseStack.Navigator>
   );

@@ -8,6 +8,7 @@ import AddProgressForm, { FormField } from "./AddProgressForm";
 import { addBabyProgress } from "@redux/actions/pmkCare/thunks";
 import { Mother } from "@redux/actions/authentication/types";
 import { updateMotherBabyDataAtCollection } from "@redux/actions/authentication";
+import { selectBabyCurrentStatus } from "@redux/actions/pmkCare/helper";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "add-progress"> {}
@@ -20,6 +21,11 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
 
   const dispatch = useAppDispatch();
   function handleProgressSubmit(value: FormField) {
+    const currentStatus = selectBabyCurrentStatus(
+      value.weight,
+      value.temperature,
+      babyData.weight
+    );
     const savedProgressData = {
       userID: userID,
       babyID: babyData.id,
@@ -28,7 +34,7 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
       weight: value.weight,
       length: value.length,
       temperature: value.temperature,
-      previousWeight: babyData.weight,
+      currentStatus: currentStatus,
     };
     dispatch(addBabyProgress(savedProgressData)).then(() => {
       dispatch(updateMotherBabyDataAtCollection(savedProgressData));

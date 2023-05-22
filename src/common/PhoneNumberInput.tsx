@@ -37,7 +37,7 @@ const PhoneNumberInput: React.FC<Props> = ({
   }, [inputValue, required, onError]);
 
   return (
-    <View style={style.wrapper}>
+    <>
       {showErrorMessage()}
       <View
         style={[
@@ -68,14 +68,11 @@ const PhoneNumberInput: React.FC<Props> = ({
           />
         </View>
       </View>
-    </View>
+    </>
   );
 };
 
 const style = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-  },
   errorMessage: {
     marginLeft: Spacing.extratiny,
     marginVertical: Spacing.extratiny,

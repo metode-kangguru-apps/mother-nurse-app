@@ -2,6 +2,7 @@ import { useSelector } from "react-redux";
 
 import { RootStateV2 } from "@redux/types";
 import {
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -36,12 +37,19 @@ import {
   logingOutUser,
   signUpNurseAccount,
 } from "@redux/actions/authentication/thunks";
+import { HospitalPayload } from "@redux/actions/hospital/types";
 
 interface Props
   extends CompositeScreenProps<
     NativeStackScreenProps<AuthStackParamList, "register-nurse-information">,
     NativeStackScreenProps<RootStackParamList>
   > {}
+
+interface FormField {
+  name: string;
+  phoneNumber: string;
+  hospital: HospitalPayload;
+}
 
 const RegisterNurseInformation: React.FC<Props> = () => {
   const dispatch = useAppDispatch();
@@ -53,22 +61,37 @@ const RegisterNurseInformation: React.FC<Props> = () => {
   const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   const [searchHospital, setSearchHospital] = useState<string>("");
-  const [formField, setFormField] = useState<NursePayload>({} as NursePayload);
+  const [formField, setFormField] = useState<Partial<FormField>>({
+    name: undefined,
+    phoneNumber: undefined,
+    hospital: undefined,
+  });
   const [formValidationError, setFormValidationError] = useState<boolean>();
-  // TODO: Form Validation and refactor to authenticationV2
+  const [loading, setLoading] = useState<boolean>();
 
   function registerNurse() {
     if (!isObjectContainUndefined(formField) && user) {
+      const nurseFormField = formField as FormField;
+      if (
+        nurseFormField.phoneNumber.length < 8 ||
+        nurseFormField.phoneNumber.length > 13
+      ) {
+        setFormValidationError(true);
+        return;
+      }
+      setLoading(true);
       const nurseData: NursePayload = {
         uid: user.uid,
-        displayName: formField.displayName,
+        displayName: nurseFormField.name,
         isAnonymous: user.isAnonymous,
         userRole: user.userRole,
         userType: "member",
-        phoneNumber: formField.phoneNumber,
-        hospital: formField.hospital,
+        phoneNumber: nurseFormField.phoneNumber,
+        hospital: nurseFormField.hospital,
       };
-      dispatch(signUpNurseAccount(nurseData));
+      dispatch(signUpNurseAccount(nurseData)).then(() => {
+        setLoading(false);
+      });
     } else {
       setFormValidationError(true);
     }
@@ -110,7 +133,7 @@ const RegisterNurseInformation: React.FC<Props> = () => {
                 onChange={(value) =>
                   setFormField({
                     ...formField,
-                    displayName: value,
+                    name: value,
                   })
                 }
               />
@@ -162,7 +185,11 @@ const RegisterNurseInformation: React.FC<Props> = () => {
               <Text style={style.prevButtonTitle}>Kembali</Text>
             </TouchableOpacity>
             <TouchableOpacity style={style.nextButton} onPress={registerNurse}>
-              <Text style={style.buttonTitle}>Daftar</Text>
+              {!loading ? (
+                <Text style={style.buttonTitle}>Daftar</Text>
+              ) : (
+                <ActivityIndicator size={TextSize.h5} color={color.rose} />
+              )}
             </TouchableOpacity>
           </View>
         </View>
@@ -201,7 +228,7 @@ const createStyle = (insets: EdgeInsets) =>
       justifyContent: "space-between",
       ...Platform.select({
         native: {
-          paddingBottom: insets.top,
+          paddingBottom: insets.bottom,
         },
         web: {
           paddingBottom: Spacing.base,
@@ -230,7 +257,6 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: insets.bottom
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

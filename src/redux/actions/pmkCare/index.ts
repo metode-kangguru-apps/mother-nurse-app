@@ -39,12 +39,13 @@ const PMKCare = createSlice({
       state,
       action: PayloadAction<AddProgressBabyPayload>
     ) => {
-      const { userID, babyID, previousWeight, ...savedBabyProgress } =
+      const { userID, babyID, ...savedBabyProgress } =
         action.payload;
       state.baby = {
         ...state.baby,
         currentWeight: action.payload.weight,
         currentLength: action.payload.length,
+        currentStatus: action.payload.currentStatus || state.baby.currentStatus,
       };
       state.progress.unshift({
         ...savedBabyProgress,
@@ -60,6 +61,7 @@ const PMKCare = createSlice({
               ...baby,
               currentWeight: action.payload.weight,
               currentLength: action.payload.length,
+              currentStatus: action.payload.currentStatus || baby.currentStatus,
             };
           }
         });

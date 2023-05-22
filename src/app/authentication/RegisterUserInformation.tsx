@@ -38,12 +38,19 @@ import { MotherPayload } from "@redux/actions/authentication/types";
 import { logingOutUser } from "@redux/actions/authentication/thunks";
 import { setSelectedHospital } from "@redux/actions/hospital";
 import { getHospitalList } from "@redux/actions/hospital/thunks";
+import { HospitalPayload } from "@redux/actions/hospital/types";
 
 interface Props
   extends NativeStackScreenProps<
     AuthStackParamList,
     "register-user-information"
   > {}
+
+interface FormField {
+  name: string;
+  phoneNumber: string;
+  hospital: HospitalPayload;
+}
 
 const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
@@ -55,25 +62,28 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
 
   const [searchHospital, setSearchHospital] = useState<string>("");
   const [formValidationError, setFormValidationError] = useState<boolean>();
-  const [formField, setFormField] = useState<MotherPayload>(
-    {} as MotherPayload
-  );
+  const [formField, setFormField] = useState<Partial<FormField>>({
+    name: undefined,
+    phoneNumber: undefined,
+    hospital: undefined,
+  });
 
   function handlerGoToRegisterBaby() {
     if (!isObjectContainUndefined(formField)) {
+      const motherFormField = formField as FormField;
       if (
-        formField.phoneNumber.length < 8 ||
-        formField.phoneNumber.length > 13
+        motherFormField.phoneNumber.length < 8 ||
+        motherFormField.phoneNumber.length > 13
       ) {
         setFormValidationError(true);
         return;
       }
       const savedUserData: Partial<MotherPayload> = {
-        displayName: formField.displayName,
-        phoneNumber: formField.phoneNumber,
+        displayName: motherFormField.name,
+        phoneNumber: motherFormField.phoneNumber,
       };
       dispatch(setUserData(savedUserData));
-      dispatch(setSelectedHospital(formField.hospital));
+      dispatch(setSelectedHospital(motherFormField.hospital));
       navigation.navigate("register-baby-information");
     } else {
       setFormValidationError(true);
@@ -115,7 +125,7 @@ const RegisterUserInformation: React.FC<Props> = ({ navigation }) => {
                 onChange={(value) =>
                   setFormField({
                     ...formField,
-                    displayName: value,
+                    name: value,
                   })
                 }
               />
@@ -238,7 +248,7 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: insets.bottom
+      marginBottom: insets.bottom,
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,
