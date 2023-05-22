@@ -4,11 +4,10 @@ import BabyIcon from "src/lib/ui/icons/baby";
 import { EvilIcons } from "@expo/vector-icons";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
-import { Baby } from "@redux/actions/authentication/types";
 import { Font } from "src/lib/ui/font";
-import { BabyStatus } from "@redux/actions/baby/types";
 import { AntDesign } from "@expo/vector-icons";
 import { useMemo } from "react";
+import { Baby, BabyStatus } from "@redux/actions/pmkCare/types";
 
 export enum Gender {
   "laki-laki" = "Laki-laki",

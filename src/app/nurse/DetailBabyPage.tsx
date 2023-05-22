@@ -1,7 +1,7 @@
 import BabyCard from "@app/mother/ProfilePage/BabyCard";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useAppDispatch } from "@redux/hooks";
-import { RootState } from "@redux/types";
+import { RootState, RootStateV2 } from "@redux/types";
 import moment from "moment";
 import {
   ScrollView,
@@ -27,21 +27,13 @@ interface Props
   extends NativeStackScreenProps<NurseStackParamList, "baby-detail"> {}
 
 const DetailBabyPage: React.FC<Props> = ({ navigation }) => {
-  const { selectedTerapiBaby } = useSelector(
-    (state: RootState) => state.global
+  const { baby } = useSelector((state: RootStateV2) => state.pmkCare);
+  const dateBirthFormat = moment(baby.birthDate, "DD/MM/YYYY").format(
+    "DD MMMM YYYY"
   );
-  const dispatch = useAppDispatch();
-  const dateBirthFormat = moment(
-    selectedTerapiBaby.birthDate,
-    "DD/MM/YYYY"
-  ).format("DD MMMM YYYY");
 
   function handleBack() {
-    navigation.pop();
-  }
-
-  function handleSelectedBaby() {
-    console.log("Progress", selectedTerapiBaby);
+    navigation.pop()
   }
 
   return (
@@ -58,11 +50,11 @@ const DetailBabyPage: React.FC<Props> = ({ navigation }) => {
         <BabyCard
           type="nurse"
           birthDate={dateBirthFormat}
-          gender={selectedTerapiBaby.gender}
-          name={selectedTerapiBaby.displayName}
-          weight={selectedTerapiBaby.currentWeight}
-          length={selectedTerapiBaby.currentLength}
-          status={selectedTerapiBaby.currentStatus}
+          gender={baby.gender}
+          name={baby.displayName}
+          weight={baby.currentWeight}
+          length={baby.currentLength}
+          status={baby.currentStatus}
           showSelectBaby={false}
         />
         <View style={style.buttonNavigationContainer}>

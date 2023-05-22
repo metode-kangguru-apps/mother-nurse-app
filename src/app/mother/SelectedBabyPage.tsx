@@ -1,6 +1,6 @@
-import { RootState } from "@redux/types";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import {
+  ActivityIndicator,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -8,43 +8,40 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import moment from "moment";
+import { RootStateV2 } from "@redux/types";
+import { useSelector } from "react-redux";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { Font } from "src/lib/ui/font";
-import { Spacing } from "src/lib/ui/spacing";
-import { TextSize } from "src/lib/ui/textSize";
-import { MotherStackParamList } from "src/router/types";
 import { color } from "src/lib/ui/color";
-
-import { EvilIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
-import { useAppDispatch } from "@redux/hooks";
-import { setSelectedTerapiBaby } from "@redux/actions/global";
-import moment from "moment";
+import { Spacing } from "src/lib/ui/spacing";
 import BabyIcon from "src/lib/ui/icons/baby";
+import { TextSize } from "src/lib/ui/textSize";
 import { weekDifference } from "src/lib/utils/calculate";
-import { Baby } from "@redux/actions/authentication/types";
-import { getProgressBaby } from "@redux/actions/baby/thunks";
-import { AntDesign } from "@expo/vector-icons";
+
+import { MotherStackParamList } from "src/router/types";
+
+import { useAppDispatch } from "@redux/hooks";
+import { EvilIcons, AntDesign } from "@expo/vector-icons";
+
+import { Timestamp } from "firebase/firestore";
+import { getBabyProgressAndSession } from "@redux/actions/pmkCare/thunks";
+import { Mother } from "@redux/actions/authentication/types";
+import { Baby } from "@redux/actions/pmkCare/types";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
 
 const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { mother } = useSelector((state: RootState) => state.authentication);
-  const { selectedTerapiBaby } = useSelector(
-    (state: RootState) => state.global
+  const { uid, babyCollection } = useSelector(
+    (state: RootStateV2) => state.authentication.user as Mother
   );
+  const [loading, setLoading] = useState<boolean>();
   const [selectedBaby, setSelectedBaby] = useState<number | undefined>(
     undefined
   );
-
-  useEffect(() => {
-    if (Object.keys(selectedTerapiBaby).length) {
-      navigation.replace("home");
-    }
-  }, [selectedTerapiBaby]);
 
   const renderItemList = (item: Baby, index: number) => {
     const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
@@ -89,22 +86,25 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSelectedBaby = () => {
-    if (selectedBaby !== undefined && mother?.babyCollection?.[selectedBaby]) {
+    if (selectedBaby !== undefined && babyCollection[selectedBaby]) {
+      setLoading(true);
       // count different week
-      let babyCreatedAt = mother.babyCollection[selectedBaby].createdAt;
-      babyCreatedAt = new Date(
+      const babyCreatedAt = babyCollection[selectedBaby].createdAt as Timestamp;
+      const formattedBabyCreatedAt = new Date(
         babyCreatedAt.seconds * 1000 + babyCreatedAt.nanoseconds / 1000000
       );
-      const weekDiff = weekDifference(babyCreatedAt);
-      const currentWeek =
-        mother.babyCollection[selectedBaby].gestationAge + weekDiff;
+      const weekDiff = weekDifference(formattedBabyCreatedAt);
+      const currentWeek = babyCollection[selectedBaby].gestationAge + weekDiff;
 
       let selectedBabyDocument = {
-        ...mother.babyCollection[selectedBaby],
+        ...babyCollection[selectedBaby],
         currentWeek,
       };
-      dispatch(setSelectedTerapiBaby(selectedBabyDocument));
-      dispatch(getProgressBaby(selectedBabyDocument.id));
+      dispatch(
+        getBabyProgressAndSession({ userID: uid, baby: selectedBabyDocument })
+      ).then(() => {
+        setLoading(false);
+      });
     }
   };
 
@@ -119,8 +119,8 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
           <Text style={style.title}>Pilih Bayi</Text>
           <View style={style.babiesWrapper}>
             {/* TODO: @muhammadhafizm implement loading */}
-            {mother.babyCollection &&
-              mother.babyCollection.map((element: Baby, index: number) => {
+            {babyCollection &&
+              babyCollection.map((element: Baby, index: number) => {
                 return renderItemList(element, index);
               })}
             <TouchableWithoutFeedback
@@ -141,12 +141,18 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
                   : undefined,
               ]}
             >
-              <Text style={style.textStart}>Mulai Terapi</Text>
-              <EvilIcons
-                name="arrow-right"
-                size={24}
-                color={color.lightneutral}
-              />
+              {!loading ? (
+                <>
+                  <Text style={style.textStart}>Mulai Terapi</Text>
+                  <EvilIcons
+                    name="arrow-right"
+                    size={TextSize.h5}
+                    color={color.lightneutral}
+                  />
+                </>
+              ) : (
+                <ActivityIndicator size={TextSize.h5} color={color.rose} />
+              )}
             </View>
           </TouchableWithoutFeedback>
         </View>

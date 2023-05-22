@@ -6,3 +6,7 @@ export function titleCase(string: string) {
   }
   return sentence.join(" ");
 }
+
+export function firstCapital(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}

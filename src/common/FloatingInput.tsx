@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   View,
   Text,
@@ -8,13 +8,19 @@ import {
   Platform,
   KeyboardTypeOptions,
   Keyboard,
+  NativeSyntheticEvent,
+  TextInputChangeEventData,
 } from "react-native";
 import { color } from "src/lib/ui/color";
 
 import { Spacing } from "src/lib/ui/spacing";
+import { TextSize } from "src/lib/ui/textSize";
+import { firstCapital } from "src/lib/utils/string";
 
 type Props = {
   label: string;
+  required?: boolean;
+  onError?: boolean;
   defaultValue?: string;
   type?: "no-border";
   keyboardType?: KeyboardTypeOptions;
@@ -30,14 +36,14 @@ const FloatingInput: React.FC<Props> = ({
   type,
   keyboardType = "default",
   statePrefix,
+  required = false,
   bindFocus = false,
+  onError = false,
   onFocus,
   onChange,
 }) => {
   const [focus, setFocus] = useState<boolean>(bindFocus);
-  const [inputValue, setInputValue] = useState<string>(
-    defaultValue || statePrefix || ""
-  );
+  const [inputValue, setInputValue] = useState<string>(defaultValue || "");
   const isFocusedAnimated = useRef(new Animated.Value(0)).current;
   const textField = useRef<TextInput>(null);
 
@@ -71,6 +77,32 @@ const FloatingInput: React.FC<Props> = ({
     }
   }
 
+  function handleOnchange(
+    state: NativeSyntheticEvent<TextInputChangeEventData>
+  ) {
+    const result = state.nativeEvent.text;
+    if (
+      Platform.OS === "web" &&
+      (keyboardType === "phone-pad" || keyboardType === "decimal-pad")
+    ) {
+      if (!(/^[0-9]+$/.test(result) || result === "")) {
+        return;
+      }
+    }
+    setInputValue(result);
+    onChange && onChange(result);
+  }
+
+  const showErrorMessage = useCallback(() => {
+    if (required && onError && !inputValue) {
+      return (
+        <Text style={style.errorMessage}>
+          {firstCapital(label.toLowerCase())} harus di isi!
+        </Text>
+      );
+    }
+  }, [inputValue, required, onError]);
+
   useEffect(() => {
     Animated.timing(isFocusedAnimated, {
       toValue: focus || inputValue !== "" || statePrefix ? 1 : 0,
@@ -81,58 +113,73 @@ const FloatingInput: React.FC<Props> = ({
       if (focus && textField.current) {
         textField.current.focus();
       }
-    }, Platform.select({ios: 700, android: 400}));
+    }, Platform.select({ ios: 700, android: 400 }));
   }, [focus]);
 
   return (
-    <View>
-      <Animated.View
-        pointerEvents={"none"}
-        style={[
-          style.labelContainer,
-          {
-            transform: [{ translateY: handleAnimatedOnFocusTop }],
-          },
-        ]}
-      >
-        <Animated.Text
+    <>
+      {showErrorMessage()}
+      <View>
+        <Animated.View
+          pointerEvents={"none"}
           style={[
-            style.labelStyle,
+            style.labelContainer,
             {
-              fontSize: handleAnimatedOnFocusSize,
+              transform: [{ translateY: handleAnimatedOnFocusTop }],
             },
           ]}
         >
-          {label}
-        </Animated.Text>
-      </Animated.View>
-      {statePrefix && <Text style={style.statePrefix}>{statePrefix}</Text>}
-      <TextInput
-        ref={textField}
-        style={[style.textInput, { borderColor: borderColor }]}
-        keyboardType={keyboardType}
-        onFocus={() => {
-          setFocus(true);
-          onFocus && onFocus(true);
-        }}
-        onBlur={() => {
-          setFocus(false);
-          onFocus && onFocus(false);
-        }}
-        onChange={(state) => {
-          setInputValue(state.nativeEvent.text);
-          onChange && onChange(state.nativeEvent.text);
-        }}
-        defaultValue={defaultValue}
-        returnKeyType="none"
-      />
-    </View>
+          <Animated.Text
+            style={[
+              style.labelStyle,
+              {
+                fontSize: handleAnimatedOnFocusSize,
+              },
+            ]}
+          >
+            {label}
+          </Animated.Text>
+        </Animated.View>
+        {statePrefix && <Text style={style.statePrefix}>{statePrefix}</Text>}
+        <TextInput
+          ref={textField}
+          style={[style.textInput, { borderColor: borderColor }]}
+          keyboardType={keyboardType}
+          value={inputValue}
+          onFocus={() => {
+            setFocus(true);
+            onFocus && onFocus(true);
+          }}
+          onBlur={() => {
+            setFocus(false);
+            onFocus && onFocus(false);
+          }}
+          onChange={(state) => {
+            handleOnchange(state);
+          }}
+          defaultValue={defaultValue}
+          returnKeyType="default"
+        />
+      </View>
+    </>
   );
 };
 
 const createStyle = (type: "no-border" | undefined, isStatePrefix: boolean) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
+    wrapper: {
+      flex: 1,
+    },
+    container: {
+      flex: 1,
+    },
+    errorMessage: {
+      marginLeft: Spacing.extratiny,
+      marginVertical: Spacing.extratiny,
+      fontSize: TextSize.caption,
+      color: color.apple,
+    },
     labelContainer: {
       left: Platform.OS === "android" ? 12 : 14,
       zIndex: 1,

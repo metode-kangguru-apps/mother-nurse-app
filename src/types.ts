@@ -9,3 +9,4 @@ declare module "@env" {
   export const FIREBASE_APP_ID: string;
   export const FIREBASE_ANDROID_CLIENT_ID: string;
 }
+

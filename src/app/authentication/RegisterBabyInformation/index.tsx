@@ -1,17 +1,18 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthStackParamList, RootStackParamList } from "src/router/types";
 
-import { Baby, AuthenticationState } from "@redux/actions/authentication/types";
+import { BabyStatus, Baby as BabyV2 } from "@redux/actions/pmkCare/types";
 import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
+import { RootStateV2 } from "@redux/types";
 import { useAppDispatch } from "@redux/hooks";
-import {
-  loginUser,
-  signUpMotherWithGoogle,
-} from "@redux/actions/authentication/thunks";
 import { CompositeScreenProps } from "@react-navigation/native";
-import { clearAuthenticationDataSuccess } from "@redux/actions/authentication";
 import RegisterBabyPage from "./RegisterBabyPage";
+import {
+  logingOutUser,
+  signUpMotherAccount,
+} from "@redux/actions/authentication/thunks";
+import { MotherPayload } from "@redux/actions/authentication/types";
+import { useState } from "react";
 
 interface Props
   extends CompositeScreenProps<
@@ -21,48 +22,43 @@ interface Props
 
 const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { user, mother } = useSelector(
-    (state: RootState) => state.authentication
+  const { user } = useSelector((state: RootStateV2) => state.authentication);
+  const [loading, setLoading] = useState<boolean>();
+  const { selectedHospital } = useSelector(
+    (state: RootStateV2) => state.hospital
   );
 
-  function handlerRegisterAccount(babyData: Baby) {
-    const newUserObj = {
-      user: {
-        displayName: user?.displayName,
+  function handlerRegisterAccount(babyData: BabyV2) {
+    if (user && selectedHospital) {
+      setLoading(true);
+      const motherData: MotherPayload = {
+        displayName: user.displayName,
+        userRole: user.userRole,
+        phoneNumber: user.phoneNumber,
+        hospital: selectedHospital,
         userType: "member",
-        userRole: "mother",
-        isAnonymous: true,
-      },
-      mother: {
-        phoneNumber: mother?.phoneNumber,
-        hospital: mother?.hospital,
+        isAnonymous: user.isAnonymous,
         babyCollection: [
           {
             displayName: babyData.displayName,
+            gender: babyData.gender,
             gestationAge: babyData.gestationAge,
-            birthDate: babyData.birthDate,
             weight: babyData.weight,
             length: babyData.length,
+            currentWeek: babyData.gestationAge,
             currentWeight: babyData.weight,
             currentLength: babyData.length,
-            gender: babyData.gender,
+            birthDate: babyData.birthDate,
+            createdAt: new Date(),
+            currentStatus: BabyStatus.ON_PROGRESS,
           },
         ],
-      },
-      nurse: undefined,
-    };
-    if (user?.isAnonymous) {
-      dispatch(loginUser(newUserObj as AuthenticationState));
-    } else {
-      const newGoogleUserObj = {
-        ...newUserObj,
-        user: {
-          ...newUserObj.user,
-          uid: user?.uid,
-          isAnonymous: false,
-        },
       };
-      dispatch(signUpMotherWithGoogle(newGoogleUserObj as AuthenticationState));
+      dispatch(
+        signUpMotherAccount({ uid: user.uid, payload: motherData })
+      ).then(() => {
+        setLoading(false);
+      });
     }
   }
 
@@ -74,16 +70,14 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
     ) {
       navigation.goBack();
     } else {
-      Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
-        navigation.navigate("login");
-      });
+      dispatch(logingOutUser());
     }
   }
 
   return (
-    // TODO: Implement loading state
     <RegisterBabyPage
       title="Daftar Bayi"
+      loading={loading}
       handleBackButton={handleBackButton}
       handleRegisterBaby={(babyData) => handlerRegisterAccount(babyData)}
     />

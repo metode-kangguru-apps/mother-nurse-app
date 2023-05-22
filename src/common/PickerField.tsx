@@ -16,6 +16,7 @@ import BottomSheet from "./BottomSheet";
 import Separator from "./Separator";
 import { Options } from "./types";
 import FloatingInput from "./FloatingInput";
+import { firstCapital } from "src/lib/utils/string";
 
 type Props = {
   label: string;
@@ -26,6 +27,8 @@ type Props = {
   onSearch?: (value: string) => void;
   searchable?: boolean;
   loading?: boolean;
+  required?: boolean;
+  onError?: boolean;
 };
 
 const PickerFiled: React.FC<Props> = ({
@@ -37,6 +40,8 @@ const PickerFiled: React.FC<Props> = ({
   onSearch,
   searchable = false,
   loading = false,
+  required = false,
+  onError = false,
 }) => {
   const [focus, setFocus] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
@@ -73,81 +78,96 @@ const PickerFiled: React.FC<Props> = ({
     }).start();
   }, [focus]);
 
+  useEffect(() => {});
+
   return (
-    <View style={style.container}>
-      <Animated.View
-        pointerEvents={"none"}
-        style={[
-          style.labelWrapper,
-          {
-            transform: [{ translateY: handleAnimatedOnFocusTop }],
-          },
-        ]}
-      >
-        <Animated.Text
-          style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+    <>
+      {required && onError && !inputValue && (
+        <Text style={style.errorMessage}>
+          {firstCapital(label.toLowerCase())} harus di isi!
+        </Text>
+      )}
+      <View style={style.container}>
+        <Animated.View
+          pointerEvents={"none"}
+          style={[
+            style.labelWrapper,
+            {
+              transform: [{ translateY: handleAnimatedOnFocusTop }],
+            },
+          ]}
         >
-          {label}
-        </Animated.Text>
-      </Animated.View>
-      <Pressable
-        style={[style.textInput, { borderColor: borderColor }]}
-        onPress={() => {
-          setFocus(true);
-          onFocus && onFocus(true);
-          setModalVisible(true);
-        }}
-      >
-        <Text>{inputValue}</Text>
-      </Pressable>
-      <BottomSheet
-        visible={modalVisible}
-        onCloseModal={() => {
-          setModalVisible(false);
-          setFocus(false);
-          onFocus && onFocus(false);
-        }}
-        height={searchable ? "90%" : undefined}
-      >
-        {!searchable && <Text style={style.bottomSheetTitle}>{label}</Text>}
-        {searchable && (
-          <View style={style.searchPicker}>
-            <FloatingInput
-              bindFocus={modalVisible}
-              onChange={(value) => {
-                onSearch && onSearch(value);
-              }}
-              label={`Cari ${label}`}
-            />
-          </View>
-        )}
-        <FlatList
-          data={items}
-          showsVerticalScrollIndicator={false}
-          renderItem={(state) => (
-            <TouchableOpacity
-              onPress={() => handlerSelectedValue(state.item)}
-              style={style.selectorItem}
-            >
-              <Text>{state.item.key}</Text>
-            </TouchableOpacity>
+          <Animated.Text
+            style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+          >
+            {label}
+          </Animated.Text>
+        </Animated.View>
+        <Pressable
+          style={[style.textInput, { borderColor: borderColor }]}
+          onPress={() => {
+            setFocus(true);
+            onFocus && onFocus(true);
+            setModalVisible(true);
+          }}
+        >
+          <Text>{inputValue}</Text>
+        </Pressable>
+        <BottomSheet
+          visible={modalVisible}
+          onCloseModal={() => {
+            setModalVisible(false);
+            setFocus(false);
+            onFocus && onFocus(false);
+          }}
+          height={searchable ? "90%" : undefined}
+        >
+          {!searchable && <Text style={style.bottomSheetTitle}>{label}</Text>}
+          {searchable && (
+            <View style={style.searchPicker}>
+              <FloatingInput
+                bindFocus={modalVisible}
+                onChange={(value) => {
+                  onSearch && onSearch(value);
+                }}
+                label={`Cari ${label}`}
+              />
+            </View>
           )}
-          ItemSeparatorComponent={() => (
-            <Separator spacing={1} color={color.surface} />
-          )}
-          ListFooterComponent={() => (
-            <>
+          <FlatList
+            data={items}
+            showsVerticalScrollIndicator={false}
+            renderItem={(state) => (
+              <TouchableOpacity
+                onPress={() => handlerSelectedValue(state.item)}
+                style={style.selectorItem}
+              >
+                <Text>{state.item.key}</Text>
+              </TouchableOpacity>
+            )}
+            ItemSeparatorComponent={() => (
               <Separator spacing={1} color={color.surface} />
-              <Separator spacing={Spacing.base} color={color.lightneutral} />
-            </>
-          )}
-        ></FlatList>
-      </BottomSheet>
-    </View>
+            )}
+            ListFooterComponent={() => (
+              <>
+                <Separator spacing={1} color={color.surface} />
+                <Separator spacing={Spacing.base} color={color.lightneutral} />
+              </>
+            )}
+          ></FlatList>
+        </BottomSheet>
+      </View>
+    </>
   );
 };
 
 const style = StyleSheet.create({
+  errorMessage: {
+    marginLeft: Spacing.extratiny,
+    marginVertical: Spacing.extratiny,
+    fontSize: TextSize.caption,
+    color: color.apple,
+  },
   container: {
     position: "relative",
   },

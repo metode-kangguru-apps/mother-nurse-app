@@ -2,25 +2,24 @@ import { AnyAction, combineReducers, Reducer } from "redux";
 import { persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-import globalReducer from "./actions/global";
-import authenticationReducer from "./actions/authentication";
-import babyReducer from "./actions/baby";
+import hospitalReducer from "./actions/hospital";
+import authenticationV2Reducer from "./actions/authentication";
+import pmkCareReducer from "./actions/pmkCare";
 import { RootState } from "./types";
-import { persistor } from "./store";
 
 const authenticationPersistConfig = {
   key: "authentication",
   storage: AsyncStorage,
-  whitelist: ["mother", "nurse", "user"],
+  whitelist: ["user"],
 };
 
 const appReducer = combineReducers({
-  global: globalReducer,
   authentication: persistReducer(
     authenticationPersistConfig,
-    authenticationReducer
+    authenticationV2Reducer
   ),
-  baby: babyReducer,
+  hospital: hospitalReducer,
+  pmkCare: pmkCareReducer,
 });
 
 const rootReducer: Reducer = (state: RootState, action: AnyAction) => {

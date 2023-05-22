@@ -9,14 +9,15 @@ import {
 } from "react-native";
 
 import Header from "src/common/Header";
-import { Font } from "src/lib/ui/font";
 import FloatingInput from "src/common/FloatingInput";
+import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 import { Platform } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo, useState } from "react";
 import { color } from "src/lib/ui/color";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
 export type FormField = {
   weight: number;
@@ -34,16 +35,21 @@ const AddProgressForm: React.FC<Props> = ({
   handleBackForm,
 }) => {
   const insets = useSafeAreaInsets();
-  const [formField, setFormField] = useState<FormField>({
-    weight: 0,
-    length: 0,
-    temperature: 0,
+  const [validationFormError, setValidationFormError] = useState<boolean>();
+  const [formField, setFormField] = useState<Partial<FormField>>({
+    weight: undefined,
+    length: undefined,
   });
 
   const style = useMemo(() => createStyle(insets), [insets]);
 
   function handleSubmitOnClick() {
-    handleProgressSubmit(formField);
+    if (!isObjectContainUndefined(formField)) {
+      const progressFormField = formField as FormField;
+      handleProgressSubmit(progressFormField);
+    } else {
+      setValidationFormError(true);
+    }
   }
 
   return (
@@ -70,7 +76,9 @@ const AddProgressForm: React.FC<Props> = ({
                 <Text style={style.formTitle}>Pertumbuhan Bayi</Text>
                 <View style={style.formField}>
                   <FloatingInput
-                    label="Berat Badan (gram)"
+                    required
+                    onError={validationFormError}
+                    label="Berat Badan (gram)*"
                     keyboardType="number-pad"
                     onChange={(value) => {
                       setFormField({
@@ -82,7 +90,9 @@ const AddProgressForm: React.FC<Props> = ({
                 </View>
                 <View style={style.formField}>
                   <FloatingInput
-                    label="Panjang Badan (cm)"
+                    required
+                    onError={validationFormError}
+                    label="Panjang Badan (cm)*"
                     keyboardType="number-pad"
                     onChange={(value) => {
                       setFormField({

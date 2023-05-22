@@ -1,49 +1,84 @@
 import FloatingInput from "./FloatingInput";
-import { useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { useCallback, useState } from "react";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { Spacing } from "src/lib/ui/spacing";
 import { color } from "src/lib/ui/color";
+import { TextSize } from "src/lib/ui/textSize";
 
 interface Props {
+  required?: boolean;
+  onError?: boolean;
   defaultValue?: string;
   onChange?: (value: string) => void;
 }
 
-const PhoneNumberInput: React.FC<Props> = ({ defaultValue, onChange }) => {
+const PhoneNumberInput: React.FC<Props> = ({
+  required,
+  onError,
+  defaultValue,
+  onChange,
+}) => {
+  const [inputValue, setInputValue] = useState<string>(defaultValue || "");
   const [focus, setFocus] = useState(false);
+
+  const showErrorMessage = useCallback(() => {
+    if (required && onError && !inputValue) {
+      return (
+        <Text style={style.errorMessage}>Nomor telepon harus di isi!</Text>
+      );
+    } else if (onError && (inputValue.length < 8 || inputValue.length > 13)) {
+      return (
+        <Text style={style.errorMessage}>
+          Nomor telepon minimal 8 & maksimal 13 karakter
+        </Text>
+      );
+    }
+    return;
+  }, [inputValue, required, onError]);
+
   return (
-    <View
-      style={[
-        style.inputContainer,
-        { borderColor: !focus ? "transparent" : "rgba(0, 0, 255, 0.5)" },
-      ]}
-    >
-      <View style={style.countryProviderCode}>
-        <View style={style.countryProviderLogoContainer}>
-          <Image
-            style={style.countryProviderLogo}
-            source={require("../../assets/indonesia-icon.png")}
+    <>
+      {showErrorMessage()}
+      <View
+        style={[
+          style.inputContainer,
+          { borderColor: !focus ? "transparent" : "rgba(0, 0, 255, 0.5)" },
+        ]}
+      >
+        <View style={style.countryProviderCode}>
+          <View style={style.countryProviderLogoContainer}>
+            <Image
+              style={style.countryProviderLogo}
+              source={require("../../assets/indonesia-icon.png")}
+            />
+          </View>
+        </View>
+        <View style={style.textInput}>
+          <FloatingInput
+            label="Nomor Telepon"
+            type="no-border"
+            statePrefix="+62"
+            keyboardType="phone-pad"
+            defaultValue={defaultValue}
+            onChange={(value) => {
+              setInputValue(value);
+              onChange && onChange(value);
+            }}
+            onFocus={(state) => setFocus(state)}
           />
         </View>
       </View>
-      <View style={style.textInput}>
-        <FloatingInput
-          label="Nomor Telepon"
-          type="no-border"
-          statePrefix="+62"
-          keyboardType="phone-pad"
-          defaultValue={defaultValue}
-          onChange={(value) => {
-            onChange && onChange(value);
-          }}
-          onFocus={(state) => setFocus(state)}
-        />
-      </View>
-    </View>
+    </>
   );
 };
 
 const style = StyleSheet.create({
+  errorMessage: {
+    marginLeft: Spacing.extratiny,
+    marginVertical: Spacing.extratiny,
+    fontSize: TextSize.caption,
+    color: color.apple,
+  },
   inputContainer: {
     display: "flex",
     flexDirection: "row",

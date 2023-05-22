@@ -2,6 +2,9 @@ import { Dispatch } from "react";
 import { AnyAction, Store } from "redux";
 import { ThunkDispatch, ThunkAction } from "redux-thunk";
 import { store } from "./store";
+import { UserInitialState } from "./actions/authentication/types";
+import { HospitalInitialState } from "./actions/hospital/types";
+import { PMKCareInitialState } from "./actions/pmkCare/types";
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;
@@ -20,3 +23,19 @@ export type AppThunk<ReturnType = void> = ThunkAction<
   unknown,
   AnyAction
 >;
+
+export type RootStateV2 = {
+  authentication: UserInitialState,
+  hospital: HospitalInitialState,
+  pmkCare: PMKCareInitialState
+}
+
+export enum FirebaseCollection {
+  USER = "users",
+  MOTHER = "mothers",
+  NURSE = "nurses",
+  BABIES = "babies",
+  HOSPITAL = "hospitals",
+  PROGRESS = "progress",
+  SESSION = "sessions"
+}

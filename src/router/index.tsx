@@ -9,17 +9,27 @@ import { color } from "src/lib/ui/color";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { RootStackParamList } from "src/router/types";
 import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
+import { RootStateV2 } from "@redux/types";
 import NotFoundPage from "src/common/NotFoundPage";
+import { useCallback } from "react";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 interface Props {}
 
 const RootRouter: React.FC<Props> = () => {
-  const { user, mother, nurse } = useSelector(
-    (state: RootState) => state.authentication
-  );
+  const { user } = useSelector((state: RootStateV2) => state.authentication);
+  const renderStackNavigator = useCallback(() => {
+    if (!user || user.userType === "guest") {
+      return <Stack.Screen name="auth" component={AuthRouter} />;
+    } else {
+      if (user.userRole === "mother") {
+        return <Stack.Screen name="mother" component={MotherRouter} />;
+      } else {
+        return <Stack.Screen name="nurse" component={NurseRouter} />;
+      }
+    }
+  }, [user]);
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator
@@ -29,21 +39,7 @@ const RootRouter: React.FC<Props> = () => {
           animation: "none",
         }}
       >
-        {(!user ||
-          !mother ||
-          user.userType === "guest" ||
-          (mother && !mother.babyCollection)) &&
-          !nurse && <Stack.Screen name="auth" component={AuthRouter} />}
-        {user &&
-          user.userType === "member" &&
-          user.userRole == "mother" &&
-          mother &&
-          mother.babyCollection && (
-            <Stack.Screen name="mother" component={MotherRouter} />
-          )}
-        {user && user.userType === "member" && user.userRole == "nurse" && (
-          <Stack.Screen name="nurse" component={NurseRouter} />
-        )}
+        {renderStackNavigator()}
         <Stack.Screen name="NotFound" component={NotFoundPage} />
       </Stack.Navigator>
     </NavigationContainer>

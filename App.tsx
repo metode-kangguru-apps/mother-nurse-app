@@ -1,49 +1,52 @@
 import React, { useEffect, useRef, useState } from "react";
+import { Animated, StyleSheet } from "react-native";
 
-import { customFont } from "./src/lib/ui/font";
+import { Provider } from "react-redux";
+import { persistor, store } from "@redux/store";
+import { PersistGate } from "redux-persist/integration/react";
 
 import * as SplashScreen from "expo-splash-screen";
+
 import BaseContainer from "./src/common/BaseContainer";
 import SplashScreenApp from "src/common/SplashScreen";
 
-import { Provider } from "react-redux";
-import { PersistGate } from "redux-persist/integration/react";
-import { persistor, store } from "@redux/store";
-
 import RootRouter from "src/router";
-import { cacheImages, cacheFonts } from "src/lib/utils/cacheAssets";
+import { color } from "src/lib/ui/color";
+import { customFont } from "./src/lib/ui/font";
 import { localImages } from "src/lib/ui/images";
+import { cacheImages, cacheFonts } from "src/lib/utils/cacheAssets";
+
 import {
   getMotherData,
   getNurseData,
 } from "@redux/actions/authentication/thunks";
-import { Animated, StyleSheet } from "react-native";
-import { color } from "src/lib/ui/color";
+import { UserInitialState } from "@redux/actions/authentication/types";
 
 const App: React.FC<{}> = () => {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
+
+  const getUserData = async (authentication: UserInitialState) => {
+    if (authentication.user) {
+      if (authentication.user.userType === "member") {
+        if (authentication.user.userRole === "mother") {
+          return await store.dispatch(getMotherData(authentication.user.uid));
+        } else if (authentication.user.userRole === "nurse") {
+          return await store.dispatch(getNurseData(authentication.user.uid));
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     async function loadResourcesAndDataAsync() {
       try {
         SplashScreen.preventAutoHideAsync();
         const fontAssets = cacheFonts([...customFont]);
         const imageAssets = cacheImages(localImages);
-        const authentication = store.getState().authentication;
-        const getUserData = async () => {
-          if (authentication?.user?.userType === "member") {
-            if (authentication?.user?.userRole === "mother") {
-              return await store.dispatch(
-                getMotherData(authentication.user.uid)
-              );
-            } else if (authentication?.user?.userRole === "nurse") {
-              return await store.dispatch(
-                getNurseData(authentication.user.uid)
-              );
-            }
-          }
-        };
-        getUserData().then(async () => {
+        const authentication = store.getState()
+          .authentication as UserInitialState;
+        await getUserData(authentication).then(async () => {
           await Promise.all([...imageAssets, fontAssets]).then(() => {
             setTimeout(async () => {
               setAppIsReady(true);
@@ -69,17 +72,17 @@ const App: React.FC<{}> = () => {
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <BaseContainer>
-        {!appIsReady ? (
-          <SplashScreenApp />
-        ) : (
-          <>
-            <Animated.View
-              pointerEvents={"none"}
-              style={[styles.container, { opacity: fadeAnim }]}
-            ></Animated.View>
-            <RootRouter />
-          </>
-            )}
+          {!appIsReady ? (
+            <SplashScreenApp />
+          ) : (
+            <>
+              <Animated.View
+                pointerEvents={"none"}
+                style={[styles.container, { opacity: fadeAnim }]}
+              ></Animated.View>
+              <RootRouter />
+            </>
+          )}
         </BaseContainer>
       </PersistGate>
     </Provider>
