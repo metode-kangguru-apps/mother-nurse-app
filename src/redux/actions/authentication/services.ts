@@ -10,7 +10,7 @@ import {
 import { FirebaseCollection } from "@redux/types";
 import { Mother, MotherResponse, NurseResponse, UserResponse } from "./types";
 import { HospitalResponse } from "../hospital/types";
-import { Baby, BabyPayload } from "../pmkCare/types";
+import { Baby, BabyPayload, BabyStatus } from "../pmkCare/types";
 import { firestore } from "../../../../firebaseConfig";
 
 export function addAllBabyInCollection(
@@ -26,6 +26,7 @@ export function addAllBabyInCollection(
       week: babyData.gestationAge,
       weight: babyData.currentWeight,
       length: babyData.currentLength,
+      currentStatus: BabyStatus.ON_PROGRESS
     };
     const { createdAt, ...savedBabyData } = babyData;
     babyResultCollection.push({

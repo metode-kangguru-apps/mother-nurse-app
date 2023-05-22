@@ -23,8 +23,8 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
   function handleProgressSubmit(value: FormField) {
     const currentStatus = selectBabyCurrentStatus(
       value.weight,
+      babyData.weight,
       value.temperature,
-      babyData.weight
     );
     const savedProgressData = {
       userID: userID,
@@ -33,8 +33,8 @@ const AddProgressPage: React.FC<Props> = ({ navigation }) => {
       week: babyData.currentWeek,
       weight: value.weight,
       length: value.length,
-      temperature: value.temperature,
       currentStatus: currentStatus,
+      ...(value.temperature ? { temperature: value.temperature } : undefined),
     };
     dispatch(addBabyProgress(savedProgressData)).then(() => {
       dispatch(updateMotherBabyDataAtCollection(savedProgressData));

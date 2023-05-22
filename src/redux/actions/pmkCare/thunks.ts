@@ -12,7 +12,6 @@ import { firestore } from "../../../../firebaseConfig";
 import { AddProgressBabyPayload, Baby, Progress, Session } from "./types";
 import { pushUpdatedBabyAndProgress, setBabyProgressAndSession } from ".";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { selectBabyCurrentStatus } from "./helper";
 
 export const getBabyProgressAndSession = createAsyncThunk<
   unknown,

@@ -49,7 +49,7 @@ export type BabyPayload = Omit<Baby, "id">;
 export interface AddProgressBabyPayload extends Progress {
   userID: string;
   babyID: string;
-  temperature: number
+  temperature?: number
   currentStatus: string
 }
 
