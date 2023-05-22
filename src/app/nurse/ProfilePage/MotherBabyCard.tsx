@@ -1,4 +1,3 @@
-import { Baby, Mother } from "@redux/actions/authentication/types";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
@@ -6,7 +5,8 @@ import { AntDesign } from "@expo/vector-icons";
 import { TextSize } from "src/lib/ui/textSize";
 import { Font } from "src/lib/ui/font";
 import { weekDifference } from "src/lib/utils/calculate";
-import { BabyStatus } from "@redux/actions/baby/types";
+import { Mother } from "@redux/actions/authentication/types";
+import { BabyStatus } from "@redux/actions/pmkCare/types";
 
 interface Props {
   motherData: Mother;
@@ -58,7 +58,9 @@ const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
               >
                 <Text style={style.babyName}>{baby.displayName}</Text>
                 <View style={style.babyWrapperInformation}>
-                  <Text style={style.babyInformation}>{baby.currentWeight} gram</Text>
+                  <Text style={style.babyInformation}>
+                    {baby.currentWeight} gram
+                  </Text>
                   <View style={style.babyInformationDevider}></View>
                   <Text style={style.babyInformation}>
                     {currentWeek} Minggu

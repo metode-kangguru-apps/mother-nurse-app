@@ -21,7 +21,7 @@ export function addAllBabyInCollection(
   return babyCollection.map(async (babyData) => {
     const babySnapshot = await addDoc(motherBabyCollectionRef, babyData);
     const babyCurrentProgress = {
-      cratedAt: babyCreatedAt,
+      createdAt: babyCreatedAt,
       week: babyData.gestationAge,
       weight: babyData.currentWeight,
       length: babyData.currentLength,

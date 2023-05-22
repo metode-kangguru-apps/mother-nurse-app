@@ -30,12 +30,12 @@ import { useAppDispatch } from "@redux/hooks";
 import PickerFiled from "src/common/PickerField";
 import { CompositeScreenProps } from "@react-navigation/native";
 import { isObjectContainUndefined } from "src/lib/utils/calculate";
-import { NursePayload } from "@redux/actions/authenticationV2/types";
+import { NursePayload } from "@redux/actions/authentication/types";
 import { getHospitalList } from "@redux/actions/hospital/thunks";
 import {
   logingOutUser,
   signUpNurseAccount,
-} from "@redux/actions/authenticationV2/thunks";
+} from "@redux/actions/authentication/thunks";
 
 interface Props
   extends CompositeScreenProps<

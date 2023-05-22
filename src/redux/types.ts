@@ -2,7 +2,7 @@ import { Dispatch } from "react";
 import { AnyAction, Store } from "redux";
 import { ThunkDispatch, ThunkAction } from "redux-thunk";
 import { store } from "./store";
-import { UserInitialState } from "./actions/authenticationV2/types";
+import { UserInitialState } from "./actions/authentication/types";
 import { HospitalInitialState } from "./actions/hospital/types";
 import { PMKCareInitialState } from "./actions/pmkCare/types";
 

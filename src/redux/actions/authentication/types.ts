@@ -1,50 +1,57 @@
-import { Timestamp } from "firebase/firestore";
-import { Hostpital } from "../global/type";
+import { DocumentReference } from "firebase/firestore";
+import {
+  Hospital,
+  HospitalPayload,
+  HospitalWithMother,
+} from "../hospital/types";
+import { Baby, BabyPayload } from "../pmkCare/types";
 
 export type User = {
-  displayName?: string;
-  uid?: string;
+  uid: string;
   isAnonymous: boolean;
   userType: "guest" | "member";
-  userRole?: "mother" | "nurse";
+  userRole: "mother" | "nurse";
+  displayName: string;
+  phoneNumber: string;
 };
 
-export type Mother = {
-  id?: string;
-  displayName?: string;
-  phoneNumber?: string;
-  hospital?: Hostpital;
-  babyCollection?: Baby[] | undefined;
+export interface Mother extends User {
+  hospital: Hospital;
+  babyCollection: Baby[];
+}
+
+export interface Nurse extends User {
+  hospital: HospitalWithMother;
+}
+
+export type UserInitialState = {
+  user: Mother | Nurse | undefined;
+  loading: boolean;
+  error: boolean;
+  message: string;
 };
 
-export interface Nurse extends Mother {}
+// Payload
+export interface MotherPayload extends Omit<User, "uid"> {
+  babyCollection: Omit<Baby, "id">[];
+  hospital: HospitalPayload;
+}
 
-export type Baby = {
-  id?: string;
-  displayName?: string;
-  gestationAge?: number;
-  birthDate?: string;
-  weight?: number;
-  length?: number;
-  currentWeight?: number;
-  currentLength?: number;
-  currentWeek?: number;
-  currentStatus?: string;
-  createdAt?: Date | Timestamp;
-  gender?: "laki-laki" | "perempuan";
-};
-
-export type AuthenticationState = {
-  user: User | undefined;
-  mother: Mother | undefined;
-  nurse: Nurse | undefined;
-  loading?: boolean;
-  success?: boolean;
-  error?: boolean;
-  errorMessage?: string
-};
+export interface NursePayload extends Omit<Nurse, "hospital"> {
+  hospital: HospitalPayload;
+}
 
 export interface AddBabyPayload {
-  userId: string
-  babyData: Baby
+  uid: string;
+  baby: BabyPayload;
+}
+
+// Response
+export interface UserResponse extends Omit<User, "uid"> {}
+
+export interface MotherResponse {
+  hospital: Hospital;
+}
+export interface NurseResponse {
+  hospital: DocumentReference;
 }

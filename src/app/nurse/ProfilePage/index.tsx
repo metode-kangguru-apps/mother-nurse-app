@@ -1,5 +1,5 @@
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootState } from "@redux/types";
+import { useEffect, useMemo } from "react";
+import { useSelector } from "react-redux";
 import {
   ScrollView,
   StyleSheet,
@@ -7,24 +7,25 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { RootStateV2 } from "@redux/types";
+import { useAppDispatch } from "@redux/hooks";
 
-import { useSelector } from "react-redux";
+import { CompositeScreenProps } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { Font } from "src/lib/ui/font";
+import { color } from "src/lib/ui/color";
+import { Spacing } from "src/lib/ui/spacing";
+import NurseIcon from "src/lib/ui/icons/nurse";
+import { TextSize } from "src/lib/ui/textSize";
+
+import MotherBabyCard from "./MotherBabyCard";
 
 import { NurseStackParamList, RootStackParamList } from "src/router/types";
-
-import { useAppDispatch } from "@redux/hooks";
-import { useEffect, useMemo } from "react";
-import { CompositeScreenProps } from "@react-navigation/native";
-import NurseIcon from "src/lib/ui/icons/nurse";
-import { color } from "src/lib/ui/color";
-import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Spacing } from "src/lib/ui/spacing";
-import { Font } from "src/lib/ui/font";
-import { TextSize } from "src/lib/ui/textSize";
-import { Mother } from "@redux/actions/authentication/types";
-import MotherBabyCard from "./MotherBabyCard";
-import { logOutUser } from "@redux/actions/authentication/thunks";
-import { setSelectedMotherDetail } from "@redux/actions/global";
+import { Mother, Nurse } from "@redux/actions/authentication/types";
+import { setFocusedMother } from "@redux/actions/pmkCare";
+import { logingOutUser } from "@redux/actions/authentication/thunks";
 
 interface Props
   extends CompositeScreenProps<
@@ -34,30 +35,27 @@ interface Props
 
 const ProfilePage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { user, nurse, loading } = useSelector(
-    (state: RootState) => state.authentication
+  const user = useSelector(
+    (state: RootStateV2) => state.authentication.user as Nurse
   );
-
-  const { selectedMotherDetail } = useSelector(
-    (state: RootState) => state.global
-  );
+  const mother = useSelector((state: RootStateV2) => state.pmkCare.mother);
 
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
 
   const handleLogOutUser = () => {
-    dispatch(logOutUser());
+    dispatch(logingOutUser());
   };
 
   function handleOnClickMother(mother: Mother) {
-    dispatch(setSelectedMotherDetail(mother));
+    dispatch(setFocusedMother(mother));
   }
 
   useEffect(() => {
-    if (Object.keys(selectedMotherDetail).length > 0) {
+    if (Object.keys(mother).length > 0) {
       navigation.push("mother-detail");
     }
-  }, [selectedMotherDetail]);
+  }, [mother]);
 
   return (
     <ScrollView
@@ -77,13 +75,13 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
             <View style={style.hospitalInformationWrapper}>
               <Text style={style.label}>Bangsal</Text>
               <Text style={style.hospitalInformation}>
-                {nurse.hospital.bangsal}
+                {user.hospital.bangsal}
               </Text>
             </View>
             <View style={style.hospitalInformationWrapper}>
               <Text style={style.label}>Rumah Sakit</Text>
               <Text style={style.hospitalInformation}>
-                {nurse.hospital.name}
+                {user.hospital.name}
               </Text>
             </View>
           </View>
@@ -93,11 +91,11 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
         <View>
           <Text style={style.titleMotherBaby}>Daftar Ibu dan Bayi</Text>
           <View>
-            {nurse.motherCollection &&
-              nurse.motherCollection.map((mother: Mother) => {
+            {user.hospital.motherCollection &&
+              user.hospital.motherCollection.map((mother: Mother) => {
                 return (
                   <TouchableOpacity
-                    key={mother.id}
+                    key={mother.uid}
                     onPress={() => handleOnClickMother(mother)}
                   >
                     <MotherBabyCard motherData={mother} />
@@ -186,7 +184,7 @@ const createStyle = (insets: EdgeInsets) =>
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      marginBottom: insets.bottom
+      marginBottom: insets.bottom,
     },
     logoutButtonTitle: {
       fontFamily: Font.Bold,

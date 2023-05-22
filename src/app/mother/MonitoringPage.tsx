@@ -35,7 +35,9 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
     seconds: "00",
   });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const randomIndex = useRef<number>(Math.floor(Math.random() * BABY_CARE_LIST.length));
+  const randomIndex = useRef<number>(
+    Math.floor(Math.random() * BABY_CARE_LIST.length)
+  );
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {

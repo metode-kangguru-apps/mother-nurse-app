@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
+  ActivityIndicator,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -8,7 +9,7 @@ import {
   View,
 } from "react-native";
 import moment from "moment";
-import { RootState, RootStateV2 } from "@redux/types";
+import { RootStateV2 } from "@redux/types";
 import { useSelector } from "react-redux";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
@@ -24,22 +25,20 @@ import { MotherStackParamList } from "src/router/types";
 import { useAppDispatch } from "@redux/hooks";
 import { EvilIcons, AntDesign } from "@expo/vector-icons";
 
-import { Baby } from "@redux/actions/authentication/types";
-import { setSelectedTerapiBaby } from "@redux/actions/global";
-import { getProgressBaby } from "@redux/actions/baby/thunks";
-import { Mother } from "@redux/actions/authenticationV2/types";
 import { Timestamp } from "firebase/firestore";
 import { getBabyProgressAndSession } from "@redux/actions/pmkCare/thunks";
-import { setBabyTerapi } from "@redux/actions/pmkCare";
+import { Mother } from "@redux/actions/authentication/types";
+import { Baby } from "@redux/actions/pmkCare/types";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
 
 const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { babyCollection } = useSelector(
+  const { uid, babyCollection } = useSelector(
     (state: RootStateV2) => state.authentication.user as Mother
   );
+  const [loading, setLoading] = useState<boolean>();
   const [selectedBaby, setSelectedBaby] = useState<number | undefined>(
     undefined
   );
@@ -88,6 +87,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
 
   const handleSelectedBaby = () => {
     if (selectedBaby !== undefined && babyCollection[selectedBaby]) {
+      setLoading(true);
       // count different week
       const babyCreatedAt = babyCollection[selectedBaby].createdAt as Timestamp;
       const formattedBabyCreatedAt = new Date(
@@ -100,8 +100,11 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
         ...babyCollection[selectedBaby],
         currentWeek,
       };
-      dispatch(setBabyTerapi(selectedBabyDocument));
-      dispatch(getBabyProgressAndSession(babyCollection[selectedBaby].id));
+      dispatch(
+        getBabyProgressAndSession({ userID: uid, baby: selectedBabyDocument })
+      ).then(() => {
+        setLoading(false);
+      });
     }
   };
 
@@ -138,12 +141,18 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
                   : undefined,
               ]}
             >
-              <Text style={style.textStart}>Mulai Terapi</Text>
-              <EvilIcons
-                name="arrow-right"
-                size={24}
-                color={color.lightneutral}
-              />
+              {!loading ? (
+                <>
+                  <Text style={style.textStart}>Mulai Terapi</Text>
+                  <EvilIcons
+                    name="arrow-right"
+                    size={TextSize.h5}
+                    color={color.lightneutral}
+                  />
+                </>
+              ) : (
+                <ActivityIndicator size={TextSize.h5} color={color.rose} />
+              )}
             </View>
           </TouchableWithoutFeedback>
         </View>

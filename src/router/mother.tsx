@@ -29,7 +29,7 @@ const MotherRouter: React.FC<{}> = () => {
         animation: "none",
       }}
     >
-      {!Object.keys(baby).length && (
+      {!Object.keys(baby).length ? (
         <MotherStack.Screen
           name="select-baby"
           component={SelectBabyPage}
@@ -37,20 +37,7 @@ const MotherRouter: React.FC<{}> = () => {
             title: "Pilih Bayi",
           }}
         />
-      )}
-      <MotherStack.Screen
-        name="add-new-baby"
-        component={AddNewBabyInformation}
-        options={{
-          title: "Tambah Bayi Baru",
-          animationTypeForReplace: "pop",
-          animation: Platform.select({
-            ios: "slide_from_left",
-            android: "simple_push",
-          }),
-        }}
-      />
-      {/* {baby && (
+      ) : (
         <>
           <MotherStack.Screen
             name="home"
@@ -116,7 +103,19 @@ const MotherRouter: React.FC<{}> = () => {
             }}
           />
         </>
-      )} */}
+      )}
+      <MotherStack.Screen
+        name="add-new-baby"
+        component={AddNewBabyInformation}
+        options={{
+          title: "Tambah Bayi Baru",
+          animationTypeForReplace: "pop",
+          animation: Platform.select({
+            ios: "slide_from_left",
+            android: "simple_push",
+          }),
+        }}
+      />
     </MotherStack.Navigator>
   );
 };

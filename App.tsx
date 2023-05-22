@@ -19,8 +19,8 @@ import { cacheImages, cacheFonts } from "src/lib/utils/cacheAssets";
 import {
   getMotherData,
   getNurseData,
-} from "@redux/actions/authenticationV2/thunks";
-import { UserInitialState } from "@redux/actions/authenticationV2/types";
+} from "@redux/actions/authentication/thunks";
+import { UserInitialState } from "@redux/actions/authentication/types";
 
 const App: React.FC<{}> = () => {
   const [appIsReady, setAppIsReady] = useState<boolean>(false);

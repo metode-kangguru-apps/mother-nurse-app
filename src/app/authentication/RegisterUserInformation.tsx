@@ -33,9 +33,9 @@ import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
 import { AntDesign } from "@expo/vector-icons";
 
-import { setUserData } from "@redux/actions/authenticationV2";
-import { MotherPayload } from "@redux/actions/authenticationV2/types";
-import { logingOutUser } from "@redux/actions/authenticationV2/thunks";
+import { setUserData } from "@redux/actions/authentication";
+import { MotherPayload } from "@redux/actions/authentication/types";
+import { logingOutUser } from "@redux/actions/authentication/thunks";
 import { setSelectedHospital } from "@redux/actions/hospital";
 import { getHospitalList } from "@redux/actions/hospital/thunks";
 

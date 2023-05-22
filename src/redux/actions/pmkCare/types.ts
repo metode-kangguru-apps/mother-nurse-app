@@ -1,4 +1,5 @@
 import { Timestamp } from "firebase/firestore";
+import { Mother } from "../authentication/types";
 
 export type Baby = {
   id: string;
@@ -12,6 +13,7 @@ export type Baby = {
   currentLength: number;
   currentWeek: number;
   createdAt: Date | Timestamp;
+  currentStatus: BabyStatus
 };
 
 export type Progress = {
@@ -28,6 +30,7 @@ export type Session = {
 };
 
 export type PMKCareInitialState = {
+  mother: Mother
   baby: Baby;
   progress: Progress[];
   sessions: Session[];
@@ -38,11 +41,26 @@ export type PMKCareInitialState = {
 
 export type SelectBabyPayload = Pick<
   PMKCareInitialState,
-  "progress" | "sessions"
+  "progress" | "sessions" | "baby"
 >;
 
 // Payload
 export type BabyPayload = Omit<Baby, "id">;
+export interface AddProgressBabyPayload extends Progress {
+  userID: string;
+  babyID: string;
+  temperature: number
+  previousWeight: number
+}
 
 // Response
 export type BabyResponse = BabyPayload;
+
+
+// Enum
+export enum BabyStatus {
+  ON_PROGRESS = "Dalam PMK",
+  FINNISH = "PMK Selesai",
+  WEIGHT_DECREASE = "Berat badan turun",
+  TEMP_NOT_NORMAL = "Suhu tubuh"
+}

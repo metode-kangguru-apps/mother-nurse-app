@@ -4,7 +4,7 @@ import { NurseStackParamList } from "./types";
 import { color } from "src/lib/ui/color";
 import ProfilePage from "@app/nurse/ProfilePage";
 import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
+import { RootState, RootStateV2 } from "@redux/types";
 import MotherDetailPage from "@app/nurse/MotherDetailPage";
 import DetailBabyPage from "@app/nurse/DetailBabyPage";
 import HistoryProgressPage from "@app/nurse/HistoryProgressPage";
@@ -13,8 +13,8 @@ import AddProgressPage from "@app/nurse/AddProgressPage";
 const NurseStack = createNativeStackNavigator<NurseStackParamList>();
 
 const NurseRouter: React.FC<{}> = () => {
-  const { selectedMotherDetail, selectedTerapiBaby } = useSelector(
-    (state: RootState) => state.global
+  const { mother, baby } = useSelector(
+    (state: RootStateV2) => state.pmkCare
   );
   return (
     <NurseStack.Navigator
@@ -32,7 +32,7 @@ const NurseRouter: React.FC<{}> = () => {
           animation: "slide_from_right",
         }}
       />
-      {Object.keys(selectedMotherDetail).length > 0 && (
+      {Object.keys(mother).length > 0 && (
         <>
           <NurseStack.Screen
             name="mother-detail"
@@ -42,7 +42,7 @@ const NurseRouter: React.FC<{}> = () => {
               animation: "slide_from_right",
             }}
           />
-          {Object.keys(selectedTerapiBaby).length > 0 && (
+          {Object.keys(baby).length > 0 && (
             <>
               <NurseStack.Screen
                 name="baby-detail"

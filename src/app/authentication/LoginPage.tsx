@@ -5,19 +5,14 @@ import {
 } from "@env";
 import { useEffect, useRef, useState } from "react";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
-import { AuthStackParamList } from "src/router/types";
-
-import { Font } from "src/lib/ui/font";
-import { Spacing } from "src/lib/ui/spacing";
-import { TextSize } from "src/lib/ui/textSize";
 
 import { useAppDispatch } from "@redux/hooks";
 import * as WebBrowser from "expo-web-browser";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import {
+  ActivityIndicator,
   Animated,
-  Dimensions,
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
@@ -28,26 +23,34 @@ import {
   View,
 } from "react-native";
 
-import * as Google from "expo-auth-session/providers/google";
-import { color } from "src/lib/ui/color";
 import { useSelector } from "react-redux";
 import { RootStateV2 } from "@redux/types";
+import * as Google from "expo-auth-session/providers/google";
+
+import { Font } from "src/lib/ui/font";
+import { color } from "src/lib/ui/color";
+import { Spacing } from "src/lib/ui/spacing";
+import { TextSize } from "src/lib/ui/textSize";
 import GoogleIcon from "src/lib/ui/icons/google";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
+
+import { AuthStackParamList } from "src/router/types";
+
+import PickerFiled from "src/common/PickerField";
 import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
-import { getHospitalList } from "@redux/actions/hospital/thunks";
-import PickerFiled from "src/common/PickerField";
-import { MotherPayload } from "@redux/actions/authenticationV2/types";
-import { setUserData } from "@redux/actions/authenticationV2";
-import { signInUserWithGoogle } from "@redux/actions/authenticationV2/thunks";
-import { HospitalPayload } from "@redux/actions/hospital/types";
+
 import { setSelectedHospital } from "@redux/actions/hospital";
-import { isObjectContainUndefined } from "src/lib/utils/calculate";
+import { getHospitalList } from "@redux/actions/hospital/thunks";
+import { HospitalPayload } from "@redux/actions/hospital/types";
+
+import { setUserData } from "@redux/actions/authentication";
+import { MotherPayload } from "@redux/actions/authentication/types";
+import { signInUserWithGoogle } from "@redux/actions/authentication/thunks";
 
 WebBrowser.maybeCompleteAuthSession();
 
 interface Props extends NativeStackScreenProps<AuthStackParamList, "login"> {}
-
 interface FormField {
   name: string;
   phoneNumber: string;
@@ -64,6 +67,7 @@ const LoginPage: React.FC<Props> = () => {
     androidClientId: FIREBASE_ANDROID_CLIENT_ID,
   });
 
+  const [loading, setLoading] = useState<boolean>();
   const [searchHospital, setSearchHospital] = useState<string>("");
   const [motherFormField, setMotherFormField] = useState<FormField>(
     {} as FormField
@@ -74,22 +78,24 @@ const LoginPage: React.FC<Props> = () => {
     "mother" | "nurse"
   >("mother");
 
-  const selectedRoleAnimation = useRef(new Animated.Value(0)).current;
   const scrollRef = useRef<ScrollView>(null);
+  const selectedRoleAnimation = useRef(new Animated.Value(0)).current;
   const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   // handle if user login with oAuth google
   useEffect(() => {
     if (response?.type === "success") {
+      setLoading(true);
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-
       dispatch(
         signInUserWithGoogle({
           credential,
           selectedUserRole: selectedRegisterRole,
         })
-      );
+      ).then(() => {
+        setLoading(false);
+      });
     }
   }, [response, dispatch]);
 
@@ -131,8 +137,8 @@ const LoginPage: React.FC<Props> = () => {
   }
 
   function handleChangeRole(role: "mother" | "nurse") {
-    scrollRef.current?.scrollTo({ y: 0, animated: true })
-    setSelectedRegisterRole(role)
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    setSelectedRegisterRole(role);
   }
 
   // animated interpolate switch role
@@ -171,6 +177,14 @@ const LoginPage: React.FC<Props> = () => {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={style.flex}
     >
+      {loading && (
+        <View style={style.loadingWrapper}>
+          <ActivityIndicator
+            size={"large"}
+            color={color.primary}
+          ></ActivityIndicator>
+        </View>
+      )}
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={style.flex}
@@ -190,14 +204,10 @@ const LoginPage: React.FC<Props> = () => {
           <View style={style.bottomContent}>
             {/* Tab Role Switcher */}
             <View style={style.roleSwitcher}>
-              <TouchableOpacity
-                onPress={() => handleChangeRole("mother")}
-              >
+              <TouchableOpacity onPress={() => handleChangeRole("mother")}>
                 <Text style={[style.roleItem, style.mother]}>Ibu</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => handleChangeRole("nurse")}
-              >
+              <TouchableOpacity onPress={() => handleChangeRole("nurse")}>
                 <Text style={[style.roleItem, style.nurse]}>Perawat</Text>
               </TouchableOpacity>
               <Animated.View
@@ -341,6 +351,16 @@ const LoginPage: React.FC<Props> = () => {
 const style = StyleSheet.create({
   flex: {
     flex: 1,
+  },
+  loadingWrapper: {
+    flex: 1,
+    zIndex: 2,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
   container: {
     flexGrow: 1,

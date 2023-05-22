@@ -1,5 +1,5 @@
 import { DocumentReference } from "firebase/firestore";
-import { Mother } from "../authenticationV2/types";
+import { Mother } from "../authentication/types";
 
 export type Hospital = {
   name: string;

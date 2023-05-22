@@ -1,5 +1,5 @@
 import {
-  Dimensions,
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -22,20 +22,21 @@ import DateTimePicker from "src/common/DateTimePicker";
 import PickerField from "src/common/PickerField";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { memo, useMemo, useState } from "react";
-import { Baby } from "@redux/actions/authentication/types";
-import { Baby as BabyV2 } from "@redux/actions/pmkCare/types";
+import { Baby } from "@redux/actions/pmkCare/types";
 import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
 interface Props {
   title: string;
+  loading?: boolean;
   handleBackButton: () => void;
-  handleRegisterBaby: (babyData: BabyV2) => void;
+  handleRegisterBaby: (babyData: Baby) => void;
 }
 
-interface FormField extends Partial<BabyV2> {}
+interface FormField extends Partial<Baby> {}
 
 const RegisterBabyPage: React.FC<Props> = ({
   title,
+  loading,
   handleBackButton,
   handleRegisterBaby,
 }) => {
@@ -46,7 +47,7 @@ const RegisterBabyPage: React.FC<Props> = ({
 
   function handleButtonNextOnClick() {
     if (!isObjectContainUndefined(formField)) {
-      handleRegisterBaby(formField as BabyV2);
+      handleRegisterBaby(formField as Baby);
     } else {
       setFormValidationError(true);
     }
@@ -172,7 +173,11 @@ const RegisterBabyPage: React.FC<Props> = ({
                 style={style.nextButton}
                 onPress={() => handleButtonNextOnClick()}
               >
-                <Text style={style.buttonTitle}>Selanjutnya</Text>
+                {!loading ? (
+                  <Text style={style.buttonTitle}>Selanjutnya</Text>
+                ) : (
+                  <ActivityIndicator size={TextSize.h5} color={color.rose} />
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -240,8 +245,10 @@ const createStyle = (insets: EdgeInsets) =>
       marginTop: (Spacing.large * 2) / 3,
     },
     nextButton: {
-      paddingVertical: Spacing.xsmall,
-      paddingHorizontal: Spacing.large,
+      width: 170,
+      height: 40,
+      justifyContent: "center",
+      alignItems: "center",
       backgroundColor: color.secondary,
       borderRadius: Spacing.xlarge,
     },

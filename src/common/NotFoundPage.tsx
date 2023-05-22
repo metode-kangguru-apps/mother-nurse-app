@@ -1,8 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { logOutUser } from "@redux/actions/authentication/thunks";
+import { logingOutUser } from "@redux/actions/authentication/thunks";
 import { useAppDispatch } from "@redux/hooks";
-import { persistor } from "@redux/store";
-import { RootState, RootStateV2 } from "@redux/types";
+import { RootStateV2 } from "@redux/types";
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { RootStackParamList } from "src/router/types";
@@ -14,7 +13,7 @@ const NotFoundPage: React.FC<Props> = ({ navigation }) => {
   const { user } = useSelector((state: RootStateV2) => state.authentication);
   const dispatch = useAppDispatch();
   function resetToAuth() {
-    dispatch(logOutUser());
+    dispatch(logingOutUser());
     navigation.reset({
       index: 0,
       routes: [{ name: "auth" }],

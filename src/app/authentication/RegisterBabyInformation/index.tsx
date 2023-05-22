@@ -1,7 +1,7 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { AuthStackParamList, RootStackParamList } from "src/router/types";
 
-import { Baby as BabyV2 } from "@redux/actions/pmkCare/types";
+import { BabyStatus, Baby as BabyV2 } from "@redux/actions/pmkCare/types";
 import { useSelector } from "react-redux";
 import { RootStateV2 } from "@redux/types";
 import { useAppDispatch } from "@redux/hooks";
@@ -10,8 +10,8 @@ import RegisterBabyPage from "./RegisterBabyPage";
 import {
   logingOutUser,
   signUpMotherAccount,
-} from "@redux/actions/authenticationV2/thunks";
-import { MotherPayload } from "@redux/actions/authenticationV2/types";
+} from "@redux/actions/authentication/thunks";
+import { MotherPayload } from "@redux/actions/authentication/types";
 
 interface Props
   extends CompositeScreenProps<
@@ -47,6 +47,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
             currentLength: babyData.length,
             birthDate: babyData.birthDate,
             createdAt: new Date(),
+            currentStatus: BabyStatus.ON_PROGRESS
           },
         ],
       };

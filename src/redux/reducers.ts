@@ -3,7 +3,7 @@ import { persistReducer } from "redux-persist";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import hospitalReducer from "./actions/hospital";
-import authenticationV2Reducer from "./actions/authenticationV2";
+import authenticationV2Reducer from "./actions/authentication";
 import pmkCareReducer from "./actions/pmkCare";
 import { RootState } from "./types";
 
