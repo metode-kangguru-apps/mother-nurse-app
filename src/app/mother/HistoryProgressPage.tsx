@@ -74,7 +74,7 @@ const HistoryProgressPage: React.FC<Props> = ({ navigation }) => {
       <Header
         title="Riwayat Pertumbuhan"
         titleStyle={{ fontFamily: Font.Bold }}
-        onBackButton={() => navigation.replace("home")}
+        onBackButton={() => navigation.pop()}
       />
       <TouchableOpacity onPress={() => navigation.push("session")}>
         <View style={style.moduleMenu}>

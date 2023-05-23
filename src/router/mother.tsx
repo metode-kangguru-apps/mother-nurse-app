@@ -55,10 +55,7 @@ const MotherRouter: React.FC<{}> = () => {
               component={WelcomePage}
               options={{
                 title: "Selamat Datang",
-                animation: Platform.select({
-                  ios: "slide_from_left",
-                  android: "simple_push",
-                })
+                animation: "slide_from_left"
               }}
             />
           ) : (
@@ -68,6 +65,7 @@ const MotherRouter: React.FC<{}> = () => {
                 component={HomePage}
                 options={{
                   title: "Perawatan Metode Kangguru",
+                  animationTypeForReplace: "pop",
                   animation: Platform.select({
                     ios: "slide_from_left",
                     android: "simple_push",
