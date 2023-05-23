@@ -8,4 +8,10 @@ export const localImages = [
   require("../../../assets/baby-pattern.png"),
   require("../../../assets/welcome-blob.png"),
   require("../../../assets/welcome-mother.png"),
+
+  // onboard
+  require("../../../assets/onboard/B01.png"),
+  require("../../../assets/onboard/B02.png"),
+  require("../../../assets/onboard/B03.png"),
+  require("../../../assets/onboard/M02.png"),
 ];

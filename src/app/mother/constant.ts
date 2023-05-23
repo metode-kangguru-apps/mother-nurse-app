@@ -59,3 +59,28 @@ export const MODULE_ITEM_LIST = [
     title: "Suhu tubuh normal",
   },
 ];
+
+export const ONBOARDING = [
+  {
+    image: "B01.png",
+    content: `**Bayi Berat Lahir Rendah (BBLR)** adalah bayi dengan berat kurang dari 2,5kg ketika lahir yang disebabkan oleh kelahiran prematur atau kondisi pertumbuhan janin yang kurang memadai.
+    \n\n
+    **Perawatan Metode Kanguru (PMK)** yang dilakukan dengan kontak langsung kulit bayi dan ibu, terbukti dapat meningkatkan berat badan bayi.`,
+  },
+  {
+    image: "B02.png",
+    content: `Selain ibu, PMK juga dapat dilakukan oleh ayah, nenek, atau anggota keluarga lain di rumah sakit maupun di rumah, dengan anjuran **minimal 8 jam perhari.**`,
+  },
+  {
+    image: "B03.png",
+    content: `PMK memiliki banyak manfaat lain, diantaranya mencegah bayi kedinginan, meningkatkan kemampuan menyusu bayi, menurunkan nyeri ketika dilakukan tindakan medis pada bayi, juga meningkatkan ikatan antara ibu dan bayi.`,
+  },
+  {
+    image: "M02.png",
+    content: `Persiapan Melakukan PMK: 
+    1. Gendongan bayi
+    2. Topi bayi
+    3. Popok
+    4. Ibu yang sudah dalam keadaan bersih`,
+  },
+];
