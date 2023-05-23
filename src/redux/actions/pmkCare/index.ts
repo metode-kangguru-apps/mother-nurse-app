@@ -6,6 +6,7 @@ import {
   AddProgressBabyPayload,
   Progress,
   Session,
+  SessionPayload,
 } from "./types";
 import { Timestamp } from "firebase/firestore";
 import { Mother } from "../authentication/types";
@@ -39,8 +40,7 @@ const PMKCare = createSlice({
       state,
       action: PayloadAction<AddProgressBabyPayload>
     ) => {
-      const { userID, babyID, ...savedBabyProgress } =
-        action.payload;
+      const { userID, babyID, ...savedBabyProgress } = action.payload;
       state.baby = {
         ...state.baby,
         currentWeight: action.payload.weight,
@@ -67,6 +67,20 @@ const PMKCare = createSlice({
         });
       }
     },
+    pushAddNewSession: (state, action: PayloadAction<Session>) => {
+      state.sessions.unshift(action.payload);
+    },
+    pushUpdateSessionDuration: (
+      state,
+      action: PayloadAction<SessionPayload>
+    ) => {
+      state.sessions.map((session, idx) => {
+        if (session.monitoredRangeDate === action.payload.monitoredRangeDate) {
+          state.sessions[idx].durations.push(action.payload.duration);
+          return;
+        }
+      });
+    },
     clearPMKCareState: (state) => {
       state.mother = {} as Mother;
       state.baby = {} as Baby;
@@ -80,6 +94,8 @@ export const {
   setFocusedMother,
   setBabyProgressAndSession,
   pushUpdatedBabyAndProgress,
+  pushAddNewSession,
+  pushUpdateSessionDuration,
   clearPMKCareState,
 } = PMKCare.actions;
 

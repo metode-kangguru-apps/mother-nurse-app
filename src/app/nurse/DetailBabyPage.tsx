@@ -75,7 +75,7 @@ const DetailBabyPage: React.FC<Props> = ({ navigation }) => {
               </View>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.push("session")}>
             <View style={style.moduleMenu}>
               <View style={style.moduleContent}>
                 <View style={style.moduleIcon}>

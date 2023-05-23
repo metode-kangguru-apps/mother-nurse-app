@@ -1,16 +1,29 @@
 import { AppDispatch, FirebaseCollection } from "@redux/types";
 import {
   addDoc,
+  arrayUnion,
   collection,
   doc,
   getDocs,
   orderBy,
   query,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { firestore } from "../../../../firebaseConfig";
-import { AddProgressBabyPayload, Baby, Progress, Session } from "./types";
-import { pushUpdatedBabyAndProgress, setBabyProgressAndSession } from ".";
+import {
+  AddProgressBabyPayload,
+  Baby,
+  Progress,
+  Session,
+  SessionPayload,
+} from "./types";
+import {
+  pushAddNewSession,
+  pushUpdateSessionDuration,
+  pushUpdatedBabyAndProgress,
+  setBabyProgressAndSession,
+} from ".";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const getBabyProgressAndSession = createAsyncThunk<
@@ -50,7 +63,7 @@ export const getBabyProgressAndSession = createAsyncThunk<
 
     const savedProgress: Progress[] = [];
     const savedSession: Session[] = [];
-    await getDocs(progressCollectionRef)
+    await getDocs(progressCollectionRef);
 
     progressSnapshots.map((snapshot) => {
       savedProgress.push(snapshot.data() as Progress);
@@ -101,5 +114,57 @@ export const addBabyProgress = createAsyncThunk<
     dispatch(pushUpdatedBabyAndProgress(payload));
   } catch {
     console.log("Terjadi kesalahan saat memilih bayi");
+  }
+});
+
+export const addSessionData = createAsyncThunk<
+  unknown,
+  SessionPayload,
+  {
+    dispatch: AppDispatch;
+  }
+>("addSessionData", async (payload, { dispatch }) => {
+  try {
+    const babyDocumentRef = doc(
+      firestore,
+      FirebaseCollection.MOTHER,
+      payload.userID,
+      FirebaseCollection.BABIES,
+      payload.babyID
+    );
+    const sessionCollectionRef = collection(
+      babyDocumentRef,
+      FirebaseCollection.SESSION
+    );
+    const sessionQuery = query(
+      sessionCollectionRef,
+      where("monitoredRangeDate", "==", payload.monitoredRangeDate)
+    );
+    const sessionSnapshots = await getDocs(sessionQuery);
+    if (sessionSnapshots.empty) {
+      const savedSessionData: Session = {
+        monitoredRangeDate: payload.monitoredRangeDate,
+        durations: [payload.duration],
+      };
+      await addDoc(sessionCollectionRef, savedSessionData);
+      dispatch(pushAddNewSession(savedSessionData));
+    } else {
+      const sessionDocument = sessionSnapshots.docs[0];
+      const snapshotDocumentRef = doc(
+        firestore,
+        FirebaseCollection.MOTHER,
+        payload.userID,
+        FirebaseCollection.BABIES,
+        payload.babyID,
+        FirebaseCollection.SESSION,
+        sessionDocument.id
+      );
+      await updateDoc(snapshotDocumentRef, {
+        durations: arrayUnion(payload.duration),
+      });
+      dispatch(pushUpdateSessionDuration(payload));
+    }
+  } catch {
+    console.log("Terjadi kesalahan saat dispatch data");
   }
 });

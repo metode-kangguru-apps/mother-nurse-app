@@ -25,8 +25,8 @@ export type Progress = {
 };
 
 export type Session = {
-  createdAt: string;
-  duration: string;
+  monitoredRangeDate: string,
+  durations: string[]
 };
 
 export type PMKCareInitialState = {
@@ -53,9 +53,15 @@ export interface AddProgressBabyPayload extends Progress {
   currentStatus: string
 }
 
+export interface SessionPayload {
+  userID: string;
+  babyID: string;
+  monitoredRangeDate: string,
+  duration: string
+}
+
 // Response
 export type BabyResponse = BabyPayload;
-
 
 // Enum
 export enum BabyStatus {

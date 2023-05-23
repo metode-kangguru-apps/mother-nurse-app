@@ -16,6 +16,7 @@ import AddNewBabyInformation from "@app/mother/AddNewBabyInformation";
 import { MotherStackParamList } from "./types";
 
 import { color } from "src/lib/ui/color";
+import SessionPMKPage from "@app/mother/SessionPMKPage";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -89,6 +90,14 @@ const MotherRouter: React.FC<{}> = () => {
           <MotherStack.Screen
             name="history"
             component={HistoryProgressPage}
+            options={{
+              title: "Riwayat Pencatatan Bayi",
+              animation: "slide_from_right",
+            }}
+          />
+          <MotherStack.Screen
+            name="session"
+            component={SessionPMKPage}
             options={{
               title: "Riwayat Pencatatan Bayi",
               animation: "slide_from_right",
