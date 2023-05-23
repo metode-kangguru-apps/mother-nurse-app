@@ -8,6 +8,7 @@ export type MotherStackParamList = {
   "add-progress": undefined;
   "pmk-care": undefined;
   history: undefined;
+  session: undefined;
   module: undefined;
   "add-new-baby": undefined
 };
@@ -18,6 +19,7 @@ export type NurseStackParamList = {
   "baby-detail": undefined
   "history-progress": undefined
   "add-progress": undefined
+  session: undefined
 };
 
 export type AuthStackParamList = {

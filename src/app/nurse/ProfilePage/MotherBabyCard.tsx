@@ -93,6 +93,9 @@ const style = StyleSheet.create({
     backgroundColor: color.lightneutral,
     borderRadius: 16,
     width: "100%",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
   babyMotherWrapper: {
     display: "flex",

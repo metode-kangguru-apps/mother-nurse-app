@@ -74,7 +74,7 @@ const createStyle = () => {
       marginBottom: Spacing.small
     },
     leftContent: {
-      flex: 0.45,
+      flex: 0.42,
       display: "flex",
       justifyContent: "space-between",
     },
@@ -100,7 +100,7 @@ const createStyle = () => {
       marginHorizontal: Spacing.small
     },
     rightContent: {
-      flex: 0.53,
+      flex: 0.55,
     },
     informationWrapper: {
       display: "flex",

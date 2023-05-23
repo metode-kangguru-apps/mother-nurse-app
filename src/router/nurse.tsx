@@ -9,6 +9,7 @@ import MotherDetailPage from "@app/nurse/MotherDetailPage";
 import DetailBabyPage from "@app/nurse/DetailBabyPage";
 import HistoryProgressPage from "@app/nurse/HistoryProgressPage";
 import AddProgressPage from "@app/nurse/AddProgressPage";
+import SessionPMKPage from "@app/nurse/SessionPMKPage";
 
 const NurseStack = createNativeStackNavigator<NurseStackParamList>();
 
@@ -55,6 +56,14 @@ const NurseRouter: React.FC<{}> = () => {
               <NurseStack.Screen
                 name="add-progress"
                 component={AddProgressPage}
+                options={{
+                  title: "Tambah Progress Bayi",
+                  animation: "slide_from_right",
+                }}
+              />
+              <NurseStack.Screen
+                name="session"
+                component={SessionPMKPage}
                 options={{
                   title: "Tambah Progress Bayi",
                   animation: "slide_from_right",

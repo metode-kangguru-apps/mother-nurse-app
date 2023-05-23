@@ -46,6 +46,9 @@ const linking = {
           history: {
             path: "/history",
           },
+          session: {
+            path: "/history/session"
+          },
           module: {
             path: "/module",
           },
@@ -68,6 +71,9 @@ const linking = {
           },
           'add-progress': {
             path: "mother/baby/progress/add"
+          },
+          'session': {
+            path: "mother/baby/session"
           }
         }
       },

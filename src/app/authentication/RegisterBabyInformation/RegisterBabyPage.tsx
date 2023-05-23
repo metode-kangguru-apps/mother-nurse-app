@@ -99,7 +99,7 @@ const RegisterBabyPage: React.FC<Props> = ({
                 required
                 onError={formValidationError}
                 label="Usia Gestasi (minggu)"
-                keyboardType="decimal-pad"
+                keyboardType="number-pad"
                 onChange={(value) => {
                   setFormField({
                     ...formField,
@@ -130,7 +130,7 @@ const RegisterBabyPage: React.FC<Props> = ({
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    weight: parseInt(value),
+                    weight: parseFloat(value),
                   });
                 }}
               />
@@ -144,7 +144,7 @@ const RegisterBabyPage: React.FC<Props> = ({
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    length: parseInt(value),
+                    length: parseFloat(value),
                   });
                 }}
               />
