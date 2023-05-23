@@ -41,6 +41,10 @@ const MotherRouter: React.FC<{}> = () => {
           component={SelectBabyPage}
           options={{
             title: "Pilih Bayi",
+            animation: Platform.select({
+              ios: "slide_from_left",
+              android: "simple_push",
+            })
           }}
         />
       ) : (
@@ -51,6 +55,10 @@ const MotherRouter: React.FC<{}> = () => {
               component={WelcomePage}
               options={{
                 title: "Selamat Datang",
+                animation: Platform.select({
+                  ios: "slide_from_left",
+                  android: "simple_push",
+                })
               }}
             />
           ) : (
@@ -60,7 +68,6 @@ const MotherRouter: React.FC<{}> = () => {
                 component={HomePage}
                 options={{
                   title: "Perawatan Metode Kangguru",
-                  animationTypeForReplace: "pop",
                   animation: Platform.select({
                     ios: "slide_from_left",
                     android: "simple_push",
