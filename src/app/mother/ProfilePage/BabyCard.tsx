@@ -1,6 +1,6 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { color } from "src/lib/ui/color";
-import BabyIcon from "src/lib/ui/icons/baby";
+import BabyIcon from "src/lib/ui/icons/Baby";
 import { EvilIcons } from "@expo/vector-icons";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";

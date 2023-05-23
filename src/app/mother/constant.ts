@@ -1,4 +1,4 @@
-import BabyFaceIcon from "src/lib/ui/icons/babyFace";
+import BabyFaceIcon from "src/lib/ui/icons/BabyFace";
 
 export const BABY_CARE_LIST: string[] = [
   "Semakin sering ibu menyusui bayi, produksi ASI akan terus bertambah.",

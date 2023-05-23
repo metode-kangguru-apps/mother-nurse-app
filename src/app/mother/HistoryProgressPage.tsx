@@ -20,7 +20,7 @@ import ProgressCard from "src/common/ProgressCard";
 import { Font } from "src/lib/ui/font";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
-import MotherIcons from "src/lib/ui/icons/mother";
+import MotherIcons from "src/lib/ui/icons/Mother";
 
 import { MotherStackParamList } from "src/router/types";
 

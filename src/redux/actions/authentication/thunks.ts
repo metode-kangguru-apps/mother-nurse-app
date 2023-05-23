@@ -95,7 +95,9 @@ export const signInUserWithGoogle = createAsyncThunk<
           return;
         } else if (userData.userRole === "mother") {
           // if user is mother
-          const motherData = (await getDoc(motherDocumentRef)).data();
+          const motherData = (
+            await getDoc(motherDocumentRef)
+          ).data() as MotherResponse;
           const babyCollectionSnapshots = (
             await getDocs(motherBabyCollectionRef)
           ).docs;
@@ -112,8 +114,8 @@ export const signInUserWithGoogle = createAsyncThunk<
             const savedMotherData: Mother = {
               uid: googleUserSnapshot.user.uid,
               babyCollection: babyTempCollection,
-              hospital: motherData.hospital,
               ...(userData as UserResponse),
+              ...motherData,
             };
             dispatch(setUserData(savedMotherData));
             return;
@@ -236,11 +238,13 @@ export const signUpMotherAccount = createAsyncThunk<
       // set user data, mother data, get all baby collection
       if (hospitalData) {
         const { motherCollection, ...savedMotherHospitalData } = hospitalData;
+        const savedMotherData: MotherResponse = {
+          isFinnishedOnboarding: false,
+          hospital: savedMotherHospitalData,
+        };
         await Promise.all([
           await setDoc(userDocumentRef, userDocument),
-          await setDoc(motherDocumentRef, {
-            hospital: savedMotherHospitalData,
-          }),
+          await setDoc(motherDocumentRef, savedMotherData),
           ...addAllBabyInCollection(
             userInformation.babyCollection,
             babyTempCollection,
@@ -450,7 +454,7 @@ export const getMotherData = createAsyncThunk<
       const savedMotherData: Mother = {
         uid: userID,
         babyCollection: babyTempCollection,
-        hospital: motherData.hospital,
+        ...motherData,
         ...(userData as UserResponse),
       };
       dispatch(setUserData(savedMotherData));

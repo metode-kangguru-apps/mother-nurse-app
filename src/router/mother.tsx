@@ -17,11 +17,16 @@ import { MotherStackParamList } from "./types";
 
 import { color } from "src/lib/ui/color";
 import SessionPMKPage from "@app/mother/SessionPMKPage";
+import WelcomePage from "@app/mother/WelcomePage";
+import { Mother } from "@redux/actions/authentication/types";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
 const MotherRouter: React.FC<{}> = () => {
-  const { baby } = useSelector((state: RootStateV2) => state.pmkCare);
+  const user = useSelector(
+    (state: RootStateV2) => state.authentication.user as Mother
+  );
+  const baby = useSelector((state: RootStateV2) => state.pmkCare.baby);
   return (
     <MotherStack.Navigator
       screenOptions={{
@@ -40,77 +45,89 @@ const MotherRouter: React.FC<{}> = () => {
         />
       ) : (
         <>
-          <MotherStack.Screen
-            name="home"
-            component={HomePage}
-            options={{
-              title: "Perawatan Metode Kangguru",
-              animationTypeForReplace: "pop",
-              animation: Platform.select({
-                ios: "slide_from_left",
-                android: "simple_push",
-              }),
-            }}
-          />
-          <MotherStack.Screen
-            name="profile"
-            component={ProfilePage}
-            options={{
-              title: "Profil",
-              animation: "slide_from_right",
-            }}
-          />
-          <MotherStack.Screen
-            name="monitoring"
-            component={MonitoringPage}
-            options={{
-              title: "Sedang Terapi PMK",
-              animation: Platform.select({
-                ios: "fade_from_bottom",
-                android: "simple_push",
-              }),
-            }}
-          />
-          <MotherStack.Screen
-            name="add-progress"
-            component={AddProgressPage}
-            options={{
-              title: "Tambah Progress Bayi",
-              animation: "slide_from_right",
-            }}
-          />
-          <MotherStack.Screen
-            name="pmk-care"
-            component={PMKCarePage}
-            options={{
-              title: "Informasi Seputar PMK",
-              animation: "slide_from_right",
-            }}
-          />
-          <MotherStack.Screen
-            name="history"
-            component={HistoryProgressPage}
-            options={{
-              title: "Riwayat Pencatatan Bayi",
-              animation: "slide_from_right",
-            }}
-          />
-          <MotherStack.Screen
-            name="session"
-            component={SessionPMKPage}
-            options={{
-              title: "Riwayat Pencatatan Bayi",
-              animation: "slide_from_right",
-            }}
-          />
-          <MotherStack.Screen
-            name="module"
-            component={ModulePage}
-            options={{
-              title: "Modul Pembelajaran PMK",
-              animation: "slide_from_right",
-            }}
-          />
+          {!user.isFinnishedOnboarding ? (
+            <MotherStack.Screen
+              name="welcome"
+              component={WelcomePage}
+              options={{
+                title: "Selamat Datang",
+              }}
+            />
+          ) : (
+            <>
+              <MotherStack.Screen
+                name="home"
+                component={HomePage}
+                options={{
+                  title: "Perawatan Metode Kangguru",
+                  animationTypeForReplace: "pop",
+                  animation: Platform.select({
+                    ios: "slide_from_left",
+                    android: "simple_push",
+                  }),
+                }}
+              />
+              <MotherStack.Screen
+                name="profile"
+                component={ProfilePage}
+                options={{
+                  title: "Profil",
+                  animation: "slide_from_right",
+                }}
+              />
+              <MotherStack.Screen
+                name="monitoring"
+                component={MonitoringPage}
+                options={{
+                  title: "Sedang Terapi PMK",
+                  animation: Platform.select({
+                    ios: "fade_from_bottom",
+                    android: "simple_push",
+                  }),
+                }}
+              />
+              <MotherStack.Screen
+                name="add-progress"
+                component={AddProgressPage}
+                options={{
+                  title: "Tambah Progress Bayi",
+                  animation: "slide_from_right",
+                }}
+              />
+              <MotherStack.Screen
+                name="pmk-care"
+                component={PMKCarePage}
+                options={{
+                  title: "Informasi Seputar PMK",
+                  animation: "slide_from_right",
+                }}
+              />
+              <MotherStack.Screen
+                name="history"
+                component={HistoryProgressPage}
+                options={{
+                  title: "Riwayat Pencatatan Bayi",
+                  animation: "slide_from_right",
+                }}
+              />
+              <MotherStack.Screen
+                name="session"
+                component={SessionPMKPage}
+                options={{
+                  title: "Riwayat Sesi PMK",
+                  animation: "slide_from_right",
+                }}
+              />
+              <MotherStack.Screen
+                name="module"
+                component={ModulePage}
+                options={{
+                  title: "Modul Pembelajaran PMK",
+                  animation: "slide_from_right",
+                }}
+              />
+            </>
+          )}
         </>
       )}
       <MotherStack.Screen

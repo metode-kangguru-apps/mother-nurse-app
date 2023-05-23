@@ -19,6 +19,9 @@ const authentication = createSlice({
     ) => {
       state.user = { ...state.user, ...action.payload } as Mother | Nurse;
     },
+    updateMotherFinnishedOnboard: (state) => {
+      (state.user as Mother).isFinnishedOnboarding = true
+    },
     pushBabyToCollection: (state, action: PayloadAction<Baby>) => {
       (state.user as Mother).babyCollection.push(action.payload);
     },
@@ -76,6 +79,7 @@ const authentication = createSlice({
 export const {
   setUserData,
   pushBabyToCollection,
+  updateMotherFinnishedOnboard,
   updateMotherBabyDataAtCollection,
   updateNurseBabyDataAtCollection,
 } = authentication.actions;

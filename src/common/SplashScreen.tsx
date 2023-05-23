@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Animated, Platform, StyleSheet, View } from "react-native";
 import { color } from "src/lib/ui/color";
-import HugABabyIcon from "src/lib/ui/icons/hug-a-baby";
+import HugABabyIcon from "src/lib/ui/icons/HugABaby";
 import { DefaultWidthSize } from "./types";
 
 const SplashScreen: React.FC<{}> = () => {

@@ -16,7 +16,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { Font } from "src/lib/ui/font";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
-import BabyIcon from "src/lib/ui/icons/baby";
+import BabyIcon from "src/lib/ui/icons/Baby";
 import { TextSize } from "src/lib/ui/textSize";
 import { weekDifference } from "src/lib/utils/calculate";
 

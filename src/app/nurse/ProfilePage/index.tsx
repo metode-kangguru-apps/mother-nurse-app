@@ -18,7 +18,7 @@ import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Font } from "src/lib/ui/font";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
-import NurseIcon from "src/lib/ui/icons/nurse";
+import NurseIcon from "src/lib/ui/icons/Nurse";
 import { TextSize } from "src/lib/ui/textSize";
 
 import MotherBabyCard from "./MotherBabyCard";
