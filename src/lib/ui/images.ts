@@ -6,4 +6,6 @@ export const localImages = [
   require("../../../assets/indonesia-icon.png"),
   require("../../../assets/nurse-icon.png"),
   require("../../../assets/baby-pattern.png"),
+  require("../../../assets/welcome-blob.png"),
+  require("../../../assets/welcome-mother.png"),
 ];

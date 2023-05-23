@@ -16,6 +16,7 @@ export type User = {
 };
 
 export interface Mother extends User {
+  isFinnishedOnboarding: boolean,
   hospital: Hospital;
   babyCollection: Baby[];
 }
@@ -33,6 +34,7 @@ export type UserInitialState = {
 
 // Payload
 export interface MotherPayload extends Omit<User, "uid"> {
+  isFinnishedOnboarding: boolean,
   babyCollection: Omit<Baby, "id">[];
   hospital: HospitalPayload;
 }
@@ -50,6 +52,7 @@ export interface AddBabyPayload {
 export interface UserResponse extends Omit<User, "uid"> {}
 
 export interface MotherResponse {
+  isFinnishedOnboarding: boolean,
   hospital: Hospital;
 }
 export interface NurseResponse {

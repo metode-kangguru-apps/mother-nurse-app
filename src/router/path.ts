@@ -22,6 +22,9 @@ const linking = {
       mother: {
         path: "/mother",
         screens: {
+          welcome: {
+            path: "/welcome"
+          },
           home: {
             path: "/",
           },

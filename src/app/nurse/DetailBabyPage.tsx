@@ -21,7 +21,7 @@ import { NurseStackParamList } from "src/router/types";
 import { TextSize } from "src/lib/ui/textSize";
 
 import { FontAwesome5 } from "@expo/vector-icons";
-import MotherIcons from "src/lib/ui/icons/mother";
+import MotherIcons from "src/lib/ui/icons/Mother";
 
 interface Props
   extends NativeStackScreenProps<NurseStackParamList, "baby-detail"> {}

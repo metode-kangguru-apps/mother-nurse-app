@@ -8,7 +8,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { FirebaseCollection } from "@redux/types";
-import { Mother, MotherResponse, NurseResponse, UserResponse } from "./types";
+import { Mother, MotherResponse, UserResponse } from "./types";
 import { HospitalResponse } from "../hospital/types";
 import { Baby, BabyPayload, BabyStatus } from "../pmkCare/types";
 import { firestore } from "../../../../firebaseConfig";

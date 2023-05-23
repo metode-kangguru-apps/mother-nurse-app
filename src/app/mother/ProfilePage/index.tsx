@@ -29,7 +29,7 @@ import { Font } from "src/lib/ui/font";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
-import GoogleIcon from "src/lib/ui/icons/google";
+import GoogleIcon from "src/lib/ui/icons/Google";
 
 import { AntDesign } from "@expo/vector-icons";
 

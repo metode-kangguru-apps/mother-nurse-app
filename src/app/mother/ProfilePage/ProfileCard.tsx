@@ -1,8 +1,8 @@
 import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { color } from "src/lib/ui/color";
 import { Font } from "src/lib/ui/font";
-import MotherIcons from "src/lib/ui/icons/mother";
-import WhatsappIcon from "src/lib/ui/icons/whatsapp";
+import MotherIcons from "src/lib/ui/icons/Mother";
+import WhatsappIcon from "src/lib/ui/icons/Whatsapp";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 

@@ -53,7 +53,7 @@ const ModulePage: React.FC<Props> = ({ navigation }) => {
       <Header
         title="Modul"
         titleStyle={{ fontFamily: Font.Bold }}
-        onBackButton={() => navigation.replace("home")}
+        onBackButton={() => navigation.pop()}
       />
       <FlatList
         style={style.progressWrapper}
