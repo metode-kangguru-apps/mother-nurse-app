@@ -49,7 +49,9 @@ const WelcomePage: React.FC<Props> = ({ navigation }) => {
         />
         <View style={style.buttonStartContainer}>
           <TouchableOpacity
-            onPress={() => dispatch(updateMotherFinnishedOnboard())}
+            onPress={() => {
+              navigation.push("onboarding")
+            }}
           >
             <View style={style.buttonStart}>
               <Text style={style.buttonStartTitle}>Mulai</Text>

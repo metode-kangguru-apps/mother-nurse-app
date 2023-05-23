@@ -19,6 +19,7 @@ import { color } from "src/lib/ui/color";
 import SessionPMKPage from "@app/mother/SessionPMKPage";
 import WelcomePage from "@app/mother/WelcomePage";
 import { Mother } from "@redux/actions/authentication/types";
+import OnboardingPage from "@app/mother/OnboardingPage";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -50,14 +51,24 @@ const MotherRouter: React.FC<{}> = () => {
       ) : (
         <>
           {!user.isFinnishedOnboarding ? (
-            <MotherStack.Screen
-              name="welcome"
-              component={WelcomePage}
-              options={{
-                title: "Selamat Datang",
-                animation: "slide_from_left"
-              }}
-            />
+            <>
+              <MotherStack.Screen
+                name="welcome"
+                component={WelcomePage}
+                options={{
+                  title: "Selamat Datang",
+                  animation: "slide_from_left"
+                }}
+              />
+              <MotherStack.Screen
+                name="onboarding"
+                component={OnboardingPage}
+                options={{
+                  title: "Selamat Datang",
+                  animation: "slide_from_left"
+                }}
+              />
+            </>
           ) : (
             <>
               <MotherStack.Screen
