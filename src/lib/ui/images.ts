@@ -5,4 +5,5 @@ export const localImages = [
   require("../../../assets/example-pmk-care.png"),
   require("../../../assets/indonesia-icon.png"),
   require("../../../assets/nurse-icon.png"),
+  require("../../../assets/baby-pattern.png"),
 ];

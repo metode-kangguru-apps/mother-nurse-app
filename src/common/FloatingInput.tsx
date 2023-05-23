@@ -81,12 +81,15 @@ const FloatingInput: React.FC<Props> = ({
     state: NativeSyntheticEvent<TextInputChangeEventData>
   ) {
     const result = state.nativeEvent.text;
-    if (
-      Platform.OS === "web" &&
-      (keyboardType === "phone-pad" || keyboardType === "decimal-pad")
-    ) {
-      if (!(/^[0-9]+$/.test(result) || result === "")) {
-        return;
+    if (Platform.OS === "web") {
+      if (keyboardType === "phone-pad" || keyboardType=="number-pad") {
+        if (!(/^[0-9]+$/.test(result) || result === "")) {
+          return;
+        }
+      } else if (keyboardType === "decimal-pad") {
+        if (!(/^[0-9.]+$/.test(result) || result === "")) {
+          return;
+        }
       }
     }
     setInputValue(result);

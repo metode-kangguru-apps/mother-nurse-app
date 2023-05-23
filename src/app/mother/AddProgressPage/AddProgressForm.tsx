@@ -79,11 +79,11 @@ const AddProgressForm: React.FC<Props> = ({
                     required
                     onError={validationFormError}
                     label="Berat Badan (gram)*"
-                    keyboardType="number-pad"
+                    keyboardType="decimal-pad"
                     onChange={(value) => {
                       setFormField({
                         ...formField,
-                        weight: parseInt(value),
+                        weight: parseFloat(value),
                       });
                     }}
                   ></FloatingInput>
@@ -93,11 +93,11 @@ const AddProgressForm: React.FC<Props> = ({
                     required
                     onError={validationFormError}
                     label="Panjang Badan (cm)*"
-                    keyboardType="number-pad"
+                    keyboardType="decimal-pad"
                     onChange={(value) => {
                       setFormField({
                         ...formField,
-                        length: parseInt(value),
+                        length: parseFloat(value),
                       });
                     }}
                   ></FloatingInput>
@@ -105,11 +105,11 @@ const AddProgressForm: React.FC<Props> = ({
                 <View style={style.formField}>
                   <FloatingInput
                     label="Suhu Tubuh (°C)"
-                    keyboardType="number-pad"
+                    keyboardType="decimal-pad"
                     onChange={(value) => {
                       setFormField({
                         ...formField,
-                        temperature: parseInt(value),
+                        temperature: parseFloat(value),
                       });
                     }}
                   ></FloatingInput>
