@@ -7,7 +7,6 @@ import {
   Animated,
   Platform,
   KeyboardTypeOptions,
-  Keyboard,
   NativeSyntheticEvent,
   TextInputChangeEventData,
 } from "react-native";

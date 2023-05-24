@@ -43,7 +43,7 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
   const [loading, setLoading] = useState<boolean>();
   const [openModal, setOpenModal] = useState<boolean>(false);
   const [dateStart, _] = useState<Date>(new Date());
-  const [__, setSecond] = useState<number>(0);
+  const [second, setSecond] = useState<number>(0);
   const [timer, setTimer] = useState<Timer>({
     hours: "00",
     minutes: "00",
@@ -99,17 +99,22 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
       (timer.hours !== "00" ? `${parseInt(timer.hours)} Jam ` : "") +
       (timer.minutes !== "00" ? `${parseInt(timer.minutes)} Menit ` : "") +
       (timer.seconds !== "00" ? `${parseInt(timer.seconds)} Detik` : "");
-    const addSessionPayload: SessionPayload = {
-      userID,
-      babyID,
-      monitoredRangeDate,
-      duration,
-    };
-    dispatch(addSessionData(addSessionPayload)).then(() => {
-      setLoading(false);
-      setOpenModal(false);
+
+    if (!(second === 0)) {
+      const addSessionPayload: SessionPayload = {
+        userID,
+        babyID,
+        monitoredRangeDate,
+        duration,
+      };
+      dispatch(addSessionData(addSessionPayload)).then(() => {
+        navigation.replace(goToPath);
+      });
+    } else {
       navigation.replace(goToPath);
-    });
+    }
+    setLoading(false);
+    setOpenModal(false);
   }
 
   return (

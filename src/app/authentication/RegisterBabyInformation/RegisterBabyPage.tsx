@@ -130,7 +130,7 @@ const RegisterBabyPage: React.FC<Props> = ({
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    weight: parseFloat(value),
+                    weight: parseFloat(value.replace(/,/g, ".")),
                   });
                 }}
               />
@@ -144,7 +144,7 @@ const RegisterBabyPage: React.FC<Props> = ({
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    length: parseFloat(value),
+                    length: parseFloat(value.replace(/,/g, ".")),
                   });
                 }}
               />
@@ -219,7 +219,7 @@ const createStyle = (insets: EdgeInsets) =>
           paddingBottom: insets.top,
         },
         web: {
-          paddingBottom: Spacing.base,
+          paddingBottom: Spacing.base + insets.top,
         },
       }),
     },
