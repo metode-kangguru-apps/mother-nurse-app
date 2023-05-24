@@ -55,6 +55,9 @@ const linking = {
           module: {
             path: "/module",
           },
+          "detail-module": {
+            path: "/module/:key",
+          },
         },
       },
       nurse: {

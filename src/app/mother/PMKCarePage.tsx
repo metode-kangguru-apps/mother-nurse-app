@@ -27,7 +27,10 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
   return (
-    <ScrollView contentContainerStyle={style.containerWrapper}>
+    <ScrollView
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={style.containerWrapper}
+    >
       <View style={style.container}>
         <View style={style.content}>
           <View style={style.imageHead}>
@@ -51,9 +54,7 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
         </View>
         <View style={style.buttonWrapper}>
           <TouchableOpacity
-            onPress={() =>
-              navigation.dispatch(StackActions.popToTop())
-            }
+            onPress={() => navigation.dispatch(StackActions.popToTop())}
           >
             <View style={style.buttonContainer}>
               <Text style={style.buttonTitle}>Tutup</Text>

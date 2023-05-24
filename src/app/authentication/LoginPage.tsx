@@ -192,6 +192,7 @@ const LoginPage: React.FC<Props> = () => {
         ref={scrollRef}
         contentContainerStyle={style.flex}
         scrollEnabled={selectedRegisterRole === "mother"}
+        showsVerticalScrollIndicator={false}
       >
         <Animated.View
           style={[

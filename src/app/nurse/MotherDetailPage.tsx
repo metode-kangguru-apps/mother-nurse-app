@@ -75,7 +75,10 @@ const MotherDetailPage: React.FC<Props> = ({ navigation }) => {
           ></ActivityIndicator>
         </View>
       )}
-      <ScrollView contentContainerStyle={style.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.container}
+      >
         <Header
           title="Profil Pasien"
           titleStyle={{ fontFamily: Font.Bold }}

@@ -114,7 +114,10 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
         source={require("../../../assets/baby-pattern.png")}
         style={style.backgroundPattern}
       />
-      <ScrollView contentContainerStyle={style.wrapper}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.wrapper}
+      >
         <View style={style.container}>
           <Text style={style.title}>Pilih Bayi</Text>
           <View style={style.babiesWrapper}>
