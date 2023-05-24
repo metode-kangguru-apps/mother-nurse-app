@@ -1,7 +1,8 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
 
 export type MotherStackParamList = {
-  welcome: undefined
+  welcome: undefined;
+  onboarding: undefined;
   home: undefined;
   "select-baby": undefined;
   profile: undefined;
@@ -11,16 +12,16 @@ export type MotherStackParamList = {
   history: undefined;
   session: undefined;
   module: undefined;
-  "add-new-baby": undefined
+  "add-new-baby": undefined;
 };
 
 export type NurseStackParamList = {
   profile: undefined;
-  "mother-detail": undefined
-  "baby-detail": undefined
-  "history-progress": undefined
-  "add-progress": undefined
-  session: undefined
+  "mother-detail": undefined;
+  "baby-detail": undefined;
+  "history-progress": undefined;
+  "add-progress": undefined;
+  session: undefined;
 };
 
 export type AuthStackParamList = {
@@ -33,6 +34,6 @@ export type AuthStackParamList = {
 export type RootStackParamList = {
   auth: NavigatorScreenParams<AuthStackParamList>;
   mother: NavigatorScreenParams<MotherStackParamList>;
-  nurse: NavigatorScreenParams<NurseStackParamList>
+  nurse: NavigatorScreenParams<NurseStackParamList>;
   NotFound: undefined;
 };

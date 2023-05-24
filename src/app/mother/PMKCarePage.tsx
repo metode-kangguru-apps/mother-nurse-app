@@ -18,6 +18,7 @@ import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Spacing } from "src/lib/ui/spacing";
 import { Font } from "src/lib/ui/font";
 import { TextSize } from "src/lib/ui/textSize";
+import { StackActions } from "@react-navigation/native";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "pmk-care"> {}
@@ -51,10 +52,7 @@ const PMKCarePage: React.FC<Props> = ({ navigation }) => {
         <View style={style.buttonWrapper}>
           <TouchableOpacity
             onPress={() =>
-              navigation.reset({
-                index: 0,
-                routes: [{ name: "home" }],
-              })
+              navigation.dispatch(StackActions.popToTop())
             }
           >
             <View style={style.buttonContainer}>

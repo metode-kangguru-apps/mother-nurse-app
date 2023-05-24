@@ -19,6 +19,7 @@ import { color } from "src/lib/ui/color";
 import SessionPMKPage from "@app/mother/SessionPMKPage";
 import WelcomePage from "@app/mother/WelcomePage";
 import { Mother } from "@redux/actions/authentication/types";
+import OnboardingPage from "@app/mother/OnboardingPage";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -42,22 +43,32 @@ const MotherRouter: React.FC<{}> = () => {
           options={{
             title: "Pilih Bayi",
             animation: Platform.select({
-              ios: "slide_from_left",
+              ios: "slide_from_right",
               android: "simple_push",
-            })
+            }),
           }}
         />
       ) : (
         <>
           {!user.isFinnishedOnboarding ? (
-            <MotherStack.Screen
-              name="welcome"
-              component={WelcomePage}
-              options={{
-                title: "Selamat Datang",
-                animation: "slide_from_left"
-              }}
-            />
+            <>
+              <MotherStack.Screen
+                name="welcome"
+                component={WelcomePage}
+                options={{
+                  title: "Selamat Datang",
+                  animation: "slide_from_right",
+                }}
+              />
+              <MotherStack.Screen
+                name="onboarding"
+                component={OnboardingPage}
+                options={{
+                  title: "Selamat Datang",
+                  animation: "slide_from_right",
+                }}
+              />
+            </>
           ) : (
             <>
               <MotherStack.Screen
@@ -65,9 +76,9 @@ const MotherRouter: React.FC<{}> = () => {
                 component={HomePage}
                 options={{
                   title: "Perawatan Metode Kangguru",
-                  animationTypeForReplace: "pop",
+                  
                   animation: Platform.select({
-                    ios: "slide_from_left",
+                    ios: "slide_from_right",
                     android: "simple_push",
                   }),
                 }}
