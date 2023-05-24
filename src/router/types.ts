@@ -12,6 +12,7 @@ export type MotherStackParamList = {
   history: undefined;
   session: undefined;
   module: undefined;
+  "detail-module": {key: string}
   "add-new-baby": undefined;
 };
 

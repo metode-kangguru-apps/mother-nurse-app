@@ -11,7 +11,6 @@ import {
 } from "react-native";
 
 import Markdown from "react-native-markdown-display";
-import { ONBOARDING } from "./constant";
 import { AntDesign } from "@expo/vector-icons";
 import { DefaultWidthSize } from "src/common/types";
 import { MotherStackParamList } from "src/router/types";
@@ -20,30 +19,31 @@ import { Font } from "src/lib/ui/font";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
-import { useAppDispatch } from "@redux/hooks";
-import { updateMotherFinnishedOnboarding } from "@redux/actions/pmkCare/thunks";
-import { useSelector } from "react-redux";
-import { RootStateV2 } from "@redux/types";
-import { Mother } from "@redux/actions/authentication/types";
+import { MODULE_ITEM_LIST } from "../constant";
+import { StackActions } from "@react-navigation/native";
 
 interface Props
-  extends NativeStackScreenProps<MotherStackParamList, "onboarding"> {}
+  extends NativeStackScreenProps<MotherStackParamList, "detail-module"> {}
 
-const OnboardingPage: React.FC<Props> = () => {
+const DetailModulePage: React.FC<Props> = ({ navigation, route }) => {
+  const { key } = route.params;
+  if (!Object.keys(MODULE_ITEM_LIST).includes(key)) {
+    navigation.dispatch(StackActions.popToTop());
+    return null;
+  }
   const scrollRef = useRef<ScrollView>(null);
-  const dispatch = useAppDispatch();
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [mobileWidth, setMobileWidth] = useState(DefaultWidthSize.mobile);
 
-  const styles = useMemo(() => createStyle(mobileWidth), [mobileWidth]);
-  const userID = useSelector(
-    (state: RootStateV2) => (state.authentication.user as Mother).uid
+  const styles = useMemo(
+    () => createStyle(mobileWidth, key),
+    [mobileWidth, key]
   );
 
   const handleNext = () => {
-    if (activeIndex == ONBOARDING.length - 1) {
-      dispatch(updateMotherFinnishedOnboarding(userID));
+    if (activeIndex == MODULE_ITEM_LIST[key].content.length - 1) {
+      navigation.pop();
     }
 
     const nextIndex = activeIndex + 1;
@@ -79,7 +79,7 @@ const OnboardingPage: React.FC<Props> = () => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[styles.container]}
       >
-        {ONBOARDING.map((item, index) => (
+        {MODULE_ITEM_LIST[key].content.map((item, index) => (
           <View style={styles.carouselItem} key={index}>
             <View style={styles.contentImageContainer}>
               <Image style={styles.contentImage} source={item.image} />
@@ -96,6 +96,9 @@ const OnboardingPage: React.FC<Props> = () => {
                   style={{
                     strong: styles.contentBold,
                     text: styles.contentText,
+                    ordered_list: { flex: 1, width: "100%" },
+                    list_item: { width: "100%" },
+                    ordered_list_icon: styles.contentOrderedList,
                   }}
                 >
                   {item.content}
@@ -121,7 +124,7 @@ const OnboardingPage: React.FC<Props> = () => {
           />
         </TouchableOpacity>
         <View style={styles.indicatorContainer}>
-          {ONBOARDING.map((_, index) => (
+          {MODULE_ITEM_LIST[key].content.map((_, index) => (
             <View
               key={index}
               style={[
@@ -139,7 +142,7 @@ const OnboardingPage: React.FC<Props> = () => {
   );
 };
 
-const createStyle = (mobileWidth: number) =>
+const createStyle = (mobileWidth: number, key: string) =>
   StyleSheet.create({
     wrapper: {
       flex: 1,
@@ -148,7 +151,7 @@ const createStyle = (mobileWidth: number) =>
     },
     container: {
       height: "100%",
-      width: mobileWidth * ONBOARDING.length,
+      width: mobileWidth * MODULE_ITEM_LIST[key].content.length,
     },
     carouselItem: {
       flex: 1,
@@ -186,8 +189,11 @@ const createStyle = (mobileWidth: number) =>
       fontSize: TextSize.h5,
       color: color.lightneutral,
     },
-    content: {
+    contentOrderedList: {
       backgroundColor: color.primary,
+      color: color.lightneutral,
+      fontFamily: Font.Medium,
+      fontSize: TextSize.title,
     },
     contentText: {
       color: color.lightneutral,
@@ -253,4 +259,4 @@ const createStyle = (mobileWidth: number) =>
     },
   });
 
-export default OnboardingPage;
+export default DetailModulePage;

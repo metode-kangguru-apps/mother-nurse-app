@@ -57,7 +57,10 @@ const AddProgressForm: React.FC<Props> = ({
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={{ flex: 1 }}
     >
-      <ScrollView contentContainerStyle={style.container}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.container}
+      >
         <View style={style.container}>
           <Header
             title="Pencatatan"

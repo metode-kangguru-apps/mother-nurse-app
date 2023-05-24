@@ -1,5 +1,6 @@
 import BabyFaceIcon from "src/lib/ui/icons/BabyFace";
-import { Onboarding } from "./OnboardingPage";
+import { SvgProps } from "react-native-svg";
+import { ImageSourcePropType } from "react-native";
 
 export const BABY_CARE_LIST: string[] = [
   "Semakin sering ibu menyusui bayi, produksi ASI akan terus bertambah.",
@@ -14,71 +15,230 @@ export const BABY_CARE_LIST: string[] = [
   "Mengajak bicara bayi sejak dini berarti melatih bayi berkomunikasi.",
 ];
 
-export const MODULE_ITEM_LIST = [
-  {
+export interface Subject {
+  image: ImageSourcePropType;
+  title?: string;
+  content: string;
+}
+export interface Module {
+  icon: (props: SvgProps) => JSX.Element;
+  title: string;
+  content: Subject[];
+}
+
+type ModuleData = {
+  [key: string]: Module;
+};
+
+export const MODULE_ITEM_LIST: ModuleData = {
+  "tutorial-pmk": {
     icon: BabyFaceIcon,
     title: "Parent Component",
+    content: [
+      {
+        image: require("../../../assets/module/G01.gif"),
+        title: "Perhatikan!",
+        content: `1. Cuci tangan dengan sabun dan air mengalir\n2. Lepaskan pakaian atas`,
+      },
+      {
+        image: require("../../../assets/module/G02.gif"),
+        title: "Perhatikan!",
+        content: `3. Memegang bayi dengan satu tangan diletakkan di belakang leher sampai punggung bayi.  Menopang bagian bawah rahang bayi dengan ibu jari dan jari-jari lainnya serta menempatkan tangan yang lain di bawah pantat bayi
+        `,
+      },
+      {
+        image: require("../../../assets/module/G03.gif"),
+        title: "Perhatikan!",
+        content: `4. Meletakkan bayi dalam gendongan kanguru`,
+      },
+      {
+        image: require("../../../assets/module/G04.gif"),
+        title: "Perhatikan!",
+        content: `5. Meletakkan bayi tegak lurus di dada ibu\n6. Dada bayi menempel dengan dada ibu (kulit bayi menempel dengan kulit ibu)\n7. Kepala bayi dipalingkan ke arah kanan atau kiri dengan sedikit tengadah`,
+      },
+      {
+        image: require("../../../assets/module/M06.png"),
+        title: "Perhatikan!",
+        content: `8. Memeriksa jalan napas bayi tidak terganggu ketika bayi berada pada posisi tegak`,
+      },
+      {
+        image: require("../../../assets/module/G06.gif"),
+        title: "Perhatikan!",
+        content: `9. Memposisikan tangan bayi dalam keadaan terbuka, sedangkan pangkal paha bayi diposisikan seperti katak`,
+      },
+      {
+        image: require("../../../assets/module/G07.gif"),
+        title: "Perhatikan!",
+        content: `10. Memastikan bahwa kain gendongan diikatkan cukup kuat, namun tidak terlalu ketat dan tidak terlalu longgar\n11. Leher bayi ditopang menggunakan kain gendongan dengan cara tepi atas gendongan berada di batas bawah telinga bayi`,
+      },
+    ],
   },
-  {
+  "definisi-bblr": {
     icon: BabyFaceIcon,
     title: "Definisi Bayi Berat Lahir Rendah (BBLR)",
+    content: [
+      {
+        image: require("../../../assets/module/M03.png"),
+        title: "Apa itu BBLR?",
+        content: `BBLR adalah bayi yang dilahirkan dengan berat badan kurang dari 2.500 gram (2,5 kg). `,
+      },
+      {
+        image: require("../../../assets/module/A02.png"),
+        title: "Apa itu BBLR?",
+        content: `BBLR bisa disebabkan oleh kelahiran prematur maupun kondisi pertumbuhan janin yang kurang memadai selama di dalam rahim. `,
+      },
+    ],
   },
-  {
+  "definisi-pmk": {
     icon: BabyFaceIcon,
     title: "Definisi Perawatan Metode Kanguru (PMK)",
+    content: [
+      {
+        image: require("../../../assets/module/M03.png"),
+        title: "PMK untuk BBLR",
+        content: `Perawatan Metode Kanguru (PMK) atau Kangaroo Mother Care (KMC) merupakan perawatan pada BBLR dengan cara kontak langsung kulit bayi dengan kulit ibu.`,
+      },
+    ],
   },
-  {
+  "manfaat-pmk": {
     icon: BabyFaceIcon,
     title: "Manfaat PMK",
+    content: [
+      {
+        image: require("../../../assets/module/M02.png"),
+        title: "Banyak manfaatnya, lho!",
+        content: `PMK memiliki banyak manfaat bagi bayi, ibu, dan rumah sakit.`,
+      },
+      {
+        image: require("../../../assets/module/M01.png"),
+        title: "Banyak manfaatnya, lho!",
+        content: `1. Meningkatkan suhu tubuh bayi sehingga tidak kedinginan (hipotermi)\n2. Meningkatkan berat badan bayi\n3. Menurunkan angka kematian bayi
+        `,
+      },
+      {
+        image: require("../../../assets/module/M06.png"),
+        title: "Banyak manfaatnya, lho!",
+        content: `4. Menurunkan kejadian infeksi pada bayi\n5. Meningkatkan kemampuan menyusu bayi\n6. Meningkatkan durasi/lama waktu menyusu`,
+      },
+      {
+        image: require("../../../assets/module/A12.png"),
+        title: "Banyak manfaatnya, lho!",
+        content: `7. Menurunkan nyeri ketika bayi dilakukan tindakan medis\n8. Menurunkan lama rawat inap di rumah sakit\n9. Meningkatkan ikatan antara ibu dan bayi
+        `,
+      },
+    ],
   },
-  {
+  "actor-pmk": {
     icon: BabyFaceIcon,
     title: "Siapakah yang bisa melakukan PMK?",
+    content: [
+      {
+        image: require("../../../assets/module/B02.png"),
+        title: "Tidak hanya ibu!",
+        content: `PMK bisa dilakukan oleh ibu maupun ayah bahkan nenek, kakek, paman, atau anggota keluarga yang lain.`,
+      },
+    ],
   },
-  {
+  "pmk-waktu": {
     icon: BabyFaceIcon,
     title: "Kapan dan di mana PMK dilakukan?",
+    content: [
+      {
+        image: require("../../../assets/module/A02.png"),
+        title: "Kapan bisa mulai PMK?",
+        content: `PMK dapat dilakukan seawal mungkin (sejak 24 jam pertama kelahiran).`,
+      },
+      {
+        image: require("../../../assets/module/A02.png"),
+        title: "Berapa lama?",
+        content: `Berdasarkan anjuran dari WHO, PMK dilakukan selama 8 sampai dengan 24 jam per hari.`,
+      },
+      {
+        image: require("../../../assets/module/A02.png"),
+        title: "Tidak hanya di rumah sakit.",
+        content: `PMK bisa dilakukan di rumah sakit dan berlanjut sampai di rumah.`,
+      },
+    ],
   },
-  {
+  "preparing-pmk": {
     icon: BabyFaceIcon,
     title: "Persiapan Melakukan PMK",
+    content: [
+      {
+        image: require("../../../assets/module/M07.png"),
+        title: "Yuk, disiapkan!",
+        content: `Perlu disiapkan beberapa hal sebelum melakukan PMK`,
+      },
+      {
+        image: require("../../../assets/module/B03.png"),
+        title: "Yuk, disiapkan!",
+        content: `1. Gendongan bayi\n2. Topi bayi\n3. Popok\n4. Ibu yang sudah dalam keadaan bersih`,
+      },
+    ],
   },
-  {
-    icon: BabyFaceIcon,
-    title: "Cara Melakukan PMK",
-  },
-  {
+  "warning-sign": {
     icon: BabyFaceIcon,
     title: "Tanda kewaspadaan",
+    content: [
+      {
+        image: require("../../../assets/module/M04.png"),
+        title: "Hati-hati!",
+        content: `Selama melakukan PMK, perhatikan adanya tanda bahaya pada bayi!`,
+      },
+      {
+        image: require("../../../assets/module/A04.png"),
+        title: "Hati-hati!",
+        content: `Napas bayi terlalu pelan, terlalu cepat, atau henti napas (bayi tidak bernapas)`,
+      },
+    ],
   },
-  {
+  "breath-freq": {
     icon: BabyFaceIcon,
     title: "Frekuensi napas normal",
+    content: [
+      {
+        image: require("../../../assets/module/M03.png"),
+        title: "Yuk, perhatikan!",
+        content: `Bayi baru lahir sampai dengan usia 40 hari (neonatus) dikatakan memiliki frekuensi napas normal jika berada dalam rentang 40 sampai 60 kali/menit`,
+      },
+      {
+        image: require("../../../assets/module/M05.png"),
+        title: "Yuk, perhatikan!",
+        content: `Apabila frekuensi napasnya kurang dari 40 x/menit, bayi bernapas lambat, sedangkan jika lebih dari 60 kali/menit, disebut napas cepat`,
+      },
+    ],
   },
-  {
+  "body-temp": {
     icon: BabyFaceIcon,
     title: "Suhu tubuh normal",
+    content: [
+      {
+        image: require("../../../assets/module/A09.png"),
+        title: "Bayi demam?",
+        content: `Suhu tubuh normal yaitu **36,5°C sampai dengan 37,5°C**. Suhu tubuh di bawah 36,5°C disebut hipotermi (suhu tubuh rendah), sedangkan suhu tubuh di atas 37,5°C disebut hipertermi (demam).`,
+      },
+    ],
   },
-];
+};
 
-export const ONBOARDING: Onboarding[] = [
+export const ONBOARDING: Subject[] = [
   {
-    image: require("../../../assets/onboard/B01.png"),
+    image: require("../../../assets/module/B01.png"),
     title: "Apa itu BBLR?",
     content: `**Bayi Berat Lahir Rendah (BBLR)** adalah bayi dengan berat kurang dari 2,5kg ketika lahir yang disebabkan oleh kelahiran prematur atau kondisi pertumbuhan janin yang kurang memadai. \n\n**Perawatan Metode Kanguru (PMK)** yang dilakukan dengan kontak langsung kulit bayi dan ibu, terbukti dapat meningkatkan berat badan bayi.`,
   },
   {
-    image: require("../../../assets/onboard/B02.png"),
+    image: require("../../../assets/module/B02.png"),
     title: "Tidak hanya ibu!",
     content: `Selain ibu, PMK juga dapat dilakukan oleh ayah, nenek, atau anggota keluarga lain di rumah sakit maupun di rumah, dengan anjuran **minimal 8 jam perhari.**`,
   },
   {
-    image: require("../../../assets/onboard/B03.png"),
+    image: require("../../../assets/module/B03.png"),
     title: "Banyak manfaatnya, lho!",
     content: `PMK memiliki banyak manfaat lain, diantaranya mencegah bayi kedinginan, meningkatkan kemampuan menyusu bayi, menurunkan nyeri ketika dilakukan tindakan medis pada bayi, juga meningkatkan ikatan antara ibu dan bayi.`,
   },
   {
-    image: require("../../../assets/onboard/M02.png"),
+    image: require("../../../assets/module/M02.png"),
     title: "Yuk, disiapkan!",
     content: `Persiapan Melakukan PMK:
     - Gendongan bayi

@@ -20,6 +20,7 @@ import SessionPMKPage from "@app/mother/SessionPMKPage";
 import WelcomePage from "@app/mother/WelcomePage";
 import { Mother } from "@redux/actions/authentication/types";
 import OnboardingPage from "@app/mother/OnboardingPage";
+import DetailModulePage from "@app/mother/ModulePage/DetailModulePage";
 
 const MotherStack = createNativeStackNavigator<MotherStackParamList>();
 
@@ -137,6 +138,14 @@ const MotherRouter: React.FC<{}> = () => {
               <MotherStack.Screen
                 name="module"
                 component={ModulePage}
+                options={{
+                  title: "Modul Pembelajaran PMK",
+                  animation: "slide_from_right",
+                }}
+              />
+              <MotherStack.Screen
+                name="detail-module"
+                component={DetailModulePage}
                 options={{
                   title: "Modul Pembelajaran PMK",
                   animation: "slide_from_right",
