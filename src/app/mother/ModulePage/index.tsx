@@ -1,6 +1,4 @@
 import { useMemo } from "react";
-import { RootState } from "@redux/types";
-import { useSelector } from "react-redux";
 
 import {
   FlatList,
@@ -25,23 +23,28 @@ import { color } from "src/lib/ui/color";
 import Header from "src/common/Header";
 import Separator from "src/common/Separator";
 import { TextSize } from "src/lib/ui/textSize";
-import { MODULE_ITEM_LIST } from "../constant";
+import { MODULE_ITEM_LIST, Module } from "../constant";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "module"> {}
 
 const ModulePage: React.FC<Props> = ({ navigation }) => {
-  const { progress } = useSelector((state: RootState) => state.baby);
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), []);
 
-  const renderProgressItem: ListRenderItem<any> = ({ item, index }) => {
+  const renderProgressItem: ListRenderItem<[string, Module]> = ({
+    item,
+    index,
+  }) => {
     return (
-      <TouchableOpacity key={index}>
+      <TouchableOpacity
+        key={index}
+        onPress={() => navigation.push("detail-module", { key: item[0] })}
+      >
         <View style={style.moduleMenu}>
           <View style={style.moduleContent}>
-            <View style={style.moduleIcon}>{item.icon()}</View>
-            <Text style={style.moduleTitle}>{item.title}</Text>
+            <View style={style.moduleIcon}>{item[1].icon({})}</View>
+            <Text style={style.moduleTitle}>{item[1].title}</Text>
           </View>
           <View style={style.moduleGoToButton}>
             <AntDesign name="arrowright" size={20} color={color.primary} />
@@ -56,11 +59,12 @@ const ModulePage: React.FC<Props> = ({ navigation }) => {
       <Header
         title="Modul"
         titleStyle={{ fontFamily: Font.Bold }}
-        onBackButton={() => navigation.replace("home")}
+        onBackButton={() => navigation.pop()}
       />
       <FlatList
         style={style.progressWrapper}
-        data={MODULE_ITEM_LIST}
+        data={Object.entries(MODULE_ITEM_LIST)}
+        showsVerticalScrollIndicator={false}
         renderItem={renderProgressItem}
         ListFooterComponent={
           <Separator

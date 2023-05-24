@@ -12,14 +12,14 @@ import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 import { MotherStackParamList } from "src/router/types";
 import { color } from "src/lib/ui/color";
-import LengthBaby from "src/lib/ui/icons/lengthBaby";
-import BabyIcon from "src/lib/ui/icons/baby";
+import LengthBaby from "src/lib/ui/icons/LengthBaby";
+import BabyIcon from "src/lib/ui/icons/Baby";
 import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
-import ProfileIcon from "src/lib/ui/icons/profile";
-import HistoryIcon from "src/lib/ui/icons/history";
-import AddNoteIcon from "src/lib/ui/icons/addNote";
-import ModuleIcon from "src/lib/ui/icons/module";
+import { RootState, RootStateV2 } from "@redux/types";
+import ProfileIcon from "src/lib/ui/icons/Profile";
+import HistoryIcon from "src/lib/ui/icons/History";
+import AddNoteIcon from "src/lib/ui/icons/AddNote";
+import ModuleIcon from "src/lib/ui/icons/Module";
 import { Dimensions } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useMemo } from "react";
@@ -54,16 +54,10 @@ const HOME_MENU: MenuItem[] = [
 
 const HomePage: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
-  const selectedTerapiBaby = useSelector(
-    (state: RootState) => state.global.selectedTerapiBaby
-  );
+  const babyData = useSelector((state: RootStateV2) => state.pmkCare.baby);
   const selectedStones = useMemo(
-    () =>
-      helperMilstoneSelectionWeek(
-        selectedTerapiBaby.gender,
-        selectedTerapiBaby.currentWeek
-      ),
-    [selectedTerapiBaby.gender, selectedTerapiBaby.currentWeek]
+    () => helperMilstoneSelectionWeek(babyData.gender, babyData.currentWeek),
+    [babyData.gender, babyData.currentWeek]
   );
   const style = useMemo(() => createStyle(insets), [insets]);
   return (
@@ -72,20 +66,18 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         <View style={style.ellipsHead}></View>
         <View style={style.ellipsContent}>
           <View style={style.babyNameWrapper}>
-            <Text style={style.babyName}>{selectedTerapiBaby.displayName}</Text>
+            <Text style={style.babyName}>{babyData.displayName}</Text>
             <View style={style.babyNameBottomLine} />
           </View>
           {/* TODO: @muhammadhafizm baby milestone */}
           <View style={style.babyMilestone}>
             <Milestone
-              currentWeight={selectedTerapiBaby.currentWeight}
+              currentWeight={babyData.currentWeight}
               stones={selectedStones}
             />
           </View>
           <View style={style.babyWeightWrapper}>
-            <Text style={style.babyWeight}>
-              {selectedTerapiBaby.currentWeight}
-            </Text>
+            <Text style={style.babyWeight}>{babyData.currentWeight}</Text>
             <Text style={style.babyWeightMesurement}>gram</Text>
           </View>
         </View>
@@ -104,7 +96,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View>
               <Text style={style.babyInformationTitle}>Usia</Text>
               <Text style={style.babyInformationContent}>
-                {selectedTerapiBaby.currentWeek} Minggu
+                {babyData.currentWeek} Minggu
               </Text>
             </View>
           </View>
@@ -123,7 +115,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View>
               <Text style={style.babyInformationTitle}>Panjang</Text>
               <Text style={style.babyInformationContent}>
-                {selectedTerapiBaby.currentLength} cm
+                {babyData.currentLength} cm
               </Text>
             </View>
           </View>

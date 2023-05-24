@@ -1,5 +1,6 @@
+import { memo, useMemo, useState } from "react";
 import {
-  Dimensions,
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -9,58 +10,71 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Font } from "src/lib/ui/font";
 import { Spacing } from "src/lib/ui/spacing";
 import { TextSize } from "src/lib/ui/textSize";
 import { color } from "src/lib/ui/color";
 
-import FloatingInput from "src/common/FloatingInput";
+import { Baby } from "@redux/actions/pmkCare/types";
 
-import { AntDesign } from "@expo/vector-icons";
-import DateTimePicker from "src/common/DateTimePicker";
 import PickerField from "src/common/PickerField";
-import { useAssets } from "expo-asset";
-import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-import { memo, useMemo, useState } from "react";
-import { Baby } from "@redux/actions/authentication/types";
+import FloatingInput from "src/common/FloatingInput";
+import DateTimePicker from "src/common/DateTimePicker";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
 
-const MEDIA_HEIGHT = Dimensions.get("window").height;
 
 interface Props {
-  title: string,
+  title: string;
+  loading?: boolean;
   handleBackButton: () => void;
   handleRegisterBaby: (babyData: Baby) => void;
 }
 
+interface FormField extends Partial<Baby> {}
+
 const RegisterBabyPage: React.FC<Props> = ({
   title,
+  loading,
   handleBackButton,
   handleRegisterBaby,
 }) => {
   const insets = useSafeAreaInsets();
-  const [formField, setFormField] = useState<Baby>({});
+  const [formField, setFormField] = useState<FormField>({
+    displayName: undefined,
+    gender: undefined,
+    gestationAge: undefined,
+    birthDate: undefined,
+    weight: undefined,
+    length: undefined,
+  });
+  const [formValidationError, setFormValidationError] = useState<boolean>();
   const style = useMemo(() => createStyle(insets), [insets]);
-  const [assets, _] = useAssets([require("../../../../assets/info-baby.png")]);
+
+  function handleButtonNextOnClick() {
+    if (!isObjectContainUndefined(formField)) {
+      handleRegisterBaby(formField as Baby);
+    } else {
+      setFormValidationError(true);
+    }
+  }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, paddingTop: insets.top }}
+      style={style.wrapper}
     >
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={style.container}>
           <View style={style.welcomeImageContainer}>
-            <View style={style.welcomeImage}>
-              {assets && (
-                <Image
-                  style={{ flex: 1 }}
-                  source={{
-                    uri: assets[0].localUri as string,
-                  }}
-                />
-              )}
+            <View style={{ flex: 1 }}>
+              <Image
+                style={style.welcomeImage}
+                source={require("../../../../assets/info-baby.png")}
+              />
             </View>
           </View>
           <View style={style.contentContainer}>
@@ -69,6 +83,8 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Nama"
                 onChange={(value) => {
                   setFormField({
@@ -80,11 +96,10 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Usia Gestasi (minggu)"
-                keyboardType={Platform.select({
-                  ios: "numbers-and-punctuation",
-                  android: "decimal-pad",
-                })}
+                keyboardType="number-pad"
                 onChange={(value) => {
                   setFormField({
                     ...formField,
@@ -95,6 +110,8 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={[style.inputContainer, { zIndex: 10 }]}>
               <DateTimePicker
+                required
+                onError={formValidationError}
                 label="Tanggal Lahir"
                 onChange={(value) => {
                   setFormField({
@@ -106,39 +123,39 @@ const RegisterBabyPage: React.FC<Props> = ({
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Berat (gram)"
-                keyboardType={Platform.select({
-                  ios: "numbers-and-punctuation",
-                  android: "decimal-pad",
-                })}
+                keyboardType="decimal-pad"
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    weight: parseInt(value),
+                    weight: parseFloat(value),
                   });
                 }}
               />
             </View>
             <View style={style.inputContainer}>
               <FloatingInput
+                required
+                onError={formValidationError}
                 label="Tinggi Badan (cm)"
-                keyboardType={Platform.select({
-                  ios: "numbers-and-punctuation",
-                  android: "decimal-pad",
-                })}
+                keyboardType="decimal-pad"
                 onChange={(value) => {
                   setFormField({
                     ...formField,
-                    length: parseInt(value),
+                    length: parseFloat(value),
                   });
                 }}
               />
             </View>
             <View style={[style.inputContainer, { zIndex: 10 }]}>
               <PickerField
+                required
+                onError={formValidationError}
                 label="Jenis Kelamin"
                 items={[
-                  { key: "Laki-laki", value: "laki-laki" },
+                  { key: "Laki-Laki", value: "laki-laki" },
                   { key: "Perempuan", value: "perempuan" },
                 ]}
                 onChange={(item) => {
@@ -163,9 +180,13 @@ const RegisterBabyPage: React.FC<Props> = ({
               </TouchableOpacity>
               <TouchableOpacity
                 style={style.nextButton}
-                onPress={() => handleRegisterBaby(formField)}
+                onPress={() => handleButtonNextOnClick()}
               >
-                <Text style={style.buttonTitle}>Selanjutnya</Text>
+                {!loading ? (
+                  <Text style={style.buttonTitle}>Selanjutnya</Text>
+                ) : (
+                  <ActivityIndicator size={TextSize.h5} color={color.rose} />
+                )}
               </TouchableOpacity>
             </View>
           </View>
@@ -177,22 +198,22 @@ const RegisterBabyPage: React.FC<Props> = ({
 
 const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      paddingTop: insets.top,
+    },
     container: {
       flex: 1,
       justifyContent: "space-between",
     },
     contentContainer: {
+      flexGrow: 1,
       width: "100%",
       backgroundColor: color.lightneutral,
       padding: Spacing.base - Spacing.extratiny,
       borderTopLeftRadius: Spacing.xlarge / 2,
       borderTopRightRadius: Spacing.xlarge / 2,
       justifyContent: "space-between",
-      minHeight:
-        (MEDIA_HEIGHT * 3) / 4 -
-        (Spacing.base - Spacing.extratiny) -
-        Spacing.xlarge -
-        insets.top,
       ...Platform.select({
         native: {
           paddingBottom: insets.top,
@@ -209,8 +230,8 @@ const createStyle = (insets: EdgeInsets) =>
       padding: Spacing.small,
     },
     welcomeImage: {
-      width: MEDIA_HEIGHT / 4,
-      height: MEDIA_HEIGHT / 4,
+      width: 200,
+      height: 200,
     },
     titleContainer: {
       display: "flex",
@@ -230,11 +251,13 @@ const createStyle = (insets: EdgeInsets) =>
       flexDirection: "row",
       justifyContent: "space-between",
       alignSelf: "flex-end",
-      marginTop: Spacing.base,
+      marginTop: (Spacing.large * 2) / 3,
     },
     nextButton: {
-      paddingVertical: Spacing.xsmall,
-      paddingHorizontal: Spacing.large,
+      width: 170,
+      height: 40,
+      justifyContent: "center",
+      alignItems: "center",
       backgroundColor: color.secondary,
       borderRadius: Spacing.xlarge,
     },

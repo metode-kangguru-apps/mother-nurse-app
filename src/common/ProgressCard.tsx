@@ -74,7 +74,7 @@ const createStyle = () => {
       marginBottom: Spacing.small
     },
     leftContent: {
-      flex: 0.45,
+      flex: 0.42,
       display: "flex",
       justifyContent: "space-between",
     },
@@ -97,10 +97,10 @@ const createStyle = () => {
       height: "100%",
       opacity: 0.3,
       backgroundColor: color.accent2,
-      marginHorizontal: Spacing.small
+      marginHorizontal: Spacing.tiny
     },
     rightContent: {
-      flex: 0.53,
+      flex: 0.55,
     },
     informationWrapper: {
       display: "flex",
@@ -108,7 +108,7 @@ const createStyle = () => {
       justifyContent: "space-between"
     },
     title: {
-      flex: 0.4,
+      flex: 0.35,
       fontFamily: Font.Light,
       fontSize: TextSize.body,
       color: color.neutral,
@@ -116,7 +116,7 @@ const createStyle = () => {
     information: {
       fontFamily: Font.Medium,
       fontSize: TextSize.body,
-      flex: 0.55,
+      flex: 0.60,
     },
   });
 };

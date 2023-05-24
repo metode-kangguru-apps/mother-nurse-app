@@ -1,8 +1,8 @@
 import { useSelector } from "react-redux";
 
-import { RootState } from "@redux/types";
+import { RootStateV2 } from "@redux/types";
 import {
-  Dimensions,
+  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -24,27 +24,20 @@ import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
 
 import { AntDesign } from "@expo/vector-icons";
-import { useAssets } from "expo-asset";
 
 import { useSafeAreaInsets, EdgeInsets } from "react-native-safe-area-context";
 import { useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "@redux/hooks";
-import {
-  clearAuthenticationDataSuccess,
-  setMotherData,
-  setNurseData,
-  setUserData,
-} from "@redux/actions/authentication";
-import {
-  Authentication,
-  Mother,
-  Nurse,
-} from "@redux/actions/authentication/types";
 import PickerFiled from "src/common/PickerField";
-import { getHospitalList } from "@redux/actions/global/thunks";
-import { Hostpital } from "@redux/actions/global/type";
-import { signUpNurseWithGoogle } from "@redux/actions/authentication/thunks";
 import { CompositeScreenProps } from "@react-navigation/native";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
+import { NursePayload } from "@redux/actions/authentication/types";
+import { getHospitalList } from "@redux/actions/hospital/thunks";
+import {
+  logingOutUser,
+  signUpNurseAccount,
+} from "@redux/actions/authentication/thunks";
+import { HospitalPayload } from "@redux/actions/hospital/types";
 
 interface Props
   extends CompositeScreenProps<
@@ -52,152 +45,152 @@ interface Props
     NativeStackScreenProps<RootStackParamList>
   > {}
 
-interface NursePayload {
-  displayName: string;
+interface FormField {
+  name: string;
   phoneNumber: string;
-  hospitalCode: Hostpital;
+  hospital: HospitalPayload;
 }
 
-const MEDIA_HEIGHT = Dimensions.get("window").height;
-
-const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
-  const [assets, _] = useAssets([require("../../../assets/nurse-icon.png")]);
+const RegisterNurseInformation: React.FC<Props> = () => {
   const dispatch = useAppDispatch();
 
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
 
-  const { user, nurse } = useSelector(
-    (state: RootState) => state.authentication
-  );
-  const { hospitalList, loading: loadingHospital } = useSelector(
-    (state: RootState) => state.global
-  );
+  const { user } = useSelector((state: RootStateV2) => state.authentication);
+  const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   const [searchHospital, setSearchHospital] = useState<string>("");
-  const [formField, setFormField] = useState({} as NursePayload);
+  const [formField, setFormField] = useState<Partial<FormField>>({
+    name: undefined,
+    phoneNumber: undefined,
+    hospital: undefined,
+  });
+  const [formValidationError, setFormValidationError] = useState<boolean>();
+  const [loading, setLoading] = useState<boolean>();
 
   function registerNurse() {
-    const newUserObj = {
-      user: {
-        displayName: formField.displayName,
+    if (!isObjectContainUndefined(formField) && user) {
+      const nurseFormField = formField as FormField;
+      if (
+        nurseFormField.phoneNumber.length < 8 ||
+        nurseFormField.phoneNumber.length > 13
+      ) {
+        setFormValidationError(true);
+        return;
+      }
+      setLoading(true);
+      const nurseData: NursePayload = {
+        uid: user.uid,
+        displayName: nurseFormField.name,
+        isAnonymous: user.isAnonymous,
+        userRole: user.userRole,
         userType: "member",
-        userRole: "nurse",
-        isAnonymous: false,
-        uid: user?.uid,
-      },
-      mother: undefined,
-      nurse: {
-        phoneNumber: formField.phoneNumber,
-        hospitalCode: formField.hospitalCode,
-      },
-    };
-    dispatch(signUpNurseWithGoogle(newUserObj as Authentication));
-  }
-
-  // redierect to new page if field mother already filled
-  useEffect(() => {
-    if (nurse) {
-      navigation.navigate("nurse", {
-        screen: "profile",
+        phoneNumber: nurseFormField.phoneNumber,
+        hospital: nurseFormField.hospital,
+      };
+      dispatch(signUpNurseAccount(nurseData)).then(() => {
+        setLoading(false);
       });
+    } else {
+      setFormValidationError(true);
     }
-  }, [nurse]);
+  }
 
   useEffect(() => {
     dispatch(getHospitalList(searchHospital));
   }, [searchHospital]);
 
   function handlerGoBackToLogin() {
-    Promise.resolve(dispatch(clearAuthenticationDataSuccess())).then(() => {
-      navigation.navigate("login");
-    });
+    dispatch(logingOutUser());
   }
 
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={{ flex: 1, paddingTop: insets.top }}
+      style={style.wrapper}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={style.container}>
-          <View style={style.welcomeImageContainer}>
-            <View style={style.welcomeImage}>
-              {assets && (
-                <Image
-                  style={{ flex: 1 }}
-                  source={{
-                    uri: assets[0].localUri as string,
-                  }}
-                />
-              )}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.container}
+      >
+        <View style={style.welcomeImageContainer}>
+          <Image
+            style={style.welcomeImage}
+            source={require("../../../assets/nurse-icon.png")}
+          />
+        </View>
+        <View style={style.contentContainer}>
+          <View style={style.formRegistration}>
+            <View style={style.titleContainer}>
+              <Text style={style.title}>Daftar Sebagai Perawat</Text>
+            </View>
+            <View style={style.inputContainer}>
+              <FloatingInput
+                required
+                onError={formValidationError}
+                label="Nama Lengkap"
+                onChange={(value) =>
+                  setFormField({
+                    ...formField,
+                    name: value,
+                  })
+                }
+              />
+            </View>
+            <View style={style.inputContainer}>
+              <PhoneNumberInput
+                required
+                onError={formValidationError}
+                onChange={(value) => {
+                  setFormField({
+                    ...formField,
+                    phoneNumber: value,
+                  });
+                }}
+              />
+            </View>
+            <View style={style.inputContainer}>
+              <PickerFiled
+                label="Rumah Sakit"
+                required
+                onError={formValidationError}
+                searchable={true}
+                items={hospitalList}
+                onFocus={() => {
+                  setSearchHospital("");
+                }}
+                onChange={(value) => {
+                  setFormField((prev) => ({
+                    ...prev,
+                    hospital: value,
+                  }));
+                }}
+                onSearch={(value) => {
+                  setSearchHospital(value);
+                }}
+              />
             </View>
           </View>
-          <View style={style.contentContainer}>
-            <View style={style.formRegistration}>
-              <View style={style.titleContainer}>
-                <Text style={style.title}>Daftar Sebagai Perawat</Text>
-              </View>
-              <View style={style.inputContainer}>
-                <FloatingInput
-                  label="Nama Lengkap"
-                  onChange={(value) =>
-                    setFormField({
-                      ...formField,
-                      displayName: value,
-                    })
-                  }
-                />
-              </View>
-              <View style={style.inputContainer}>
-                <PhoneNumberInput
-                  onChange={(value) => {
-                    setFormField({
-                      ...formField,
-                      phoneNumber: value,
-                    });
-                  }}
-                />
-              </View>
-              <View style={style.inputContainer}>
-                <PickerFiled
-                  label="Rumah Sakit"
-                  searchable={true}
-                  items={hospitalList}
-                  onFocus={() => {
-                    setSearchHospital("");
-                  }}
-                  onChange={(value) => {
-                    setFormField((prev) => ({
-                      ...prev,
-                      hospitalCode: value,
-                    }));
-                  }}
-                  onSearch={(value) => {
-                    setSearchHospital(value);
-                  }}
-                />
-              </View>
-            </View>
-            <View style={style.buttonContainer}>
-              <TouchableOpacity
-                style={style.prevButton}
-                onPress={handlerGoBackToLogin}
-              >
-                <AntDesign
-                  name="arrowleft"
-                  size={TextSize.h6}
-                  color={color.accent2}
-                />
-                <Text style={style.prevButtonTitle}>Kembali</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={style.nextButton}
-                onPress={registerNurse}
-              >
+          <View style={style.buttonContainer}>
+            <TouchableOpacity
+              style={style.prevButton}
+              onPress={handlerGoBackToLogin}
+            >
+              <AntDesign
+                name="arrowleft"
+                size={TextSize.h6}
+                color={color.accent2}
+              />
+              <Text style={style.prevButtonTitle}>Kembali</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={style.nextButton} onPress={registerNurse}>
+              {!loading ? (
                 <Text style={style.buttonTitle}>Daftar</Text>
-              </TouchableOpacity>
-            </View>
+              ) : (
+                <ActivityIndicator size={TextSize.h5} color={color.rose} />
+              )}
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -207,6 +200,10 @@ const RegisterNurseInformation: React.FC<Props> = ({ navigation }) => {
 
 const createStyle = (insets: EdgeInsets) =>
   StyleSheet.create({
+    wrapper: {
+      flex: 1,
+      paddingTop: insets.top,
+    },
     container: {
       flex: 1,
       justifyContent: "space-between",
@@ -218,16 +215,12 @@ const createStyle = (insets: EdgeInsets) =>
       padding: Spacing.small,
     },
     welcomeImage: {
-      width: MEDIA_HEIGHT / 4,
-      height: MEDIA_HEIGHT / 4,
+      width: 200,
+      height: 200,
     },
     contentContainer: {
+      flexGrow: 1,
       width: "100%",
-      height:
-        (MEDIA_HEIGHT * 3) / 4 -
-        Spacing.xlarge -
-        2 * Spacing.small -
-        insets.top,
       backgroundColor: color.lightneutral,
       padding: Spacing.base - Spacing.extratiny,
       borderTopLeftRadius: Spacing.xlarge / 2,
@@ -235,7 +228,7 @@ const createStyle = (insets: EdgeInsets) =>
       justifyContent: "space-between",
       ...Platform.select({
         native: {
-          paddingBottom: insets.top,
+          paddingBottom: insets.bottom,
         },
         web: {
           paddingBottom: Spacing.base,

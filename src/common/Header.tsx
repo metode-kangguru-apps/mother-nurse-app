@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   TextStyle,
+  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
@@ -28,9 +29,9 @@ const Header: React.FC<Props> = ({ title, onBackButton, titleStyle = {} }) => {
   );
   return (
     <View style={style.container}>
-      <TouchableWithoutFeedback onPress={onBackButton}>
+      <TouchableOpacity onPress={onBackButton}>
         <Ionicons name="chevron-back" size={40} color={color.secondary} />
-      </TouchableWithoutFeedback>
+      </TouchableOpacity>
       <Text style={style.title}>{title}</Text>
     </View>
   );

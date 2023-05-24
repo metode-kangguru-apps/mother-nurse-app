@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Platform,
   StyleSheet,
   Text,
@@ -16,6 +17,13 @@ import { Spacing } from "src/lib/ui/spacing";
 import CustomModal from "src/common/Modal";
 import { memo, useEffect, useRef, useState } from "react";
 import { BABY_CARE_LIST } from "./constant";
+import { calculateStringDateTime } from "src/lib/utils/calculate";
+import { useAppDispatch } from "@redux/hooks";
+import { addSessionData } from "@redux/actions/pmkCare/thunks";
+import { SessionPayload } from "@redux/actions/pmkCare/types";
+import { useSelector } from "react-redux";
+import { RootStateV2 } from "@redux/types";
+import { Mother } from "@redux/actions/authentication/types";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "monitoring"> {}
@@ -27,15 +35,24 @@ interface Timer {
 }
 
 const MonitoringPage: React.FC<Props> = ({ navigation }) => {
+  const dispatch = useAppDispatch();
+  const userID = useSelector(
+    (state: RootStateV2) => (state.authentication.user as Mother).uid
+  );
+  const babyID = useSelector((state: RootStateV2) => state.pmkCare.baby.id);
+  const [loading, setLoading] = useState<boolean>();
   const [openModal, setOpenModal] = useState<boolean>(false);
-  const [second, setSecond] = useState<number>(0);
+  const [dateStart, _] = useState<Date>(new Date());
+  const [__, setSecond] = useState<number>(0);
   const [timer, setTimer] = useState<Timer>({
     hours: "00",
     minutes: "00",
     seconds: "00",
   });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
-  const randomIndex = useRef<number>(Math.floor(Math.random() * BABY_CARE_LIST.length));
+  const randomIndex = useRef<number>(
+    Math.floor(Math.random() * BABY_CARE_LIST.length)
+  );
 
   useEffect(() => {
     intervalRef.current = setInterval(() => {
@@ -62,9 +79,37 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
     });
   }
 
+  // stop session and open saved modal
   function handleStopSession() {
     setOpenModal(true);
     clearInterval(intervalRef.current!);
+  }
+
+  function handleSaveSessionData(goToPath: keyof MotherStackParamList) {
+    setLoading(true);
+    let monitoredRangeDate = "";
+    const submittedDateStart = calculateStringDateTime(dateStart);
+    const submittedDateEnd = calculateStringDateTime(new Date());
+    if (submittedDateStart === submittedDateEnd) {
+      monitoredRangeDate = submittedDateStart;
+    } else {
+      monitoredRangeDate = `${submittedDateStart} - ${submittedDateEnd}`;
+    }
+    const duration =
+      (timer.hours !== "00" ? `${parseInt(timer.hours)} Jam ` : "") +
+      (timer.minutes !== "00" ? `${parseInt(timer.minutes)} Menit ` : "") +
+      (timer.seconds !== "00" ? `${parseInt(timer.seconds)} Detik` : "");
+    const addSessionPayload: SessionPayload = {
+      userID,
+      babyID,
+      monitoredRangeDate,
+      duration,
+    };
+    dispatch(addSessionData(addSessionPayload)).then(() => {
+      setLoading(false);
+      setOpenModal(false);
+      navigation.replace(goToPath);
+    });
   }
 
   return (
@@ -105,30 +150,35 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
         </Text>
       </View>
       <CustomModal visible={openModal} modalClosable={false}>
-        <View style={style.modalStopPMKWrapper}>
-          <Text style={style.modalTitle}>Sesi hari ini selesai</Text>
-          <Text style={style.modalMessage}>
-            Jangan lupa nanti lanjutkan PMK lagi ya!
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              setOpenModal(false);
-              navigation.replace("add-progress");
-            }}
-          >
-            <View style={style.buttonAddProgress}>
-              <Text style={style.addProgressTitle}>Catat Pertumbuhan</Text>
-            </View>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              setOpenModal(false);
-              navigation.replace("home");
-            }}
-          >
-            <Text style={style.closeMonitoring}>Tutup</Text>
-          </TouchableOpacity>
-        </View>
+        {!loading ? (
+          <View style={style.modalStopPMKWrapper}>
+            <Text style={style.modalTitle}>Sesi hari ini selesai</Text>
+            <Text style={style.modalMessage}>
+              Jangan lupa nanti lanjutkan PMK lagi ya!
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                handleSaveSessionData("add-progress");
+              }}
+            >
+              <View style={style.buttonAddProgress}>
+                <Text style={style.addProgressTitle}>Catat Pertumbuhan</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => {
+                handleSaveSessionData("home");
+              }}
+            >
+              <Text style={style.closeMonitoring}>Tutup</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <ActivityIndicator
+            size={"large"}
+            color={color.secondary}
+          ></ActivityIndicator>
+        )}
       </CustomModal>
     </View>
   );

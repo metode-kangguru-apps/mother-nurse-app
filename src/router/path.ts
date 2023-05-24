@@ -22,6 +22,9 @@ const linking = {
       mother: {
         path: "/mother",
         screens: {
+          welcome: {
+            path: "/welcome"
+          },
           home: {
             path: "/",
           },
@@ -46,8 +49,14 @@ const linking = {
           history: {
             path: "/history",
           },
+          session: {
+            path: "/history/session"
+          },
           module: {
             path: "/module",
+          },
+          "detail-module": {
+            path: "/module/:key",
           },
         },
       },
@@ -55,7 +64,22 @@ const linking = {
         path: "/nurse",
         screens: {
           profile: {
-            path: "/profile"
+            path: ""
+          },
+          'mother-detail': {
+            path: "/mother"
+          },
+          'baby-detail': {
+            path: "/mother/baby"
+          },
+          'history-progress': {
+            path: "mother/baby/progress"
+          },
+          'add-progress': {
+            path: "mother/baby/progress/add"
+          },
+          'session': {
+            path: "mother/baby/session"
           }
         }
       },

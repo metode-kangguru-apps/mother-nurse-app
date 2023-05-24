@@ -1,70 +1,83 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Authentication, Baby, Mother, Nurse } from "./types";
+import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { UserInitialState, Mother, MotherPayload, Nurse } from "./types";
+import { AddProgressBabyPayload, Baby } from "../pmkCare/types";
 
-const initialState: Authentication = {
-  mother: undefined,
+const initialState: UserInitialState = {
   user: undefined,
-  nurse: undefined,
   loading: false,
   error: false,
+  message: "",
 };
 
 const authentication = createSlice({
   name: "authentication",
   initialState,
   reducers: {
-    fetchAuthenticationRequest: (state) => {
-      state.loading = true;
+    setUserData: (
+      state,
+      action: PayloadAction<Partial<MotherPayload | Mother> | Partial<Nurse>>
+    ) => {
+      state.user = { ...state.user, ...action.payload } as Mother | Nurse;
     },
-    setUserData: (state, action: PayloadAction<any>) => {
-      // set user state
-      state.user = { ...state.user, ...action.payload };
+    pushBabyToCollection: (state, action: PayloadAction<Baby>) => {
+      (state.user as Mother).babyCollection.push(action.payload);
     },
-    setMotherData: (state, action: PayloadAction<any>) => {
-      // set mother state
-      state.mother = { ...state.mother, ...action.payload };
-    },
-    updateMotherBabyCollectionData: (state, action: PayloadAction<Baby>) => {
-      // update baby based on indexes
-      const idx = state.mother?.babyCollection?.findIndex(
-        (babyDocument) => babyDocument.id === action.payload.id
+    updateNurseBabyDataAtCollection: (
+      state,
+      action: PayloadAction<AddProgressBabyPayload>
+    ) => {
+      (state.user as Nurse).hospital.motherCollection.map(
+        (mother, idxMother) => {
+          if (mother.uid === action.payload.userID) {
+            const mother = (state.user as Nurse).hospital.motherCollection[
+              idxMother
+            ];
+            mother.babyCollection.map((baby, idxBaby) => {
+              if (baby.id === action.payload.babyID) {
+                const baby = (state.user as Nurse).hospital.motherCollection[
+                  idxMother
+                ].babyCollection[idxBaby];
+                
+                (state.user as Nurse).hospital.motherCollection[
+                  idxMother
+                ].babyCollection[idxBaby] = {
+                  ...(state.user as Nurse).hospital.motherCollection[idxMother]
+                    .babyCollection[idxBaby],
+                  currentWeight: action.payload.weight,
+                  currentLength: action.payload.length,
+                  currentStatus:
+                    action.payload.currentStatus || baby.currentStatus,
+                };
+              }
+            });
+          }
+        }
       );
-      if (idx !== undefined && state.mother?.babyCollection?.[idx]) {
-        state.mother.babyCollection[idx] = action.payload;
-      } else {
-        state.mother?.babyCollection?.push(action.payload)
-      }
     },
-    setNurseData: (state, action: PayloadAction<any>) => {
-      // set nurse state
-      state.nurse = { ...state.nurse, ...action.payload };
-    },
-    fetchAuthenticationSuccess: (state) => {
-      state.loading = false;
-      state.error = false;
-    },
-    clearAuthenticationDataSuccess: (state) => {
-      state.mother = undefined;
-      state.user = undefined;
-      state.nurse = undefined;
-    },
-    fetchAuthenticationError: (state, action: PayloadAction<string>) => {
-      state.error = true;
-      state.loading = false;
-      state.errorMessage = action.payload;
+    updateMotherBabyDataAtCollection: (
+      state,
+      action: PayloadAction<AddProgressBabyPayload>
+    ) => {
+      (state.user as Mother).babyCollection.map((baby, idxBaby) => {
+        if (baby.id === action.payload.babyID) {
+          const baby = (state.user as Mother).babyCollection[idxBaby];
+          (state.user as Mother).babyCollection[idxBaby] = {
+            ...baby,
+            currentWeight: action.payload.weight,
+            currentLength: action.payload.length,
+            currentStatus: action.payload.currentStatus || baby.currentStatus,
+          };
+        }
+      });
     },
   },
 });
 
 export const {
   setUserData,
-  setMotherData,
-  updateMotherBabyCollectionData,
-  setNurseData,
-  fetchAuthenticationRequest,
-  fetchAuthenticationSuccess,
-  fetchAuthenticationError,
-  clearAuthenticationDataSuccess,
+  pushBabyToCollection,
+  updateMotherBabyDataAtCollection,
+  updateNurseBabyDataAtCollection,
 } = authentication.actions;
 
 export default authentication.reducer;

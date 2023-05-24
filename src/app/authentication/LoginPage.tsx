@@ -1,23 +1,21 @@
-import { FIREBASE_WEB_CLIENT_ID } from "@env";
+import {
+  FIREBASE_IOS_CLIENT_ID,
+  FIREBASE_WEB_CLIENT_ID,
+  FIREBASE_ANDROID_CLIENT_ID,
+} from "@env";
 import { useEffect, useRef, useState } from "react";
 import { GoogleAuthProvider } from "firebase/auth/react-native";
-import { AuthStackParamList, RootStackParamList } from "src/router/types";
 
-import { Font } from "src/lib/ui/font";
-import { Spacing } from "src/lib/ui/spacing";
-import { TextSize } from "src/lib/ui/textSize";
-
-import { useAssets } from "expo-asset";
 import { useAppDispatch } from "@redux/hooks";
 import * as WebBrowser from "expo-web-browser";
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { loginMotherWithGoogle } from "@redux/actions/authentication/thunks";
 import {
+  ActivityIndicator,
   Animated,
-  Dimensions,
   ImageBackground,
   KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
@@ -25,102 +23,85 @@ import {
   View,
 } from "react-native";
 
-import * as Google from "expo-auth-session/providers/google";
-import { color } from "src/lib/ui/color";
-import {
-  Mother,
-  User,
-} from "@redux/actions/authentication/types";
-import { setMotherData, setUserData } from "@redux/actions/authentication";
 import { useSelector } from "react-redux";
-import { RootState } from "@redux/types";
-import { CompositeScreenProps } from "@react-navigation/native";
-import GoogleIcon from "src/lib/ui/icons/google";
+import { RootStateV2 } from "@redux/types";
+import * as Google from "expo-auth-session/providers/google";
+
+import { Font } from "src/lib/ui/font";
+import { color } from "src/lib/ui/color";
+import { Spacing } from "src/lib/ui/spacing";
+import { TextSize } from "src/lib/ui/textSize";
+import GoogleIcon from "src/lib/ui/icons/Google";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
+
+import { AuthStackParamList } from "src/router/types";
+
+import PickerFiled from "src/common/PickerField";
 import FloatingInput from "src/common/FloatingInput";
 import PhoneNumberInput from "src/common/PhoneNumberInput";
-import { getHospitalList } from "@redux/actions/global/thunks";
-import PickerFiled from "src/common/PickerField";
-import { Hostpital } from "@redux/actions/global/type";
+
+import { setSelectedHospital } from "@redux/actions/hospital";
+import { getHospitalList } from "@redux/actions/hospital/thunks";
+import { HospitalPayload } from "@redux/actions/hospital/types";
+
+import { setUserData } from "@redux/actions/authentication";
+import { MotherPayload } from "@redux/actions/authentication/types";
+import { signInUserWithGoogle } from "@redux/actions/authentication/thunks";
 
 WebBrowser.maybeCompleteAuthSession();
 
-interface Props
-  extends CompositeScreenProps<
-    NativeStackScreenProps<AuthStackParamList, "login">,
-    NativeStackScreenProps<RootStackParamList>
-  > {}
-
+interface Props extends NativeStackScreenProps<AuthStackParamList, "login"> {}
 interface FormField {
-  name?: string;
-  phoneNumber?: string;
-  hospitalCode?: Hostpital;
+  name: string;
+  phoneNumber: string;
+  hospital: HospitalPayload;
 }
 
-const LoginPage2: React.FC<Props> = ({ navigation }) => {
+const LoginPage: React.FC<Props> = () => {
   const dispatch = useAppDispatch();
 
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    expoClientId: FIREBASE_WEB_CLIENT_ID,
+    webClientId: FIREBASE_WEB_CLIENT_ID,
+    iosClientId: FIREBASE_IOS_CLIENT_ID,
+    androidClientId: FIREBASE_ANDROID_CLIENT_ID,
+  });
+
+  const [loading, setLoading] = useState<boolean>();
+  const [searchHospital, setSearchHospital] = useState<string>("");
+  const [motherFormField, setMotherFormField] = useState<Partial<FormField>>({
+    name: undefined,
+    phoneNumber: undefined,
+    hospital: undefined,
+  });
+  const [formValidationError, setFormValidationError] =
+    useState<boolean>(false);
   const [selectedRegisterRole, setSelectedRegisterRole] = useState<
     "mother" | "nurse"
   >("mother");
-  const [motherFormField, setMotherFormField] = useState<FormField>({});
-  const [searchHospital, setSearchHospital] = useState<string>("")
 
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
-    clientId: FIREBASE_WEB_CLIENT_ID,
-  });
-
-  const [assets, _] = useAssets([require("../../../assets/baby-pattern.png")]);
-
-  const { user, loading, error, errorMessage } = useSelector(
-    (state: RootState) => state.authentication
-  );
-
-  const { hospitalList, loading: loadingHospital } = useSelector(
-    (state: RootState) => state.global
-  );
-
+  const scrollRef = useRef<ScrollView>(null);
   const selectedRoleAnimation = useRef(new Animated.Value(0)).current;
+  const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   // handle if user login with oAuth google
   useEffect(() => {
     if (response?.type === "success") {
+      setLoading(true);
       const { id_token } = response.params;
       const credential = GoogleAuthProvider.credential(id_token);
-      dispatch(loginMotherWithGoogle(credential, selectedRegisterRole));
+      dispatch(
+        signInUserWithGoogle({
+          credential,
+          selectedUserRole: selectedRegisterRole,
+        })
+      ).then(() => {
+        setLoading(false);
+      });
     }
   }, [response, dispatch]);
 
-  useEffect(() => {
-    if (loading || error) {
-      // still loading
-      return;
-    }
-
-    if (user?.userType !== "guest") {
-      // login mother
-      if (user?.userRole === "mother") {
-        navigation.navigate("mother", {
-          screen: "select-baby",
-        });
-      }
-      return;
-    }
-
-    if (user?.userRole === "nurse") {
-      // google nurse
-      navigation.navigate("register-nurse-information");
-      return;
-    }
-
-    if (user?.isAnonymous) {
-      // anonymous mother
-      navigation.navigate("register-baby-information");
-    } else {
-      // google mother
-      navigation.navigate("register-user-information");
-    }
-  }, [user, loading]);
-
+  // transition switch
   useEffect(() => {
     Animated.timing(selectedRoleAnimation, {
       toValue: selectedRegisterRole === "mother" ? 0 : 1,
@@ -129,37 +110,41 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
     }).start();
   }, [selectedRegisterRole]);
 
+  // search hospital
   useEffect(() => {
     dispatch(getHospitalList(searchHospital));
   }, [searchHospital]);
 
-  // handle if user sign-up anonymous
-  const handleLoginUserAnonymously = async () => {
-    try {
+  function handleLoginMotherAnonymously() {
+    if (!isObjectContainUndefined(motherFormField)) {
+      const formField = motherFormField as FormField;
       if (
-        !motherFormField.phoneNumber ||
-        !motherFormField.hospitalCode ||
-        !motherFormField.name
+        formField.phoneNumber.length < 8 ||
+        formField.phoneNumber.length > 13
       ) {
-        throw new Error();
+        setFormValidationError(true);
+        return;
       }
-      const userAnonymousInitialData: User = {
-        displayName: motherFormField.name,
+      const userAnonymousInitialData: Partial<MotherPayload> = {
         isAnonymous: true,
         userType: "guest",
         userRole: "mother",
+        displayName: formField.name,
+        phoneNumber: formField.phoneNumber,
       };
-      const motherAnonymousInitialData: Mother = {
-        phoneNumber: motherFormField.phoneNumber,
-        hospitalCode: motherFormField.hospitalCode as Hostpital,
-      }
       dispatch(setUserData(userAnonymousInitialData));
-      dispatch(setMotherData(motherAnonymousInitialData))
-    } catch {
-      return;
+      dispatch(setSelectedHospital(formField.hospital));
+    } else {
+      setFormValidationError(true);
     }
-  };
+  }
 
+  function handleChangeRole(role: "mother" | "nurse") {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    setSelectedRegisterRole(role);
+  }
+
+  // animated interpolate switch role
   const handleSwitchRoleOnSelect = selectedRoleAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [0, Spacing.base * 4.8],
@@ -191,32 +176,42 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
   });
 
   return (
-    <KeyboardAvoidingView style={style.flex}>
-      <ScrollView style={style.flex} scrollEnabled={selectedRegisterRole === "mother"}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={style.flex}
+    >
+      {loading && (
+        <View style={style.loadingWrapper}>
+          <ActivityIndicator
+            size={"large"}
+            color={color.primary}
+          ></ActivityIndicator>
+        </View>
+      )}
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={style.flex}
+        scrollEnabled={selectedRegisterRole === "mother"}
+        showsVerticalScrollIndicator={false}
+      >
         <Animated.View
           style={[
             style.container,
             { backgroundColor: handleChangeColorOnSelect },
           ]}
         >
-          {assets && (
-            <ImageBackground
-              source={{ uri: assets[0].localUri as string }}
-              style={style.backgroundPattern}
-            />
-          )}
+          <ImageBackground
+            style={style.backgroundPattern}
+            source={require("../../../assets/baby-pattern.png")}
+          />
           <View style={style.topContent}></View>
           <View style={style.bottomContent}>
             {/* Tab Role Switcher */}
             <View style={style.roleSwitcher}>
-              <TouchableOpacity
-                onPress={() => setSelectedRegisterRole("mother")}
-              >
+              <TouchableOpacity onPress={() => handleChangeRole("mother")}>
                 <Text style={[style.roleItem, style.mother]}>Ibu</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => setSelectedRegisterRole("nurse")}
-              >
+              <TouchableOpacity onPress={() => handleChangeRole("nurse")}>
                 <Text style={[style.roleItem, style.nurse]}>Perawat</Text>
               </TouchableOpacity>
               <Animated.View
@@ -235,9 +230,9 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
               </Animated.View>
             </View>
             {/* Tab Title */}
-            <Animated.Text style={style.title}>
+            <Text style={style.title}>
               {selectedRegisterRole === "mother" ? "Daftar" : "Masuk"}
-            </Animated.Text>
+            </Text>
             {/* Mother Form Field */}
             <Animated.View
               pointerEvents={
@@ -254,6 +249,8 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
               <View style={style.formFieldWrapper}>
                 <View style={style.formField}>
                   <FloatingInput
+                    required
+                    onError={formValidationError}
                     label="Nama"
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
@@ -265,6 +262,8 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                 </View>
                 <View style={style.formField}>
                   <PhoneNumberInput
+                    required
+                    onError={formValidationError}
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
                         ...prev,
@@ -275,26 +274,28 @@ const LoginPage2: React.FC<Props> = ({ navigation }) => {
                 </View>
                 <View style={style.formField}>
                   <PickerFiled
+                    required
                     label="Rumah Sakit"
                     searchable={true}
                     items={hospitalList}
                     onFocus={() => {
-                      setSearchHospital("")
+                      setSearchHospital("");
                     }}
                     onChange={(value) => {
                       setMotherFormField((prev) => ({
                         ...prev,
-                        hospitalCode: value,
+                        hospital: value,
                       }));
                     }}
                     onSearch={(value) => {
-                      setSearchHospital(value)
+                      setSearchHospital(value);
                     }}
+                    onError={formValidationError}
                   />
                 </View>
                 <TouchableOpacity
                   style={style.nextButtonContainer}
-                  onPress={handleLoginUserAnonymously}
+                  onPress={() => handleLoginMotherAnonymously()}
                 >
                   <Text style={style.nextButton}>Selanjutnya</Text>
                 </TouchableOpacity>
@@ -355,9 +356,18 @@ const style = StyleSheet.create({
   flex: {
     flex: 1,
   },
-  container: {
+  loadingWrapper: {
     flex: 1,
-    minHeight: Dimensions.get("window").height,
+    zIndex: 2,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+  },
+  container: {
+    flexGrow: 1,
     backgroundColor: color.primary,
   },
   backgroundPattern: {
@@ -369,7 +379,7 @@ const style = StyleSheet.create({
   },
   topContent: {
     width: "100%",
-    height: (Dimensions.get("window").height * 30) / 100,
+    height: 200,
   },
   roleSwitcher: {
     borderWidth: 4,
@@ -403,13 +413,13 @@ const style = StyleSheet.create({
     color: color.lightneutral,
   },
   bottomContent: {
-    flex: 1,
+    flexGrow: 1,
     borderTopRightRadius: 35,
     borderTopLeftRadius: 35,
     backgroundColor: color.lightneutral,
     alignItems: "center",
     position: "relative",
-    paddingBottom: Spacing.xlarge,
+    paddingBottom: (Spacing.xlarge * 3) / 2,
   },
   title: {
     fontFamily: Font.Bold,
@@ -418,7 +428,6 @@ const style = StyleSheet.create({
   },
   // mother field
   motherField: {
-    flex: 1,
     width: "100%",
   },
   formFieldWrapper: {
@@ -515,4 +524,4 @@ const style = StyleSheet.create({
   },
 });
 
-export default LoginPage2;
+export default LoginPage;
