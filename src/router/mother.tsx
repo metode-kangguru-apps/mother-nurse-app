@@ -43,9 +43,9 @@ const MotherRouter: React.FC<{}> = () => {
           options={{
             title: "Pilih Bayi",
             animation: Platform.select({
-              ios: "slide_from_left",
+              ios: "slide_from_right",
               android: "simple_push",
-            })
+            }),
           }}
         />
       ) : (
@@ -57,7 +57,7 @@ const MotherRouter: React.FC<{}> = () => {
                 component={WelcomePage}
                 options={{
                   title: "Selamat Datang",
-                  animation: "slide_from_left"
+                  animation: "slide_from_right",
                 }}
               />
               <MotherStack.Screen
@@ -65,7 +65,7 @@ const MotherRouter: React.FC<{}> = () => {
                 component={OnboardingPage}
                 options={{
                   title: "Selamat Datang",
-                  animation: "slide_from_left"
+                  animation: "slide_from_right",
                 }}
               />
             </>
@@ -76,9 +76,9 @@ const MotherRouter: React.FC<{}> = () => {
                 component={HomePage}
                 options={{
                   title: "Perawatan Metode Kangguru",
-                  animationTypeForReplace: "pop",
+                  
                   animation: Platform.select({
-                    ios: "slide_from_left",
+                    ios: "slide_from_right",
                     android: "simple_push",
                   }),
                 }}

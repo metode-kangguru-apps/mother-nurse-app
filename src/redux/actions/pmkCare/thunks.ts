@@ -1,4 +1,4 @@
-import { AppDispatch, FirebaseCollection } from "@redux/types";
+import { AppDispatch, FirebaseCollection, RootStateV2 } from "@redux/types";
 import {
   addDoc,
   arrayUnion,
@@ -24,7 +24,28 @@ import {
   pushUpdatedBabyAndProgress,
   setBabyProgressAndSession,
 } from ".";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { AnyAction, ThunkAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { Mother } from "../authentication/types";
+import { setUserData } from "../authentication";
+
+export const updateMotherFinnishedOnboarding =
+  (userID: string): ThunkAction<void, RootStateV2, unknown, AnyAction> =>
+  async (dispatch) => {
+    try {
+      const motherDocumentRef = doc(
+        firestore,
+        FirebaseCollection.MOTHER,
+        userID
+      );
+      const updatedMotherData: Partial<Mother> = {
+        isFinnishedOnboarding: true,
+      };
+      await updateDoc(motherDocumentRef, updatedMotherData);
+      dispatch(setUserData(updatedMotherData));
+    } catch {
+      console.log("Terjadi kesalahan saat update data ibu!");
+    }
+  };
 
 export const getBabyProgressAndSession = createAsyncThunk<
   unknown,

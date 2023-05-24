@@ -14,4 +14,5 @@ export const localImages = [
   require("../../../assets/onboard/B02.png"),
   require("../../../assets/onboard/B03.png"),
   require("../../../assets/onboard/M02.png"),
+  require("../../../assets/onboard/M03.png"),
 ];

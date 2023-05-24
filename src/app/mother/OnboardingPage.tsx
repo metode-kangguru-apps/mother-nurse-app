@@ -7,20 +7,31 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  Image,
 } from "react-native";
+
+import Markdown from "react-native-markdown-display";
+import { ONBOARDING } from "./constant";
+import { AntDesign } from "@expo/vector-icons";
 import { DefaultWidthSize } from "src/common/types";
+import { MotherStackParamList } from "src/router/types";
+
+import { Font } from "src/lib/ui/font";
 import { color } from "src/lib/ui/color";
 import { Spacing } from "src/lib/ui/spacing";
-import { AntDesign } from "@expo/vector-icons";
-import { MotherStackParamList } from "src/router/types";
-import { ONBOARDING } from "./constant";
-import { Platform } from "react-native";
+import { TextSize } from "src/lib/ui/textSize";
+import { useAppDispatch } from "@redux/hooks";
+import { updateMotherFinnishedOnboarding } from "@redux/actions/pmkCare/thunks";
+import { useSelector } from "react-redux";
+import { RootStateV2 } from "@redux/types";
+import { Mother } from "@redux/actions/authentication/types";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "onboarding"> {}
 
-interface Onboarding {
-  image: string;
+export interface Onboarding {
+  image: any;
+  title?: string;
   content: string;
 }
 interface CarouselItemProps {
@@ -29,15 +40,23 @@ interface CarouselItemProps {
 }
 
 const OnboardingPage: React.FC<Props> = () => {
+  const scrollRef = useRef<ScrollView>(null);
+  const dispatch = useAppDispatch();
+
   const [activeIndex, setActiveIndex] = useState(0);
   const [mobileWidth, setMobileWidth] = useState(DefaultWidthSize.mobile);
-  const scrollRef = useRef<ScrollView>(null);
 
   const styles = useMemo(() => createStyle(mobileWidth), [mobileWidth]);
+  const userID = useSelector(
+    (state: RootStateV2) => (state.authentication.user as Mother).uid
+  );
 
   const handleNext = () => {
-    const nextIndex =
-      activeIndex === ONBOARDING.length - 1 ? 0 : activeIndex + 1;
+    if (activeIndex == ONBOARDING.length - 1) {
+      dispatch(updateMotherFinnishedOnboarding(userID));
+    }
+
+    const nextIndex = activeIndex + 1;
     setActiveIndex(nextIndex);
   };
 
@@ -72,7 +91,28 @@ const OnboardingPage: React.FC<Props> = () => {
       >
         {ONBOARDING.map((item, index) => (
           <View style={styles.carouselItem} key={index}>
-            <Text style={styles.carouselText}>{index}</Text>
+            <View style={styles.contentImageContainer}>
+              <Image style={styles.contentImage} source={item.image} />
+            </View>
+            <View style={styles.contentWrapper}>
+              {item.title && (
+                <View style={styles.titleContainer}>
+                  <Text style={styles.title}>{item.title}</Text>
+                </View>
+              )}
+              {
+                // @ts-ignore
+                <Markdown
+                  style={{
+                    strong: styles.contentBold,
+                    text: styles.contentText,
+                    listItemNumber: { color: color.lightneutral },
+                  }}
+                >
+                  {item.content}
+                </Markdown>
+              }
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -118,15 +158,57 @@ const createStyle = (mobileWidth: number) =>
       position: "relative",
     },
     container: {
-      width: mobileWidth * ONBOARDING.length,
       height: "100%",
+      width: mobileWidth * ONBOARDING.length,
     },
     carouselItem: {
+      flex: 1,
       width: mobileWidth,
-      height: "100%",
+      paddingVertical: Spacing.xlarge,
+      paddingHorizontal: Spacing.xlarge / 2,
       alignItems: "center",
       justifyContent: "center",
       position: "relative",
+    },
+    contentImageContainer: {
+      flex: 0.4,
+      width: "100%",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    contentImage: {
+      width: "80%",
+      height: "80%",
+      resizeMode: "contain",
+    },
+    contentWrapper: {
+      flex: 0.6,
+      marginTop: Spacing.base,
+      alignItems: "center",
+    },
+    titleContainer: {
+      paddingHorizontal: Spacing.tiny,
+      paddingVertical: Spacing.extratiny,
+      backgroundColor: color.accent1,
+      marginBottom: Spacing.base,
+    },
+    title: {
+      fontFamily: Font.Bold,
+      fontSize: TextSize.h5,
+      color: color.lightneutral,
+    },
+    content: {
+      backgroundColor: color.primary,
+    },
+    contentText: {
+      color: color.lightneutral,
+      fontFamily: Font.Medium,
+      fontSize: TextSize.title,
+    },
+    contentBold: {
+      color: color.lightneutral,
+      backgroundColor: color.accent1,
+      fontFamily: Font.Bold,
     },
     carouselText: {
       fontSize: 24,

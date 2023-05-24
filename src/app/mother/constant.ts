@@ -1,4 +1,5 @@
 import BabyFaceIcon from "src/lib/ui/icons/BabyFace";
+import { Onboarding } from "./OnboardingPage";
 
 export const BABY_CARE_LIST: string[] = [
   "Semakin sering ibu menyusui bayi, produksi ASI akan terus bertambah.",
@@ -60,27 +61,29 @@ export const MODULE_ITEM_LIST = [
   },
 ];
 
-export const ONBOARDING = [
+export const ONBOARDING: Onboarding[] = [
   {
-    image: "B01.png",
-    content: `**Bayi Berat Lahir Rendah (BBLR)** adalah bayi dengan berat kurang dari 2,5kg ketika lahir yang disebabkan oleh kelahiran prematur atau kondisi pertumbuhan janin yang kurang memadai.
-    \n\n
-    **Perawatan Metode Kanguru (PMK)** yang dilakukan dengan kontak langsung kulit bayi dan ibu, terbukti dapat meningkatkan berat badan bayi.`,
+    image: require("../../../assets/onboard/B01.png"),
+    title: "Apa itu BBLR?",
+    content: `**Bayi Berat Lahir Rendah (BBLR)** adalah bayi dengan berat kurang dari 2,5kg ketika lahir yang disebabkan oleh kelahiran prematur atau kondisi pertumbuhan janin yang kurang memadai. \n\n**Perawatan Metode Kanguru (PMK)** yang dilakukan dengan kontak langsung kulit bayi dan ibu, terbukti dapat meningkatkan berat badan bayi.`,
   },
   {
-    image: "B02.png",
+    image: require("../../../assets/onboard/B02.png"),
+    title: "Tidak hanya ibu!",
     content: `Selain ibu, PMK juga dapat dilakukan oleh ayah, nenek, atau anggota keluarga lain di rumah sakit maupun di rumah, dengan anjuran **minimal 8 jam perhari.**`,
   },
   {
-    image: "B03.png",
+    image: require("../../../assets/onboard/B03.png"),
+    title: "Banyak manfaatnya, lho!",
     content: `PMK memiliki banyak manfaat lain, diantaranya mencegah bayi kedinginan, meningkatkan kemampuan menyusu bayi, menurunkan nyeri ketika dilakukan tindakan medis pada bayi, juga meningkatkan ikatan antara ibu dan bayi.`,
   },
   {
-    image: "M02.png",
-    content: `Persiapan Melakukan PMK: 
-    1. Gendongan bayi
-    2. Topi bayi
-    3. Popok
-    4. Ibu yang sudah dalam keadaan bersih`,
+    image: require("../../../assets/onboard/M02.png"),
+    title: "Yuk, disiapkan!",
+    content: `Persiapan Melakukan PMK:
+    - Gendongan bayi
+    - Topi bayi
+    - Popok
+    - Ibu yang sudah dalam keadaan bersih`,
   },
 ];
