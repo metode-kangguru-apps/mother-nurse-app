@@ -1,6 +1,15 @@
-import BabyFaceIcon from "src/lib/ui/icons/BabyFace";
-import { SvgProps } from "react-native-svg";
+import { color } from "src/lib/ui/color";
 import { ImageSourcePropType } from "react-native";
+
+import WindIcon from "src/lib/ui/icons/Wind";
+import HouseIcon from "src/lib/ui/icons/House";
+import FamilyIcon from "src/lib/ui/icons/Family";
+import MotherIcons from "src/lib/ui/icons/Mother";
+import PMKCareIcon from "src/lib/ui/icons/PMKCare";
+import WarningIcon from "src/lib/ui/icons/Warning";
+import BabyFaceIcon from "src/lib/ui/icons/BabyFace";
+import TemperatureIcon from "src/lib/ui/icons/Temperature";
+import PMKDefinitionIcon from "src/lib/ui/icons/PMKDefinition";
 
 export const BABY_CARE_LIST: string[] = [
   "Semakin sering ibu menyusui bayi, produksi ASI akan terus bertambah.",
@@ -21,7 +30,7 @@ export interface Subject {
   content: string;
 }
 export interface Module {
-  icon: (props: SvgProps) => JSX.Element;
+  icon: JSX.Element;
   title: string;
   content: Subject[];
 }
@@ -31,50 +40,8 @@ type ModuleData = {
 };
 
 export const MODULE_ITEM_LIST: ModuleData = {
-  "tutorial-pmk": {
-    icon: BabyFaceIcon,
-    title: "Parent Component",
-    content: [
-      {
-        image: require("../../../assets/module/G01.gif"),
-        title: "Perhatikan!",
-        content: `1. Cuci tangan dengan sabun dan air mengalir\n2. Lepaskan pakaian atas`,
-      },
-      {
-        image: require("../../../assets/module/G02.gif"),
-        title: "Perhatikan!",
-        content: `3. Memegang bayi dengan satu tangan diletakkan di belakang leher sampai punggung bayi.  Menopang bagian bawah rahang bayi dengan ibu jari dan jari-jari lainnya serta menempatkan tangan yang lain di bawah pantat bayi
-        `,
-      },
-      {
-        image: require("../../../assets/module/G03.gif"),
-        title: "Perhatikan!",
-        content: `4. Meletakkan bayi dalam gendongan kanguru`,
-      },
-      {
-        image: require("../../../assets/module/G04.gif"),
-        title: "Perhatikan!",
-        content: `5. Meletakkan bayi tegak lurus di dada ibu\n6. Dada bayi menempel dengan dada ibu (kulit bayi menempel dengan kulit ibu)\n7. Kepala bayi dipalingkan ke arah kanan atau kiri dengan sedikit tengadah`,
-      },
-      {
-        image: require("../../../assets/module/M06.png"),
-        title: "Perhatikan!",
-        content: `8. Memeriksa jalan napas bayi tidak terganggu ketika bayi berada pada posisi tegak`,
-      },
-      {
-        image: require("../../../assets/module/G06.gif"),
-        title: "Perhatikan!",
-        content: `9. Memposisikan tangan bayi dalam keadaan terbuka, sedangkan pangkal paha bayi diposisikan seperti katak`,
-      },
-      {
-        image: require("../../../assets/module/G07.gif"),
-        title: "Perhatikan!",
-        content: `10. Memastikan bahwa kain gendongan diikatkan cukup kuat, namun tidak terlalu ketat dan tidak terlalu longgar\n11. Leher bayi ditopang menggunakan kain gendongan dengan cara tepi atas gendongan berada di batas bawah telinga bayi`,
-      },
-    ],
-  },
   "definisi-bblr": {
-    icon: BabyFaceIcon,
+    icon: BabyFaceIcon({}),
     title: "Definisi Bayi Berat Lahir Rendah (BBLR)",
     content: [
       {
@@ -90,7 +57,7 @@ export const MODULE_ITEM_LIST: ModuleData = {
     ],
   },
   "definisi-pmk": {
-    icon: BabyFaceIcon,
+    icon: MotherIcons({ color: color.primary, width: 20, height: 26, viewBox: "0 0 28 34" }),
     title: "Definisi Perawatan Metode Kanguru (PMK)",
     content: [
       {
@@ -101,7 +68,7 @@ export const MODULE_ITEM_LIST: ModuleData = {
     ],
   },
   "manfaat-pmk": {
-    icon: BabyFaceIcon,
+    icon: PMKCareIcon({}),
     title: "Manfaat PMK",
     content: [
       {
@@ -129,7 +96,7 @@ export const MODULE_ITEM_LIST: ModuleData = {
     ],
   },
   "actor-pmk": {
-    icon: BabyFaceIcon,
+    icon: FamilyIcon({}),
     title: "Siapakah yang bisa melakukan PMK?",
     content: [
       {
@@ -140,7 +107,7 @@ export const MODULE_ITEM_LIST: ModuleData = {
     ],
   },
   "pmk-waktu": {
-    icon: BabyFaceIcon,
+    icon: HouseIcon({}),
     title: "Kapan dan di mana PMK dilakukan?",
     content: [
       {
@@ -160,9 +127,9 @@ export const MODULE_ITEM_LIST: ModuleData = {
       },
     ],
   },
-  "preparing-pmk": {
-    icon: BabyFaceIcon,
-    title: "Persiapan Melakukan PMK",
+  "tutorial-pmk": {
+    icon: PMKDefinitionIcon({}),
+    title: "Cara Melakukan PMK",
     content: [
       {
         image: require("../../../assets/module/M07.png"),
@@ -174,10 +141,51 @@ export const MODULE_ITEM_LIST: ModuleData = {
         title: "Yuk, disiapkan!",
         content: `1. Gendongan bayi\n2. Topi bayi\n3. Popok\n4. Ibu yang sudah dalam keadaan bersih`,
       },
+      {
+        image: require("../../../assets/module/G01.gif"),
+        title: "Perhatikan!",
+        content: `1. Cuci tangan dengan sabun dan air mengalir\n2. Lepaskan pakaian atas`,
+      },
+      {
+        image: require("../../../assets/module/G02.gif"),
+        title: "Perhatikan!",
+        content: `3. Memegang bayi dengan satu tangan diletakkan di belakang leher sampai punggung bayi.  Menopang bagian bawah rahang bayi dengan ibu jari dan jari-jari lainnya serta menempatkan tangan yang lain di bawah pantat bayi
+        `,
+      },
+      {
+        image: require("../../../assets/module/G03.gif"),
+        title: "Perhatikan!",
+        content: `4. Meletakkan bayi dalam gendongan kanguru`,
+      },
+      {
+        image: require("../../../assets/module/G04.gif"),
+        title: "Perhatikan!",
+        content: `5. Meletakkan bayi tegak lurus di dada ibu\n6. Dada bayi menempel dengan dada ibu (kulit bayi menempel dengan kulit ibu)\n7. Kepala bayi dipalingkan ke arah kanan atau kiri dengan sedikit tengadah`,
+      },
+      {
+        image: require("../../../assets/module/M06.png"),
+        title: "Perhatikan!",
+        content: `8. Memeriksa jalan napas bayi tidak terganggu ketika bayi berada pada posisi tegak`,
+      },
+      {
+        image: require("../../../assets/module/G05.gif"),
+        title: "Perhatikan!",
+        content: `9. Memposisikan tangan bayi dalam keadaan terbuka, sedangkan pangkal paha bayi diposisikan seperti katak`,
+      },
+      {
+        image: require("../../../assets/module/G06.gif"),
+        title: "Perhatikan!",
+        content: `10. Memastikan bahwa kain gendongan diikatkan cukup kuat, namun tidak terlalu ketat dan tidak terlalu longgar\n11. Leher bayi ditopang menggunakan kain gendongan dengan cara tepi atas gendongan berada di batas bawah telinga bayi`,
+      },
+      {
+        image: require("../../../assets/module/G07.gif"),
+        title: "Perhatikan!",
+        content: `12. Ibu mengenakan pakaian luar`,
+      },
     ],
   },
   "warning-sign": {
-    icon: BabyFaceIcon,
+    icon: WarningIcon({}),
     title: "Tanda kewaspadaan",
     content: [
       {
@@ -193,7 +201,7 @@ export const MODULE_ITEM_LIST: ModuleData = {
     ],
   },
   "breath-freq": {
-    icon: BabyFaceIcon,
+    icon: WindIcon({}),
     title: "Frekuensi napas normal",
     content: [
       {
@@ -209,7 +217,7 @@ export const MODULE_ITEM_LIST: ModuleData = {
     ],
   },
   "body-temp": {
-    icon: BabyFaceIcon,
+    icon: TemperatureIcon({}),
     title: "Suhu tubuh normal",
     content: [
       {
@@ -233,12 +241,12 @@ export const ONBOARDING: Subject[] = [
     content: `Selain ibu, PMK juga dapat dilakukan oleh ayah, nenek, atau anggota keluarga lain di rumah sakit maupun di rumah, dengan anjuran **minimal 8 jam perhari.**`,
   },
   {
-    image: require("../../../assets/module/B03.png"),
+    image: require("../../../assets/module/M02.png"),
     title: "Banyak manfaatnya, lho!",
     content: `PMK memiliki banyak manfaat lain, diantaranya mencegah bayi kedinginan, meningkatkan kemampuan menyusu bayi, menurunkan nyeri ketika dilakukan tindakan medis pada bayi, juga meningkatkan ikatan antara ibu dan bayi.`,
   },
   {
-    image: require("../../../assets/module/M02.png"),
+    image: require("../../../assets/module/B03.png"),
     title: "Yuk, disiapkan!",
     content: `Persiapan Melakukan PMK:
     - Gendongan bayi

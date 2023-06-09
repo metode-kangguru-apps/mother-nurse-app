@@ -86,7 +86,7 @@ const AddProgressForm: React.FC<Props> = ({
                     onChange={(value) => {
                       setFormField({
                         ...formField,
-                        weight: parseFloat(value),
+                        weight: parseFloat(value.replace(/,/g, ".")),
                       });
                     }}
                   ></FloatingInput>
@@ -100,7 +100,7 @@ const AddProgressForm: React.FC<Props> = ({
                     onChange={(value) => {
                       setFormField({
                         ...formField,
-                        length: parseFloat(value),
+                        length: parseFloat(value.replace(/,/g, ".")),
                       });
                     }}
                   ></FloatingInput>
@@ -112,7 +112,7 @@ const AddProgressForm: React.FC<Props> = ({
                     onChange={(value) => {
                       setFormField({
                         ...formField,
-                        temperature: parseFloat(value),
+                        temperature: parseFloat(value.replace(/,/g, ".")),
                       });
                     }}
                   ></FloatingInput>
