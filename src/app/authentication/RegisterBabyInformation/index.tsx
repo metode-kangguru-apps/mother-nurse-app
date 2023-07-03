@@ -38,6 +38,7 @@ const RegisterBabyInformation2: React.FC<Props> = ({ navigation }) => {
         hospital: selectedHospital,
         userType: "member",
         isAnonymous: user.isAnonymous,
+        isFinnishedOnboarding: false,
         babyCollection: [
           {
             displayName: babyData.displayName,

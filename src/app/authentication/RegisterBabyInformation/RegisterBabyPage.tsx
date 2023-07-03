@@ -25,8 +25,6 @@ import FloatingInput from "src/common/FloatingInput";
 import DateTimePicker from "src/common/DateTimePicker";
 import { isObjectContainUndefined } from "src/lib/utils/calculate";
 
-
-
 interface Props {
   title: string;
   loading?: boolean;
@@ -67,17 +65,20 @@ const RegisterBabyPage: React.FC<Props> = ({
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={style.wrapper}
     >
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={style.container}>
-          <View style={style.welcomeImageContainer}>
-            <View style={{ flex: 1 }}>
-              <Image
-                style={style.welcomeImage}
-                source={require("../../../../assets/info-baby.png")}
-              />
-            </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.container}
+      >
+        <View style={style.welcomeImageContainer}>
+          <View style={{ flex: 1 }}>
+            <Image
+              style={style.welcomeImage}
+              source={require("../../../../assets/info-baby.png")}
+            />
           </View>
-          <View style={style.contentContainer}>
+        </View>
+        <View style={style.contentContainer}>
+          <View style={style.content}>
             <View style={style.titleContainer}>
               <Text style={style.title}>{title}</Text>
             </View>
@@ -139,7 +140,7 @@ const RegisterBabyPage: React.FC<Props> = ({
               <FloatingInput
                 required
                 onError={formValidationError}
-                label="Tinggi Badan (cm)"
+                label="Panjang Badan (cm)"
                 keyboardType="decimal-pad"
                 onChange={(value) => {
                   setFormField({
@@ -166,29 +167,29 @@ const RegisterBabyPage: React.FC<Props> = ({
                 }}
               />
             </View>
-            <View style={style.buttonContainer}>
-              <TouchableOpacity
-                style={style.prevButton}
-                onPress={handleBackButton}
-              >
-                <AntDesign
-                  name="arrowleft"
-                  size={TextSize.h6}
-                  color={color.accent2}
-                />
-                <Text style={style.prevButtonTitle}>Kembali</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={style.nextButton}
-                onPress={() => handleButtonNextOnClick()}
-              >
-                {!loading ? (
-                  <Text style={style.buttonTitle}>Selanjutnya</Text>
-                ) : (
-                  <ActivityIndicator size={TextSize.h5} color={color.rose} />
-                )}
-              </TouchableOpacity>
-            </View>
+          </View>
+          <View style={style.buttonContainer}>
+            <TouchableOpacity
+              style={style.prevButton}
+              onPress={handleBackButton}
+            >
+              <AntDesign
+                name="arrowleft"
+                size={TextSize.h6}
+                color={color.accent2}
+              />
+              <Text style={style.prevButtonTitle}>Kembali</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={style.nextButton}
+              onPress={() => handleButtonNextOnClick()}
+            >
+              {!loading ? (
+                <Text style={style.buttonTitle}>Selanjutnya</Text>
+              ) : (
+                <ActivityIndicator size={TextSize.h5} color={color.rose} />
+              )}
+            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>
@@ -204,7 +205,10 @@ const createStyle = (insets: EdgeInsets) =>
     },
     container: {
       flex: 1,
-      justifyContent: "space-between",
+      alignItems: "center",
+    },
+    content: {
+      display: "flex"
     },
     contentContainer: {
       flexGrow: 1,
@@ -226,6 +230,8 @@ const createStyle = (insets: EdgeInsets) =>
     welcomeImageContainer: {
       display: "flex",
       alignItems: "center",
+      width: 200,
+      height: 200,
       marginVertical: Spacing.xlarge / 2,
       padding: Spacing.small,
     },
