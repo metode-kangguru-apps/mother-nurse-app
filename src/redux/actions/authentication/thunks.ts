@@ -42,6 +42,7 @@ export const signInUserWithGoogle = createAsyncThunk<
   unknown,
   {
     credential: OAuthCredential;
+    messagingToken?: string;
     selectedUserRole: "mother" | "nurse";
   },
   {
@@ -49,7 +50,7 @@ export const signInUserWithGoogle = createAsyncThunk<
   }
 >(
   "signInUserWithGoogle",
-  async ({ credential, selectedUserRole }, { dispatch }) => {
+  async ({ credential, selectedUserRole, messagingToken }, { dispatch }) => {
     try {
       // preparation
       const googleUserSnapshot = await signInWithCredential(auth, credential);
@@ -170,6 +171,7 @@ export const signInUserWithGoogle = createAsyncThunk<
           isAnonymous: false,
           userType: "guest",
           userRole: selectedUserRole,
+          ...(messagingToken && { messagingToken }),
         };
         await setDoc(userDocumentRef, googleUserInitialData).then(() => {
           dispatch(

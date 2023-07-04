@@ -49,7 +49,7 @@ const createStyle = (insets: EdgeInsets, titleStyle: TextStyle) => {
           paddingTop: insets.top,
         },
         web: {
-          paddingTop: Spacing.small,
+          paddingTop: Spacing.small + insets.top,
         },
       }),
     },

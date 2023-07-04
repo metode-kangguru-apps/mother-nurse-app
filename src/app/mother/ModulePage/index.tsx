@@ -43,7 +43,7 @@ const ModulePage: React.FC<Props> = ({ navigation }) => {
       >
         <View style={style.moduleMenu}>
           <View style={style.moduleContent}>
-            <View style={style.moduleIcon}>{item[1].icon({})}</View>
+            <View style={style.moduleIcon}>{item[1].icon}</View>
             <Text style={style.moduleTitle}>{item[1].title}</Text>
           </View>
           <View style={style.moduleGoToButton}>

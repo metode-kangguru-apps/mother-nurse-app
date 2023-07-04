@@ -13,6 +13,7 @@ export type User = {
   userRole: "mother" | "nurse";
   displayName: string;
   phoneNumber: string;
+  messagingToken?: string;
 };
 
 export interface Mother extends User {

@@ -7,7 +7,6 @@ import {
   Animated,
   Platform,
   KeyboardTypeOptions,
-  Keyboard,
   NativeSyntheticEvent,
   TextInputChangeEventData,
 } from "react-native";
@@ -87,7 +86,7 @@ const FloatingInput: React.FC<Props> = ({
           return;
         }
       } else if (keyboardType === "decimal-pad") {
-        if (!(/^[0-9.]+$/.test(result) || result === "")) {
+        if (!(/^[0-9.,]+$/.test(result) || result === "")) {
           return;
         }
       }

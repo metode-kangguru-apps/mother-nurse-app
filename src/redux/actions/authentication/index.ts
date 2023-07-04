@@ -19,6 +19,12 @@ const authentication = createSlice({
     ) => {
       state.user = { ...state.user, ...action.payload } as Mother | Nurse;
     },
+    storeMessagingDeviceToken: (state, action: PayloadAction<string>) => {
+      state.user = {
+        ...state.user,
+        messagingToken: action.payload
+      } as Mother | Nurse
+    },
     pushBabyToCollection: (state, action: PayloadAction<Baby>) => {
       (state.user as Mother).babyCollection.push(action.payload);
     },
@@ -78,6 +84,7 @@ export const {
   pushBabyToCollection,
   updateMotherBabyDataAtCollection,
   updateNurseBabyDataAtCollection,
+  storeMessagingDeviceToken
 } = authentication.actions;
 
 export default authentication.reducer;

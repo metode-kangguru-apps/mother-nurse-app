@@ -133,6 +133,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
       )}
       <Header
         title="Kembali"
+        titleStyle={{ fontFamily: Font.Bold }}
         onBackButton={() => {
           if (navigation.canGoBack()) {
             navigation.goBack();
@@ -158,7 +159,7 @@ const ProfilePage: React.FC<Props> = ({ navigation }) => {
               <ProfileCard
                 type="mother"
                 name={user.displayName}
-                phoneNumber={"+62 " + user.phoneNumber}
+                phoneNumber={user.phoneNumber}
                 hospitalName={user.hospital.name}
                 bangsal={user.hospital.bangsal}
               />
