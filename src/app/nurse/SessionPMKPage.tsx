@@ -83,7 +83,7 @@ import {
           <View style={style.sessionEmpty}>
             <View style={style.sessionEmptyContent}>
               <Text style={style.textSessionEmpty}>
-                Terapi PMK belum pernah di lakukan dalam aplikasi
+              Belum ada sesi PMK yang tercatat
               </Text>
             </View>
           </View>

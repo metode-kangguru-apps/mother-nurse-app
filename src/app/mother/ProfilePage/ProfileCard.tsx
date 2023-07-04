@@ -35,7 +35,7 @@ const ProfileCard: React.FC<Props> = ({
           {type === "mother" && <MotherIcons></MotherIcons>}
         </View>
         <View style={style.userInformation}>
-          <Text style={style.userName}>{name}</Text>
+          <Text style={style.userName}>Ny. {name}</Text>
           <TouchableOpacity
             disabled={!isAbleToCall}
             style={style.phoneNumberContainer}

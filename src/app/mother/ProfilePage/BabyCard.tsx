@@ -60,7 +60,7 @@ const BabyCard: React.FC<Props> = ({
         <View style={style.babyInformation}>
           <Text style={style.babyBirthDate}>Lahir: {birthDate}</Text>
           <Text style={style.babyGender}>{gender && Gender[gender]}</Text>
-          <Text style={style.babyName}>{name}</Text>
+          <Text style={style.babyName}>By. {name}</Text>
           {type === "nurse" && (
             <View style={style.info}>
               <Text style={style.babyInfoText}>Berat {weight} gr</Text>
@@ -89,7 +89,7 @@ const BabyCard: React.FC<Props> = ({
                 },
               ]}
             >
-              {type === "mother" ? "Lakukan Terapi" : "Lihat Riwayat"}
+              {type === "mother" ? "Lakukan PMK" : "Lihat Riwayat"}
             </Text>
             <View>
               <EvilIcons
