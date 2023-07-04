@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, StyleSheet } from "react-native";
+import { Animated, Platform, StyleSheet } from "react-native";
 
 import { Provider } from "react-redux";
 import { persistor, store } from "@redux/store";
@@ -22,7 +22,57 @@ import {
 } from "@redux/actions/authentication/thunks";
 import { UserInitialState } from "@redux/actions/authentication/types";
 
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { Subscription } from "expo-modules-core";
+import { storeMessagingDeviceToken } from "@redux/actions/authentication";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
+
+async function registerForPushNotificationsAsync() {
+  let token;
+  if (Device.isDevice) {
+    const { status: existingStatus } =
+      await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== "granted") {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== "granted") {
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+    storeMessagingDeviceToken(token)
+  } else {
+    alert("Must use physical device for Push Notifications");
+  }
+
+  if (Platform.OS === "android") {
+    Notifications.setNotificationChannelAsync("default", {
+      name: "default",
+      importance: Notifications.AndroidImportance.MAX,
+      vibrationPattern: [0, 250, 250, 250],
+      lightColor: "#FF231F7C",
+    });
+  }
+
+  return token;
+}
+
 const App: React.FC<{}> = () => {
+  const [expoPushToken, setExpoPushToken] = useState("");
+  const [notification, setNotification] =
+    useState<Notifications.Notification>();
+  const notificationListener = useRef<Subscription>(null);
+  const responseListener = useRef<Subscription>(null);
+
   const [appIsReady, setAppIsReady] = useState<boolean>(false);
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
@@ -37,6 +87,33 @@ const App: React.FC<{}> = () => {
       }
     }
   };
+
+  useEffect(() => {
+    registerForPushNotificationsAsync().then(
+      (token) => token && setExpoPushToken(token)
+    );
+
+    // @ts-ignore
+    notificationListener.current =
+      Notifications.addNotificationReceivedListener((notification) => {
+        setNotification(notification);
+      });
+
+    // @ts-ignore
+    responseListener.current =
+      Notifications.addNotificationResponseReceivedListener((response) => {
+        console.log(response);
+      });
+
+    return () => {
+      notificationListener.current &&
+        Notifications.removeNotificationSubscription(
+          notificationListener.current
+        );
+      responseListener.current &&
+        Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadResourcesAndDataAsync() {

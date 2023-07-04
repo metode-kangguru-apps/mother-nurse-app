@@ -222,7 +222,7 @@ const createStyle = (insets: EdgeInsets) =>
           paddingBottom: insets.top,
         },
         web: {
-          paddingBottom: Spacing.base,
+          paddingBottom: Spacing.base + insets.top,
         },
       }),
     },
@@ -248,7 +248,6 @@ const createStyle = (insets: EdgeInsets) =>
       width: "100%",
       flexDirection: "row",
       justifyContent: "space-between",
-      marginBottom: insets.bottom,
     },
     nextButton: {
       paddingVertical: Spacing.xsmall,

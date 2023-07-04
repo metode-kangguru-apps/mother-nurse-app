@@ -81,9 +81,9 @@ const NativeDateTimePicker: React.FC<Props> = ({
   }, [showDateTimePicker]);
 
   return (
-    <View style={style.wrapper}>
+    <View>
       {showErrorMessage()}
-      <View style={{ width: "100%" }}>
+      <View>
         <Animated.View
           pointerEvents={"none"}
           style={[
@@ -138,9 +138,6 @@ const NativeDateTimePicker: React.FC<Props> = ({
 const createStyle = (borderColor: string) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
-    wrapper: {
-      flex: 1,
-    },
     errorMessage: {
       marginLeft: Spacing.extratiny,
       marginVertical: Spacing.extratiny,
