@@ -66,7 +66,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         <View style={style.ellipsHead}></View>
         <View style={style.ellipsContent}>
           <View style={style.babyNameWrapper}>
-            <Text style={style.babyName}>{babyData.displayName}</Text>
+            <Text style={style.babyName}>By. {babyData.displayName}</Text>
             <View style={style.babyNameBottomLine} />
           </View>
           {/* TODO: @muhammadhafizm baby milestone */}

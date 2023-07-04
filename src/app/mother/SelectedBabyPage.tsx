@@ -70,7 +70,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
             </View>
             <View>
               <Text style={style.babyBirthDate}>{dateBirthFormat}</Text>
-              <Text style={style.babyName}>{item.displayName}</Text>
+              <Text style={style.babyName}>By. {item.displayName}</Text>
             </View>
           </View>
           <View style={style.babyInfo}>
@@ -146,7 +146,7 @@ const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
             >
               {!loading ? (
                 <>
-                  <Text style={style.textStart}>Mulai Terapi</Text>
+                  <Text style={style.textStart}>Mulai PMK</Text>
                   <EvilIcons
                     name="arrow-right"
                     size={TextSize.h5}

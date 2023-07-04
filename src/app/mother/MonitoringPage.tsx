@@ -157,7 +157,7 @@ const MonitoringPage: React.FC<Props> = ({ navigation }) => {
       <CustomModal visible={openModal} modalClosable={false}>
         {!loading ? (
           <View style={style.modalStopPMKWrapper}>
-            <Text style={style.modalTitle}>Sesi hari ini selesai</Text>
+            <Text style={style.modalTitle}>Sesi kali ini selesai</Text>
             <Text style={style.modalMessage}>
               Jangan lupa nanti lanjutkan PMK lagi ya!
             </Text>

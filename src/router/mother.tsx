@@ -96,7 +96,7 @@ const MotherRouter: React.FC<{}> = () => {
                 name="monitoring"
                 component={MonitoringPage}
                 options={{
-                  title: "Sedang Terapi PMK",
+                  title: "Sedang PMK",
                   animation: Platform.select({
                     ios: "fade_from_bottom",
                     android: "simple_push",

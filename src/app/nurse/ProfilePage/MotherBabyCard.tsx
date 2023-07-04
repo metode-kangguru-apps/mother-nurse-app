@@ -32,7 +32,7 @@ const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
   return (
     <View style={style.container}>
       <View style={style.babyMotherWrapper}>
-        <Text style={style.motherName}>{motherData.displayName}</Text>
+        <Text style={style.motherName}>Ny. {motherData.displayName}</Text>
         <AntDesign name="arrowright" size={20} color="black" />
       </View>
       {motherData.babyCollection &&
@@ -56,7 +56,7 @@ const MotherBabyCard: React.FC<Props> = ({ motherData }) => {
                   },
                 ]}
               >
-                <Text style={style.babyName}>{baby.displayName}</Text>
+                <Text style={style.babyName}>By. {baby.displayName}</Text>
                 <View style={style.babyWrapperInformation}>
                   <Text style={style.babyInformation}>
                     {baby.currentWeight} gram
