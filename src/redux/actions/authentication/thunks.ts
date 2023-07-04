@@ -230,7 +230,8 @@ export const signUpMotherAccount = createAsyncThunk<
     ) {
       // if user not exist or user google but still guest
       const babyTempCollection: Baby[] = [];
-      const { hospital, babyCollection, ...userDocument } = userInformation;
+      const { hospital, babyCollection, messagingToken, ...userDocument } =
+        userInformation;
 
       // get hospital data
       const hospitalData = (
@@ -245,7 +246,10 @@ export const signUpMotherAccount = createAsyncThunk<
           hospital: savedMotherHospitalData,
         };
         await Promise.all([
-          await setDoc(userDocumentRef, userDocument),
+          await setDoc(userDocumentRef, {
+            ...userDocument,
+            ...(messagingToken && { messagingToken }),
+          }),
           await setDoc(motherDocumentRef, savedMotherData),
           ...addAllBabyInCollection(
             userInformation.babyCollection,
@@ -280,7 +284,7 @@ export const signUpNurseAccount = createAsyncThunk<
 >("singUpNurseAccount", async (payload, { dispatch }) => {
   try {
     // preparation
-    const { hospital, uid, ...userData } = payload;
+    const { hospital, uid, messagingToken, ...userData } = payload;
 
     // create document reference
     const userDocumentRef = doc(
@@ -309,7 +313,10 @@ export const signUpNurseAccount = createAsyncThunk<
       const motherTempCollection: Mother[] = [];
       const { motherCollection, ...savedHospitalData } = hospitalData;
       await Promise.all([
-        await setDoc(userDocumentRef, userData),
+        await setDoc(userDocumentRef, {
+          ...userData,
+          ...(messagingToken && { messagingToken })
+        }),
         await setDoc(nurseDocumentRef, { hospital: hospitalDocumentRef }),
         ...fetchAllMotherInHospital(hospitalData, motherTempCollection),
       ]);

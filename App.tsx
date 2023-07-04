@@ -89,6 +89,7 @@ const App: React.FC<{}> = () => {
   };
 
   useEffect(() => {
+    if (Platform.OS === "web") return;
     registerForPushNotificationsAsync().then(
       (token) => token && setExpoPushToken(token)
     );
