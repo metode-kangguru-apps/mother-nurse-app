@@ -82,6 +82,7 @@ const LoginPage: React.FC<Props> = () => {
 
   const scrollRef = useRef<ScrollView>(null);
   const selectedRoleAnimation = useRef(new Animated.Value(0)).current;
+  const { user } = useSelector((state: RootStateV2) => state.authentication)
   const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
 
   // handle if user login with oAuth google
@@ -94,6 +95,7 @@ const LoginPage: React.FC<Props> = () => {
         signInUserWithGoogle({
           credential,
           selectedUserRole: selectedRegisterRole,
+          messagingToken: user?.messagingToken 
         })
       ).then(() => {
         setLoading(false);
