@@ -19,6 +19,11 @@ module.exports = {
     },
     ios: {
       bundleIdentifier: "com.pmk-app-dev.hug-a-baby",
+      splash: {
+        image: "./assets/splash.png",
+        resizeMode: "contain",
+        backgroundColor: "#4E9992",
+      },
     },
     android: {
       adaptiveIcon: {

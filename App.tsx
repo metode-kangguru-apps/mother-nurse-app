@@ -124,7 +124,7 @@ const App: React.FC<{}> = () => {
         const imageAssets = cacheImages(localImages);
         const authentication = store.getState()
           .authentication as UserInitialState;
-        await getUserData(authentication).then(async () => {
+        // await getUserData(authentication).then(async () => {
           await Promise.all([...imageAssets, fontAssets]).then(() => {
             setTimeout(async () => {
               setAppIsReady(true);
@@ -138,7 +138,7 @@ const App: React.FC<{}> = () => {
               });
             }, 1500);
           });
-        });
+        // });
       } catch (e) {
         // You might want to provide this error information to an error reporting service
         console.warn(e);

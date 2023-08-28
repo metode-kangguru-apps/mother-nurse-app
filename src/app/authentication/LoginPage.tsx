@@ -62,8 +62,8 @@ const LoginPage: React.FC<Props> = () => {
 
   const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     expoClientId: FIREBASE_WEB_CLIENT_ID,
-    webClientId: FIREBASE_WEB_CLIENT_ID,
-    iosClientId: FIREBASE_IOS_CLIENT_ID,
+    // webClientId: FIREBASE_WEB_CLIENT_ID,
+    // iosClientId: FIREBASE_IOS_CLIENT_ID,
     androidClientId: FIREBASE_ANDROID_CLIENT_ID,
   });
 

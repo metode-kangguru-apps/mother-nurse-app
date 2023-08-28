@@ -20,7 +20,12 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pmk-app-dev.mother-nurse-app"
+      "bundleIdentifier": "com.pmk-app-dev.mother-nurse-app",
+      "splash": {
+        "image": "./assets/splash.png",
+        "resizeMode": "cover",
+        "backgroundColor": "#F3F3F3"
+      }
     },
     "android": {
       "adaptiveIcon": {
