@@ -1,20 +1,40 @@
 import { NavigatorScreenParams } from "@react-navigation/native";
 
 export type MotherStackParamList = {
-  home: {
-    "baby-id": string;
-  };
+  welcome: undefined;
+  onboarding: undefined;
+  home: undefined;
   "select-baby": undefined;
-  profile: undefined
+  profile: undefined;
+  monitoring: undefined;
+  "add-progress": undefined;
+  "pmk-care": undefined;
+  history: undefined;
+  session: undefined;
+  module: undefined;
+  "detail-module": {key: string}
+  "add-new-baby": undefined;
+};
+
+export type NurseStackParamList = {
+  profile: undefined;
+  "mother-detail": undefined;
+  "baby-detail": undefined;
+  "history-progress": undefined;
+  "add-progress": undefined;
+  session: undefined;
 };
 
 export type AuthStackParamList = {
   login: undefined;
   "register-user-information": undefined;
   "register-baby-information": undefined;
+  "register-nurse-information": undefined;
 };
 
 export type RootStackParamList = {
   auth: NavigatorScreenParams<AuthStackParamList>;
   mother: NavigatorScreenParams<MotherStackParamList>;
+  nurse: NavigatorScreenParams<NurseStackParamList>;
+  NotFound: undefined;
 };

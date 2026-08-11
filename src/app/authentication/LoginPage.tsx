@@ -1,0 +1,529 @@
+import {
+  FIREBASE_IOS_CLIENT_ID,
+  FIREBASE_WEB_CLIENT_ID,
+  FIREBASE_ANDROID_CLIENT_ID,
+} from "@env";
+import { useEffect, useRef, useState } from "react";
+import { GoogleAuthProvider } from "firebase/auth/react-native";
+
+import { useAppDispatch } from "@redux/hooks";
+import * as WebBrowser from "expo-web-browser";
+
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import {
+  ActivityIndicator,
+  Animated,
+  ImageBackground,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+
+import { useSelector } from "react-redux";
+import { RootStateV2 } from "@redux/types";
+import * as Google from "expo-auth-session/providers/google";
+
+import { Font } from "src/lib/ui/font";
+import { color } from "src/lib/ui/color";
+import { Spacing } from "src/lib/ui/spacing";
+import { TextSize } from "src/lib/ui/textSize";
+import GoogleIcon from "src/lib/ui/icons/Google";
+import { isObjectContainUndefined } from "src/lib/utils/calculate";
+
+import { AuthStackParamList } from "src/router/types";
+
+import PickerFiled from "src/common/PickerField";
+import FloatingInput from "src/common/FloatingInput";
+import PhoneNumberInput from "src/common/PhoneNumberInput";
+
+import { setSelectedHospital } from "@redux/actions/hospital";
+import { getHospitalList } from "@redux/actions/hospital/thunks";
+import { HospitalPayload } from "@redux/actions/hospital/types";
+
+import { setUserData } from "@redux/actions/authentication";
+import { MotherPayload } from "@redux/actions/authentication/types";
+import { signInUserWithGoogle } from "@redux/actions/authentication/thunks";
+
+WebBrowser.maybeCompleteAuthSession();
+
+interface Props extends NativeStackScreenProps<AuthStackParamList, "login"> {}
+interface FormField {
+  name: string;
+  phoneNumber: string;
+  hospital: HospitalPayload;
+}
+
+const LoginPage: React.FC<Props> = () => {
+  const dispatch = useAppDispatch();
+
+  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+    expoClientId: FIREBASE_WEB_CLIENT_ID,
+    // webClientId: FIREBASE_WEB_CLIENT_ID,
+    // iosClientId: FIREBASE_IOS_CLIENT_ID,
+    androidClientId: FIREBASE_ANDROID_CLIENT_ID,
+  });
+
+  const [loading, setLoading] = useState<boolean>();
+  const [searchHospital, setSearchHospital] = useState<string>("");
+  const [motherFormField, setMotherFormField] = useState<Partial<FormField>>({
+    name: undefined,
+    phoneNumber: undefined,
+    hospital: undefined,
+  });
+  const [formValidationError, setFormValidationError] =
+    useState<boolean>(false);
+  const [selectedRegisterRole, setSelectedRegisterRole] = useState<
+    "mother" | "nurse"
+  >("mother");
+
+  const scrollRef = useRef<ScrollView>(null);
+  const selectedRoleAnimation = useRef(new Animated.Value(0)).current;
+  const { user } = useSelector((state: RootStateV2) => state.authentication)
+  const { hospitalList } = useSelector((state: RootStateV2) => state.hospital);
+
+  // handle if user login with oAuth google
+  useEffect(() => {
+    if (response?.type === "success") {
+      setLoading(true);
+      const { id_token } = response.params;
+      const credential = GoogleAuthProvider.credential(id_token);
+      dispatch(
+        signInUserWithGoogle({
+          credential,
+          selectedUserRole: selectedRegisterRole,
+          messagingToken: user?.messagingToken 
+        })
+      ).then(() => {
+        setLoading(false);
+      });
+    }
+  }, [response, dispatch]);
+
+  // transition switch
+  useEffect(() => {
+    Animated.timing(selectedRoleAnimation, {
+      toValue: selectedRegisterRole === "mother" ? 0 : 1,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  }, [selectedRegisterRole]);
+
+  // search hospital
+  useEffect(() => {
+    dispatch(getHospitalList(searchHospital));
+  }, [searchHospital]);
+
+  function handleLoginMotherAnonymously() {
+    if (!isObjectContainUndefined(motherFormField)) {
+      const formField = motherFormField as FormField;
+      if (
+        formField.phoneNumber.length < 8 ||
+        formField.phoneNumber.length > 13
+      ) {
+        setFormValidationError(true);
+        return;
+      }
+      const userAnonymousInitialData: Partial<MotherPayload> = {
+        isAnonymous: true,
+        userType: "guest",
+        userRole: "mother",
+        displayName: formField.name,
+        phoneNumber: formField.phoneNumber,
+      };
+      dispatch(setUserData(userAnonymousInitialData));
+      dispatch(setSelectedHospital(formField.hospital));
+    } else {
+      setFormValidationError(true);
+    }
+  }
+
+  function handleChangeRole(role: "mother" | "nurse") {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+    setSelectedRegisterRole(role);
+  }
+
+  // animated interpolate switch role
+  const handleSwitchRoleOnSelect = selectedRoleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, Spacing.base * 4.8],
+  });
+
+  const handleChangeColorOnSelect = selectedRoleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [color.primary, color.secondary],
+  });
+
+  const handleShowMotherRoleOnSelect = selectedRoleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 150],
+  });
+
+  const handleOpacityMotherOnSelect = selectedRoleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0],
+  });
+
+  const handleShowNurseOnSelect = selectedRoleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [150, Spacing.xlarge * 1.5],
+  });
+
+  const handleOpacityNurseOnSelect = selectedRoleAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={style.flex}
+    >
+      {loading && (
+        <View style={style.loadingWrapper}>
+          <ActivityIndicator
+            size={"large"}
+            color={color.primary}
+          ></ActivityIndicator>
+        </View>
+      )}
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={style.flex}
+        scrollEnabled={selectedRegisterRole === "mother"}
+        showsVerticalScrollIndicator={false}
+      >
+        <Animated.View
+          style={[
+            style.container,
+            { backgroundColor: handleChangeColorOnSelect },
+          ]}
+        >
+          <ImageBackground
+            style={style.backgroundPattern}
+            source={require("../../../assets/baby-pattern.png")}
+          />
+          <View style={style.topContent}></View>
+          <View style={style.bottomContent}>
+            {/* Tab Role Switcher */}
+            <View style={style.roleSwitcher}>
+              <TouchableOpacity onPress={() => handleChangeRole("mother")}>
+                <Text style={[style.roleItem, style.mother]}>Ibu</Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => handleChangeRole("nurse")}>
+                <Text style={[style.roleItem, style.nurse]}>Perawat</Text>
+              </TouchableOpacity>
+              <Animated.View
+                style={[
+                  style.roleItem,
+                  style.currentRole,
+                  {
+                    transform: [{ translateX: handleSwitchRoleOnSelect }],
+                    backgroundColor: handleChangeColorOnSelect,
+                  },
+                ]}
+              >
+                <Text style={[style.currentRoleTitle]}>
+                  {selectedRegisterRole === "mother" ? "Ibu" : "Perawat"}
+                </Text>
+              </Animated.View>
+            </View>
+            {/* Tab Title */}
+            <Text style={style.title}>
+              {selectedRegisterRole === "mother" ? "Daftar" : "Masuk"}
+            </Text>
+            {/* Mother Form Field */}
+            <Animated.View
+              pointerEvents={
+                selectedRegisterRole === "mother" ? "auto" : "none"
+              }
+              style={[
+                style.motherField,
+                {
+                  transform: [{ translateY: handleShowMotherRoleOnSelect }],
+                  opacity: handleOpacityMotherOnSelect,
+                },
+              ]}
+            >
+              <View style={style.formFieldWrapper}>
+                <View style={style.formField}>
+                  <FloatingInput
+                    required
+                    onError={formValidationError}
+                    label="Nama"
+                    onChange={(value) => {
+                      setMotherFormField((prev) => ({
+                        ...prev,
+                        name: value,
+                      }));
+                    }}
+                  />
+                </View>
+                <View style={style.formField}>
+                  <PhoneNumberInput
+                    required
+                    onError={formValidationError}
+                    onChange={(value) => {
+                      setMotherFormField((prev) => ({
+                        ...prev,
+                        phoneNumber: value,
+                      }));
+                    }}
+                  />
+                </View>
+                <View style={style.formField}>
+                  <PickerFiled
+                    required
+                    label="Rumah Sakit"
+                    searchable={true}
+                    items={hospitalList}
+                    onFocus={() => {
+                      setSearchHospital("");
+                    }}
+                    onChange={(value) => {
+                      setMotherFormField((prev) => ({
+                        ...prev,
+                        hospital: value,
+                      }));
+                    }}
+                    onSearch={(value) => {
+                      setSearchHospital(value);
+                    }}
+                    onError={formValidationError}
+                  />
+                </View>
+                <TouchableOpacity
+                  style={style.nextButtonContainer}
+                  onPress={() => handleLoginMotherAnonymously()}
+                >
+                  <Text style={style.nextButton}>Selanjutnya</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={style.deviderGoogle}>
+                <View style={style.deviderLine}></View>
+                <View>
+                  <Text style={style.deviderGoogleInfo}>atau masuk dengan</Text>
+                </View>
+                <View style={style.deviderLine}></View>
+              </View>
+              <TouchableOpacity
+                style={style.loginMotherWithGoogle}
+                disabled={!request}
+                onPress={() => promptAsync({})}
+              >
+                <View style={style.googleMotherSectionIcon}>
+                  <GoogleIcon width={20} height={20} viewBox="2.5 2.5 20 20" />
+                </View>
+                <Text style={style.googleMotherSectionButtonTitle}>Google</Text>
+              </TouchableOpacity>
+            </Animated.View>
+            {/* Nurse Form Field */}
+            <Animated.View
+              pointerEvents={selectedRegisterRole === "nurse" ? "auto" : "none"}
+              style={[
+                style.nurseField,
+                {
+                  transform: [{ translateY: handleShowNurseOnSelect }],
+                  opacity: handleOpacityNurseOnSelect,
+                },
+              ]}
+            >
+              <Text style={style.nurseLoginInfo}>
+                Akun perawat akan terhubung dengan akun Google. Masuk dengan
+                akun Google Anda untuk mendaftar.{" "}
+              </Text>
+              <TouchableOpacity
+                style={style.loginNurseWithGoogle}
+                disabled={!request}
+                onPress={() => promptAsync({})}
+              >
+                <View style={style.googleNurseSectionIcon}>
+                  <GoogleIcon width={20} height={20} viewBox="2.5 2.5 20 20" />
+                </View>
+                <Text style={style.googleNurseSectionButtonTitle}>Google</Text>
+              </TouchableOpacity>
+            </Animated.View>
+          </View>
+        </Animated.View>
+        {/* TODO: @muhammadhafizm implement error */}
+      </ScrollView>
+    </KeyboardAvoidingView>
+  );
+};
+
+const style = StyleSheet.create({
+  flex: {
+    flex: 1,
+  },
+  loadingWrapper: {
+    flex: 1,
+    zIndex: 2,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+  },
+  container: {
+    flexGrow: 1,
+    backgroundColor: color.primary,
+  },
+  backgroundPattern: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    opacity: 0.25,
+  },
+  topContent: {
+    width: "100%",
+    height: 200,
+  },
+  roleSwitcher: {
+    borderWidth: 4,
+    borderColor: color.surface,
+    backgroundColor: color.surface,
+    display: "flex",
+    alignSelf: "center",
+    flexDirection: "row",
+    position: "relative",
+    top: -20,
+    borderRadius: 50,
+  },
+  roleItem: {
+    paddingVertical: Spacing.tiny,
+    paddingHorizontal: Spacing.base * 2,
+    fontSize: TextSize.body,
+  },
+  mother: {
+    color: color.secondary,
+  },
+  nurse: {
+    color: color.primary,
+  },
+  currentRole: {
+    backgroundColor: color.primary,
+    position: "absolute",
+    borderRadius: 30,
+  },
+  currentRoleTitle: {
+    fontSize: TextSize.body,
+    color: color.lightneutral,
+  },
+  bottomContent: {
+    flexGrow: 1,
+    borderTopRightRadius: 35,
+    borderTopLeftRadius: 35,
+    backgroundColor: color.lightneutral,
+    alignItems: "center",
+    position: "relative",
+    paddingBottom: (Spacing.xlarge * 3) / 2,
+  },
+  title: {
+    fontFamily: Font.Bold,
+    fontSize: TextSize.h6,
+    paddingBottom: Spacing.base,
+  },
+  // mother field
+  motherField: {
+    width: "100%",
+  },
+  formFieldWrapper: {
+    width: "100%",
+    paddingHorizontal: Spacing.base,
+  },
+  formField: {
+    paddingVertical: Spacing.extratiny,
+  },
+  nextButtonContainer: {
+    display: "flex",
+    alignItems: "center",
+    paddingVertical: Spacing.small,
+    backgroundColor: color.primary,
+    borderRadius: 30,
+    marginTop: Spacing.xsmall,
+  },
+  nextButton: {
+    fontFamily: Font.Medium,
+    fontSize: TextSize.body,
+    color: color.lightneutral,
+  },
+  deviderGoogle: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: Spacing.base,
+    marginBottom: Spacing.tiny,
+  },
+  deviderLine: {
+    width: 100,
+    height: 1,
+    backgroundColor: color.neutral,
+    opacity: 0.4,
+    borderRadius: 1,
+    marginHorizontal: Spacing.tiny,
+  },
+  deviderGoogleInfo: {
+    fontFamily: Font.Regular,
+    fontSize: TextSize.caption,
+    color: color.neutral,
+    opacity: 0.4,
+  },
+  loginMotherWithGoogle: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    alignSelf: "center",
+  },
+  googleMotherSectionIcon: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 48,
+    height: 48,
+    backgroundColor: color.surface,
+    borderRadius: Spacing.large,
+    marginBottom: Spacing.tiny,
+  },
+  googleMotherSectionButtonTitle: {
+    fontFamily: Font.Medium,
+    fontSize: TextSize.title,
+    textAlign: "center",
+  },
+  // nurse field
+  nurseField: {
+    flex: 1,
+    width: "80%",
+    position: "absolute",
+  },
+  nurseLoginInfo: {
+    textAlign: "center",
+    color: color.neutral,
+  },
+  loginNurseWithGoogle: {
+    width: "100%",
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: Spacing.large,
+    backgroundColor: color.surface,
+    paddingVertical: Spacing.small,
+    marginTop: Spacing.base,
+  },
+  googleNurseSectionIcon: {
+    marginRight: Spacing.tiny,
+  },
+  googleNurseSectionButtonTitle: {
+    fontFamily: Font.Medium,
+    fontSize: TextSize.title,
+    color: color.neutral,
+  },
+});
+
+export default LoginPage;

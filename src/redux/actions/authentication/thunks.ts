@@ -1,260 +1,530 @@
-import { AnyAction } from "redux";
-import {
-  fetchAuthenticationRequest,
-  setUserData,
-  setMotherData,
-  setNurseData,
-  clearAuthenticationDataSuccess,
-  fetchAutheticationError,
-  fetchAutheticationSuccess,
-} from ".";
-import { auth, firestore } from "../../../../firebaseConfig";
-
-import { RootState } from "../../types";
-import { ThunkAction } from "redux-thunk";
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import { AppDispatch, FirebaseCollection } from "@redux/types";
 import {
   OAuthCredential,
+  UserCredential,
+  linkWithCredential,
   signInAnonymously,
+  signInWithCredential,
   signOut,
 } from "firebase/auth/react-native";
-
-import { signInWithCredential } from "firebase/auth";
 import {
-  doc,
-  onSnapshot,
-  setDoc,
   addDoc,
+  arrayUnion,
   collection,
+  doc,
   getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
 } from "firebase/firestore";
-import { Authetication, Baby, BabyCollection, User } from "./types";
 
-export const loginUser =
-  (payload: Authetication): ThunkAction<void, RootState, unknown, AnyAction> =>
-  async (dispatch) => {
-    dispatch(fetchAuthenticationRequest());
-    signInAnonymously(auth)
-      .then((credential) => {
-        let userInformation: Authetication = payload;
-        // get user data from firestore cloud
-        onSnapshot(
-          doc(firestore, "users", credential.user.uid),
-          async (user) => {
-            // check if user exist
-            if (!user.exists()) {
-              // if not exist create new user
-              await setDoc(
-                doc(firestore, "users", credential.user.uid),
-                userInformation.user
-              );
-              // set new baby ref for mother
-              const babyRefDocs: any[] = [];
-              if (userInformation.mother?.babyCollection) {
-                for (const baby of userInformation.mother.babyCollection) {
-                  // add new baby
-                  const newBabyRef = await addDoc(
-                    collection(firestore, "babies"),
-                    baby
-                  );
-                  const newBabyId = newBabyRef.id;
-                  babyRefDocs.push(newBabyId);
-                }
-                // add mother with baby collections
-                const motherDocRef = doc(
-                  firestore,
-                  "mothers",
-                  credential.user.uid
-                );
-                const newBabyCollection: BabyCollection[] = [];
-                for (let idx = 0; idx < babyRefDocs.length; idx++) {
-                  newBabyCollection[idx] = {
-                    babyID: babyRefDocs[idx],
-                    babyObj: userInformation.mother.babyCollection[idx] as Baby,
-                  };
-                }
-                const data = {
-                  ...userInformation.mother,
-                  babyCollection: newBabyCollection,
-                };
-                await setDoc(motherDocRef, data);
-              }
+import { pushBabyToCollection, setUserData } from ".";
+import { addAllBabyInCollection, fetchAllMotherInHospital } from "./services";
+import { auth, firestore } from "../../../../firebaseConfig";
 
-              // get mother data
-              const ref = doc(firestore, "mothers", credential.user.uid);
-              const mother = await getDoc(ref);
+import {
+  AddBabyPayload,
+  Mother,
+  MotherPayload,
+  MotherResponse,
+  Nurse,
+  NursePayload,
+  NurseResponse,
+  User,
+  UserResponse,
+} from "./types";
+import { Baby, BabyPayload, Progress } from "../pmkCare/types";
+import { HospitalResponse } from "../hospital/types";
+import { persistor } from "@redux/store";
 
-              // set user data
-              dispatch(
-                setUserData({
-                  ...userInformation.user,
-                  uid: credential.user.uid,
-                })
-              );
-              dispatch(setMotherData({ ...mother.data() }));
-              dispatch(fetchAutheticationSuccess());
-            }
-          }
-        );
-      })
-      .catch((error) => {
-        // save error message
-        dispatch(fetchAutheticationError());
-        throw error;
-      });
-  };
-
-export const logOutUser =
-  (): ThunkAction<void, RootState, unknown, AnyAction> => async (dispatch) => {
-    const data: any[] = [];
+export const signInUserWithGoogle = createAsyncThunk<
+  unknown,
+  {
+    credential: OAuthCredential;
+    messagingToken?: string;
+    selectedUserRole: "mother" | "nurse";
+  },
+  {
+    dispatch: AppDispatch;
+  }
+>(
+  "signInUserWithGoogle",
+  async ({ credential, selectedUserRole, messagingToken }, { dispatch }) => {
     try {
-      // set loading for request
-      dispatch(fetchAuthenticationRequest());
-      // sign out account
-      signOut(auth)
-        .then(() => {
-          // clear data from local storage
-          dispatch({type: "CLEAR_SESSION"});
-          dispatch(fetchAutheticationSuccess());
-        })
-        .catch((error) => {
-          throw error;
-        });
-    } catch (error) {
-      // save error message
-      dispatch(fetchAutheticationError());
-    }
-  };
+      // preparation
+      const googleUserSnapshot = await signInWithCredential(auth, credential);
 
-export const loginWithGoogle =
-  (
-    credential: OAuthCredential
-  ): ThunkAction<void, RootState, unknown, AnyAction> =>
-  async (dispatch) => {
-    // save fetch request loading
-    dispatch(fetchAuthenticationRequest());
-    await signInWithCredential(auth, credential)
-      .then((result) => {
-        // get user based on user uid
-        onSnapshot(doc(firestore, "users", result.user.uid), async (user) => {
-          // check is user exist
-          if (user.exists()) {
-            // if exist get user and user data
-            const userRef = await getDoc(
-              doc(firestore, "users", result.user.uid)
-            );
-            // save user data to local storage
-            dispatch(
-              setUserData({
-                ...userRef.data(),
-                uid: result.user.uid,
-              })
-            );
+      // create document & collection reference
+      const userDocumentRef = doc(
+        firestore,
+        FirebaseCollection.USER,
+        googleUserSnapshot.user.uid
+      );
+      const motherDocumentRef = doc(
+        firestore,
+        FirebaseCollection.MOTHER,
+        googleUserSnapshot.user.uid
+      );
+      const nurseDocumentRef = doc(
+        firestore,
+        FirebaseCollection.NURSE,
+        googleUserSnapshot.user.uid
+      );
+      const motherBabyCollectionRef = collection(
+        motherDocumentRef,
+        FirebaseCollection.BABIES
+      );
 
-            // fetch user based on userRole
-            const userRole = userRef.get("userRole");
-            if (userRole === "mother") {
-              const motherRef = await getDoc(
-                doc(firestore, "mothers", result.user.uid)
-              );
-              dispatch(setMotherData(motherRef.data()));
+      // start signing in
+      const userSnapshot = await getDoc(userDocumentRef);
+      if (userSnapshot.exists()) {
+        // if user exist get data
+        const userData = userSnapshot.data() as UserResponse;
+        if (userData.userType === "guest") {
+          // if user still guest ask for create account as member
+          const savedUserData: User = {
+            uid: googleUserSnapshot.user.uid,
+            ...(userData as UserResponse),
+          };
+          dispatch(setUserData(savedUserData));
+          console.log("User diharap isi data dulu");
+          return;
+        } else if (userData.userRole !== selectedUserRole) {
+          // if user role not match (mother signing in as nurse or otherwise)
+          console.log("User yang terdaftar tidak memiliki role yang sama");
+          return;
+        } else if (userData.userRole === "mother") {
+          // if user is mother
+          const motherData = (
+            await getDoc(motherDocumentRef)
+          ).data() as MotherResponse;
+          const babyCollectionSnapshots = (
+            await getDocs(motherBabyCollectionRef)
+          ).docs;
+          const babyTempCollection: Baby[] = [];
+          if (babyCollectionSnapshots.length && motherData) {
+            // get all baby data from collection
+            babyCollectionSnapshots.map((babySnapshot) => {
+              babyTempCollection.push({
+                id: babySnapshot.id,
+                ...(babySnapshot.data() as BabyPayload),
+              });
+            });
+            // saved mother data to redux state
+            const savedMotherData: Mother = {
+              uid: googleUserSnapshot.user.uid,
+              babyCollection: babyTempCollection,
+              ...(userData as UserResponse),
+              ...motherData,
+            };
+            dispatch(setUserData(savedMotherData));
+            return;
+          } else {
+            console.log("Terjadi kesalahan saat masuk, coba lain kali.");
+            return;
+          }
+        } else if (userData.userRole === "nurse") {
+          // if user is nurse
+          const nurseData = (
+            await getDoc(nurseDocumentRef)
+          ).data() as NurseResponse;
+
+          if (nurseData) {
+            const hospitalData = (
+              await getDoc(nurseData.hospital)
+            ).data() as HospitalResponse;
+
+            if (hospitalData) {
+              // get hospital data
+              const { motherCollection, ...savedHospitalData } = hospitalData;
+              const motherTempCollection: Mother[] = [];
+
+              // get all mother from hospital
+              await Promise.all([
+                ...fetchAllMotherInHospital(hospitalData, motherTempCollection),
+              ]);
+
+              // save nurse data to redux
+              const saveNurseData: Nurse = {
+                uid: googleUserSnapshot.user.uid,
+                hospital: {
+                  ...savedHospitalData,
+                  motherCollection: motherTempCollection,
+                },
+                ...(userData as UserResponse),
+              };
+              dispatch(setUserData(saveNurseData));
+              return;
+            } else {
+              console.log("Terjadi kesalahan saat masuk, Coba lagi nanti.");
+              return;
             }
           } else {
-            const userGoogleInitialData: User = {
-              isAnonymous: false,
-              userType: "guest",
-            };
-            await setDoc(
-              doc(firestore, "users", result.user.uid),
-              userGoogleInitialData
-            );
-            // set new baby ref for mother
-            dispatch(
-              setUserData({
-                ...userGoogleInitialData,
-                uid: result.user.uid,
-              })
-            );
+            console.log("Terjadi kesalahan saat masuk, Coba lagi nanti.");
+            return;
           }
-          dispatch(fetchAutheticationSuccess());
-        });
-      })
-      .catch((error) => {
-        // if error save error message
-        dispatch(fetchAutheticationError(error));
-      });
-  };
-
-export const signUpMotherWithGoogle =
-  (payload: Authetication): ThunkAction<void, RootState, unknown, AnyAction> =>
-  async (dispatch) => {
-    // save fetch request loading
-    dispatch(fetchAuthenticationRequest());
-    try {
-      if (payload.user && payload.user.uid) {
-        await setDoc(doc(firestore, "users", payload.user.uid), {
-          displayName: payload.user.displayName,
-          userRole: payload.user.userRole,
-          userType: payload.user.userType,
-          isAnonymous: payload.user.isAnonymous,
-        });
-        // set new baby ref for mother
-        const babyRefDocs: any[] = [];
-        if (payload.mother?.babyCollection) {
-          for (const baby of payload.mother?.babyCollection) {
-            // add new baby
-            const newBabyRef = await addDoc(
-              collection(firestore, "babies"),
-              baby
-            );
-            const newBabyId = newBabyRef.id;
-            babyRefDocs.push(newBabyId);
-          }
-          // add mother with baby collections
-          const motherDocRef = doc(firestore, "mothers", payload.user.uid);
-          const newBabyCollection: BabyCollection[] = [];
-          for (let idx = 0; idx < babyRefDocs.length; idx++) {
-            newBabyCollection.push({
-              babyID: babyRefDocs[idx],
-              babyObj: payload.mother.babyCollection[0] as Baby,
-            });
-          }
-          const data = {
-            ...payload.mother,
-            babyCollection: newBabyCollection,
-          };
-          await setDoc(motherDocRef, data);
         }
-
-        // get mother data
-        const ref = doc(firestore, "mothers", payload.user.uid);
-        const mother = await getDoc(ref);
-
-        // set user data
-        dispatch(
-          setUserData({
-            ...payload.user,
-          })
-        );
-        dispatch(setMotherData({ ...mother.data() }));
-        dispatch(fetchAutheticationSuccess());
       } else {
-        throw new Error();
+        // if user not exist, create user and set as guest
+        const googleUserInitialData: Partial<User> = {
+          isAnonymous: false,
+          userType: "guest",
+          userRole: selectedUserRole,
+          ...(messagingToken && { messagingToken }),
+        };
+        await setDoc(userDocumentRef, googleUserInitialData).then(() => {
+          dispatch(
+            setUserData({
+              uid: googleUserSnapshot.user.uid,
+              ...googleUserInitialData,
+            })
+          );
+        });
       }
     } catch {
-      dispatch(fetchAutheticationError());
+      console.log("Terjadi masalah saat masuk kedalam aplikasi");
     }
-  };
+  }
+);
 
-export const getMotherData =
-  (motherId: string): ThunkAction<void, RootState, unknown, AnyAction> =>
-  async (dispatch) => {
-    dispatch(fetchAuthenticationRequest());
-    try {
-      const request = await getDoc(doc(firestore, "mothers", motherId));
-      const motherData = request.data();
-      dispatch(setMotherData(motherData));
-      dispatch(fetchAutheticationSuccess());
-    } catch {
-      dispatch(fetchAutheticationError());
+export const signUpMotherAccount = createAsyncThunk<
+  unknown,
+  {
+    uid: string;
+    payload: MotherPayload;
+  },
+  {
+    dispatch: AppDispatch;
+  }
+>("signUpMotherAccount", async ({ uid, payload }, { dispatch }) => {
+  try {
+    // preparation
+    const userInformation = payload;
+    let credential = {} as UserCredential;
+    let userID = uid || "";
+    if (userInformation.isAnonymous) {
+      credential = await signInAnonymously(auth);
+      userID = credential.user.uid;
     }
-  };
+
+    // create all document reference
+    const userDocumentRef = doc(firestore, FirebaseCollection.USER, userID);
+    const motherDocumentRef = doc(firestore, FirebaseCollection.MOTHER, userID);
+    const hospitalDocumentRef = doc(
+      firestore,
+      FirebaseCollection.HOSPITAL,
+      payload.hospital.value
+    );
+    const motherBabyCollectionRef = collection(
+      motherDocumentRef,
+      FirebaseCollection.BABIES
+    );
+
+    // get user data and start signing up user
+    const userSnapshot = await getDoc(userDocumentRef);
+    if (
+      !userSnapshot.exists() ||
+      (userSnapshot.exists() &&
+        (userSnapshot.data() as User).userType === "guest")
+    ) {
+      // if user not exist or user google but still guest
+      const babyTempCollection: Baby[] = [];
+      const { hospital, babyCollection, messagingToken, ...userDocument } =
+        userInformation;
+
+      // get hospital data
+      const hospitalData = (
+        await getDoc(hospitalDocumentRef)
+      ).data() as HospitalResponse;
+
+      // set user data, mother data, get all baby collection
+      if (hospitalData) {
+        const { motherCollection, ...savedMotherHospitalData } = hospitalData;
+        const savedMotherData: MotherResponse = {
+          isFinnishedOnboarding: false,
+          hospital: savedMotherHospitalData,
+        };
+        await Promise.all([
+          await setDoc(userDocumentRef, {
+            ...userDocument,
+            ...(messagingToken && { messagingToken }),
+          }),
+          await setDoc(motherDocumentRef, savedMotherData),
+          ...addAllBabyInCollection(
+            userInformation.babyCollection,
+            babyTempCollection,
+            motherBabyCollectionRef
+          ),
+          await updateDoc(hospitalDocumentRef, {
+            motherCollection: arrayUnion(motherDocumentRef),
+          }),
+        ]);
+        // save mother data to redux state
+        const userSavedInformation: Mother = {
+          ...userInformation,
+          uid: userID,
+          babyCollection: babyTempCollection,
+          hospital: savedMotherHospitalData,
+        };
+        dispatch(setUserData(userSavedInformation));
+      }
+    } else {
+      console.log("Terjadi masalah saat membuat akun. Coba lagi nanti!");
+    }
+  } catch {
+    console.log("Terjadi kesalahan saat membuat akun Ibu");
+  }
+});
+
+export const signUpNurseAccount = createAsyncThunk<
+  unknown,
+  NursePayload,
+  { dispatch: AppDispatch }
+>("singUpNurseAccount", async (payload, { dispatch }) => {
+  try {
+    // preparation
+    const { hospital, uid, messagingToken, ...userData } = payload;
+
+    // create document reference
+    const userDocumentRef = doc(
+      firestore,
+      FirebaseCollection.USER,
+      payload.uid
+    );
+    const hospitalDocumentRef = doc(
+      firestore,
+      FirebaseCollection.HOSPITAL,
+      payload.hospital.value
+    );
+    const nurseDocumentRef = doc(
+      firestore,
+      FirebaseCollection.NURSE,
+      payload.uid
+    );
+
+    // get hospital data
+    const hospitalData = (
+      await getDoc(hospitalDocumentRef)
+    ).data() as HospitalResponse;
+
+    // set user data, nurse data, and get all mother in hospital
+    if (hospitalData) {
+      const motherTempCollection: Mother[] = [];
+      const { motherCollection, ...savedHospitalData } = hospitalData;
+      await Promise.all([
+        await setDoc(userDocumentRef, {
+          ...userData,
+          ...(messagingToken && { messagingToken })
+        }),
+        await setDoc(nurseDocumentRef, { hospital: hospitalDocumentRef }),
+        ...fetchAllMotherInHospital(hospitalData, motherTempCollection),
+      ]);
+      // save all data to redux state
+      const saveNurseData: Nurse = {
+        uid: payload.uid,
+        hospital: {
+          ...savedHospitalData,
+          motherCollection: motherTempCollection,
+        },
+        ...(userData as UserResponse),
+      };
+      dispatch(setUserData(saveNurseData));
+    } else {
+      console.log("Terjadi kesalahan saat mendaftarkan perawat!");
+    }
+  } catch {
+    console.log("Terjadi kesalahan saat mendaftarkan perawat!");
+  }
+});
+
+export const logingOutUser = createAsyncThunk<
+  unknown,
+  undefined,
+  {
+    dispatch: AppDispatch;
+  }
+>("logingOutUser", async (_, { dispatch }) => {
+  // loging out user and clear session
+  await signOut(auth)
+    .then(() => {
+      dispatch({ type: "CLEAR_SESSION" });
+      persistor.purge();
+    })
+    .catch(() => {
+      console.log("Terjadi kesalah saat keluar aplikasi!");
+    });
+});
+
+// bind new data
+export const bindAnonymousAccountToGoogle = createAsyncThunk<
+  unknown,
+  OAuthCredential,
+  {
+    dispatch: AppDispatch;
+  }
+>("bindAnonymousAccountToGoogle", async (credential, { dispatch }) => {
+  try {
+    if (auth.currentUser && auth.currentUser.uid) {
+      const userDocumentRef = doc(
+        firestore,
+        FirebaseCollection.USER,
+        auth.currentUser.uid
+      );
+      await linkWithCredential(auth.currentUser, credential);
+      await updateDoc(userDocumentRef, {
+        isAnonymous: false,
+      } as Partial<User>);
+
+      dispatch(setUserData({ isAnonymous: false }));
+    }
+  } catch {
+    console.log("Account Google sudah pernah dipakai");
+  }
+});
+
+// add new baby
+export const AddBaby = createAsyncThunk<
+  unknown,
+  AddBabyPayload,
+  {
+    dispatch: AppDispatch;
+  }
+>("addBaby", async (payload, { dispatch }) => {
+  try {
+    const motherDocumentRef = doc(
+      firestore,
+      FirebaseCollection.MOTHER,
+      payload.uid
+    );
+    const babyCollectionRef = collection(
+      motherDocumentRef,
+      FirebaseCollection.BABIES
+    );
+    const babySnapshot = await addDoc(babyCollectionRef, payload.baby);
+    const savedBabyData: Baby = {
+      id: babySnapshot.id,
+      ...payload.baby,
+    };
+
+    const savedProgressData: Progress = {
+      createdAt: new Date(),
+      week: payload.baby.gestationAge,
+      weight: payload.baby.currentWeight,
+      length: payload.baby.currentLength,
+    };
+    const progressCollectionRef = collection(
+      babySnapshot,
+      FirebaseCollection.PROGRESS
+    );
+    await addDoc(progressCollectionRef, savedProgressData);
+
+    dispatch(pushBabyToCollection(savedBabyData));
+  } catch {
+    console.log("Terjadi masalah saat menambah data!");
+  }
+});
+
+// user data getter
+export const getMotherData = createAsyncThunk<
+  unknown,
+  string,
+  {
+    dispatch: AppDispatch;
+  }
+>("getMotherData", async (userID, { dispatch }) => {
+  try {
+    // preparation
+    const babyTempCollection: Baby[] = [];
+
+    // create document reference
+    const userDocumentRef = doc(firestore, FirebaseCollection.USER, userID);
+    const motherDocumentRef = doc(firestore, FirebaseCollection.MOTHER, userID);
+    const motherBabyCollectionRef = collection(
+      motherDocumentRef,
+      FirebaseCollection.BABIES
+    );
+    const userData = (await getDoc(userDocumentRef)).data() as UserResponse;
+    const motherData = (
+      await getDoc(motherDocumentRef)
+    ).data() as MotherResponse;
+    const babyCollectionSnapshots = (await getDocs(motherBabyCollectionRef))
+      .docs;
+
+    if (babyCollectionSnapshots.length && motherData) {
+      // get all baby data from collection
+      babyCollectionSnapshots.map((babySnapshot) => {
+        babyTempCollection.push({
+          id: babySnapshot.id,
+          ...(babySnapshot.data() as BabyPayload),
+        });
+      });
+      // saved mother data to redux state
+      const savedMotherData: Mother = {
+        uid: userID,
+        babyCollection: babyTempCollection,
+        ...motherData,
+        ...(userData as UserResponse),
+      };
+      dispatch(setUserData(savedMotherData));
+      return;
+    } else {
+      console.log("Terjadi masalah saat masuk!");
+    }
+  } catch (e) {
+    console.log("Terjadi masalah saat masuk akun");
+  }
+});
+
+export const getNurseData = createAsyncThunk<
+  unknown,
+  string,
+  {
+    dispatch: AppDispatch;
+  }
+>("getNurseData", async (userID, { dispatch }) => {
+  try {
+    // create document Ref
+    const userDocumentRef = doc(firestore, FirebaseCollection.USER, userID);
+    const nurseDocumentRef = doc(firestore, FirebaseCollection.NURSE, userID);
+
+    // get user data
+    const userData = (await getDoc(userDocumentRef)).data() as UserResponse;
+    const nurseData = (await getDoc(nurseDocumentRef)).data() as NurseResponse;
+
+    // if user data exist
+    if (nurseData && userData) {
+      const hospitalData = (
+        await getDoc(nurseData.hospital)
+      ).data() as HospitalResponse;
+      if (hospitalData) {
+        // get hospital data
+        const { motherCollection, ...savedHospitalData } = hospitalData;
+        const motherTempCollection: Mother[] = [];
+
+        // get all mother from hospital
+        await Promise.all([
+          ...fetchAllMotherInHospital(hospitalData, motherTempCollection),
+        ]);
+
+        // save nurse data to redux
+        const saveNurseData: Nurse = {
+          uid: userID,
+          hospital: {
+            ...savedHospitalData,
+            motherCollection: motherTempCollection,
+          },
+          ...(userData as UserResponse),
+        };
+        dispatch(setUserData(saveNurseData));
+        return;
+      } else {
+        console.log("Terjadi kesalahan saat mengambil data");
+      }
+    } else {
+      console.log("Terjadi kesalahan saat mengambil data");
+    }
+  } catch {
+    console.log("Terjadi kesalahan saat mengambil data");
+  }
+});

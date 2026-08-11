@@ -1,10 +1,11 @@
-import { useMemo } from "react";
+import { memo, useMemo } from "react";
 import { StyleSheet, Modal, View, Pressable, Platform } from "react-native";
 import { DefaultWidthSize } from "./types";
 
 export type Props = {
   children?: React.ReactNode;
   visible: boolean;
+  modalClosable?: boolean;
   onModalClose?: () => void;
   onCompletelyShow?: () => void;
   vertical?: "flex-end" | "center" | "flex-start";
@@ -16,6 +17,7 @@ const CustomModal: React.FC<Props> = ({
   visible,
   onModalClose,
   onCompletelyShow,
+  modalClosable = true,
   vertical = "center",
   horizontal = "center",
 }) => {
@@ -32,13 +34,18 @@ const CustomModal: React.FC<Props> = ({
       hardwareAccelerated={false}
     >
       <View style={style.modalContainer}>
-        <Pressable
-          style={style.overlay}
-          onPress={() => {
-            onModalClose && onModalClose();
-          }}
-        ></Pressable>
-        <View style={style.modalContent}>{children}</View>
+        {modalClosable ? (
+          <Pressable
+            style={style.overlay}
+            onPress={() => {
+              onModalClose && onModalClose();
+            }}
+          />
+        ) : (
+          <View style={style.overlay} />
+        )}
+
+        <View pointerEvents="box-none" style={style.modalContent}>{children}</View>
       </View>
     </Modal>
   );
@@ -67,8 +74,9 @@ const createStyle = (
       zIndex: 1,
     },
     modalContent: {
-      justifyContent: "center",
-      alignItems: "center",
+      flex: 1,
+      justifyContent: contentVPoss,
+      alignItems: contentHPoss,
       position: "relative",
       width: "100%",
       zIndex: 2,
@@ -80,4 +88,4 @@ const createStyle = (
     },
   });
 
-export default CustomModal;
+export default memo(CustomModal);

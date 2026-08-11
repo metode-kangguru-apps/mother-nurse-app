@@ -14,22 +14,76 @@ const linking = {
           "register-baby-information": {
             path: "/register-baby-information",
           },
+          "register-nurse-information": {
+            path: "/register-nurse-information",
+          },
         },
       },
       mother: {
         path: "/mother",
         screens: {
+          welcome: {
+            path: "/welcome"
+          },
+          home: {
+            path: "/",
+          },
           "select-baby": {
             path: "/select-baby",
           },
-          home: {
-            path: "/:baby-id",
+          "add-new-baby": {
+            path: "/add-new-baby"
           },
           profile: {
             path: "/profile",
           },
+          monitoring: {
+            path: "/monitoring",
+          },
+          "add-progress": {
+            path: "/add-baby-progress",
+          },
+          "pmk-care": {
+            path: "/pmk-care",
+          },
+          history: {
+            path: "/history",
+          },
+          session: {
+            path: "/history/session"
+          },
+          module: {
+            path: "/module",
+          },
+          "detail-module": {
+            path: "/module/:key",
+          },
         },
       },
+      nurse: {
+        path: "/nurse",
+        screens: {
+          profile: {
+            path: ""
+          },
+          'mother-detail': {
+            path: "/mother"
+          },
+          'baby-detail': {
+            path: "/mother/baby"
+          },
+          'history-progress': {
+            path: "mother/baby/progress"
+          },
+          'add-progress': {
+            path: "mother/baby/progress/add"
+          },
+          'session': {
+            path: "mother/baby/session"
+          }
+        }
+      },
+      NotFound: "*",
     },
   },
 };

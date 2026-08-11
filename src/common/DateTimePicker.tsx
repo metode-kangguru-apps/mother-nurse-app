@@ -1,13 +1,10 @@
 import Moment from "moment";
-import { useAppDispatch } from "@redux/hooks";
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   View,
-  TextInput,
   StyleSheet,
   Animated,
   Platform,
-  KeyboardTypeOptions,
   Pressable,
   Text,
 } from "react-native";
@@ -15,10 +12,15 @@ import { Spacing } from "src/lib/ui/spacing";
 
 import CustomModal from "./Modal";
 import DatePicker from "react-native-modern-datepicker";
+import { color } from "src/lib/ui/color";
+import { firstCapital } from "src/lib/utils/string";
+import { TextSize } from "src/lib/ui/textSize";
 
 type Props = {
   label: string;
   defaultValue?: string;
+  required?: boolean;
+  onError?: boolean;
   onFocus?: (state: boolean) => void;
   onChange?: (value: string) => void;
 };
@@ -26,6 +28,8 @@ type Props = {
 const NativeDateTimePicker: React.FC<Props> = ({
   label,
   defaultValue,
+  required = false,
+  onError = false,
   onFocus,
   onChange,
 }) => {
@@ -37,39 +41,35 @@ const NativeDateTimePicker: React.FC<Props> = ({
   const borderColor = useMemo(() => handleBorderColorChange(focus), [focus]);
   const style = useMemo(() => createStyle(borderColor), [borderColor]);
 
-  const handleTopBasedOnPlatform = (): number[] => {
-    switch (Platform.OS) {
-      case "ios":
-        return [17, 7];
-      default:
-        return [16, 6];
-    }
-  };
-
   const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: handleTopBasedOnPlatform(),
-  });
-
-  const handleAnimatedOnFocusLeft = isFocusedAnimated.interpolate({
-    inputRange: [0, 1],
-    outputRange: Platform.OS === "android" ? [14, 8] : [14, 9],
+    outputRange: [16, 6],
   });
 
   const handleAnimatedOnFocusSize = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: Platform.OS === "web" ? [1, 0.9] : [1, 0.9],
+    outputRange: [14, 12],
   });
 
   function handleBorderColorChange(focus: boolean) {
-    return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)";
+    return !focus ? "transparent" : "rgba(0, 0, 255, 0.5)";
   }
+
+  const showErrorMessage = useCallback(() => {
+    if (required && onError && !inputValue) {
+      return (
+        <Text style={style.errorMessage}>
+          {firstCapital(label.toLowerCase())} harus di isi!
+        </Text>
+      );
+    }
+  }, [required, onError, inputValue]);
 
   useEffect(() => {
     Animated.timing(isFocusedAnimated, {
       toValue: focus || inputValue !== "" ? 1 : 0,
       duration: 200,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   }, [focus]);
 
@@ -81,56 +81,56 @@ const NativeDateTimePicker: React.FC<Props> = ({
   }, [showDateTimePicker]);
 
   return (
-    <View style={{ width: "100%" }}>
-      <Animated.Text
-        style={[
-          style.labelStyle,
-          {
-            transform: [
-              { translateX: handleAnimatedOnFocusLeft },
-              { translateY: handleAnimatedOnFocusTop },
-              { scaleX: handleAnimatedOnFocusSize },
-              { scaleY: handleAnimatedOnFocusSize },
-            ],
-            fontSize: 14,
-            // web 14
-            color: "#aaa",
-          },
-        ]}
-      >
-        {label}
-      </Animated.Text>
-      <Pressable
-        style={style.textInput}
-        onPress={() => {
-          setFocus(true);
-          onFocus && onFocus(true);
-          setShowDateTimePicker(true);
-        }}
-      >
-        <Text>{inputValue}</Text>
-      </Pressable>
-      <CustomModal
-        visible={showDateTimePicker}
-        onModalClose={() => {
-          setShowDateTimePicker(false);
-        }}
-      >
-        <View style={style.modalContentContainer}>
-          <DatePicker
-            style={{ borderRadius: 20 }}
-            mode="calendar"
-            onDateChange={(dateString) => {
-              const resultString = Moment(new Date(dateString)).format(
-                "DD/MM/YYYY"
-              );
-              setShowDateTimePicker(false);
-              setInputValue(resultString);
-              onChange && onChange(resultString);
-            }}
-          ></DatePicker>
-        </View>
-      </CustomModal>
+    <View>
+      {showErrorMessage()}
+      <View>
+        <Animated.View
+          pointerEvents={"none"}
+          style={[
+            style.labelWrapper,
+            {
+              transform: [{ translateY: handleAnimatedOnFocusTop }],
+            },
+          ]}
+        >
+          <Animated.Text
+            style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+          >
+            {label}
+          </Animated.Text>
+        </Animated.View>
+        <Pressable
+          style={style.textInput}
+          onPress={() => {
+            setFocus(true);
+            onFocus && onFocus(true);
+            setShowDateTimePicker(true);
+          }}
+        >
+          <Text>{inputValue}</Text>
+        </Pressable>
+        <CustomModal
+          visible={showDateTimePicker}
+          onModalClose={() => {
+            setShowDateTimePicker(false);
+          }}
+        >
+          <View style={style.modalContentContainer}>
+            <DatePicker
+              style={{ borderRadius: 20 }}
+              mode="calendar"
+              onDateChange={(dateString) => {
+                const resultString = Moment(new Date(dateString)).format(
+                  "DD/MM/YYYY"
+                );
+                setShowDateTimePicker(false);
+                setInputValue(resultString);
+                onChange && onChange(resultString);
+              }}
+            ></DatePicker>
+          </View>
+        </CustomModal>
+      </View>
     </View>
   );
 };
@@ -138,8 +138,20 @@ const NativeDateTimePicker: React.FC<Props> = ({
 const createStyle = (borderColor: string) => {
   const textInputPaddingHorizontal = Spacing.tiny + Spacing.extratiny;
   return StyleSheet.create({
-    labelStyle: {
+    errorMessage: {
+      marginLeft: Spacing.extratiny,
+      marginVertical: Spacing.extratiny,
+      fontSize: TextSize.caption,
+      color: color.apple,
+    },
+    labelWrapper: {
+      left: Platform.OS === "android" ? 12 : 14,
+      zIndex: 1,
       position: "absolute",
+    },
+    labelStyle: {
+      fontSize: 14,
+      color: color.neutral,
     },
     statePrefix: {
       position: "absolute",
@@ -147,14 +159,15 @@ const createStyle = (borderColor: string) => {
       left: 15,
     },
     textInput: {
-      borderColor: borderColor,
       outlineStyle: "none",
       paddingHorizontal: textInputPaddingHorizontal,
       paddingTop: Platform.OS === "android" ? 22 : 24,
-      paddingBottom: Platform.OS === "android" ? 4 : 8,
+      paddingBottom: Platform.OS === "android" ? 5 : 8,
       position: "relative",
-      borderWidth: 2,
+      backgroundColor: color.surface,
       borderRadius: 10,
+      borderColor: borderColor,
+      borderWidth: 2,
       height: 52,
     },
     modalContentContainer: {

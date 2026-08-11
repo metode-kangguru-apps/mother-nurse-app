@@ -1,39 +1,61 @@
+import { DocumentReference } from "firebase/firestore";
+import {
+  Hospital,
+  HospitalPayload,
+  HospitalWithMother,
+} from "../hospital/types";
+import { Baby, BabyPayload } from "../pmkCare/types";
+
 export type User = {
-  displayName?: string;
-  uid?: string;
+  uid: string;
   isAnonymous: boolean;
   userType: "guest" | "member";
-  userRole?: "mother" | "nurse";
+  userRole: "mother" | "nurse";
+  displayName: string;
+  phoneNumber: string;
+  messagingToken?: string;
 };
 
-export type BabyCollection = {
-  babyID: string;
-  babyObj: Baby;
+export interface Mother extends User {
+  isFinnishedOnboarding: boolean,
+  hospital: Hospital;
+  babyCollection: Baby[];
+}
+
+export interface Nurse extends User {
+  hospital: HospitalWithMother;
+}
+
+export type UserInitialState = {
+  user: Mother | Nurse | undefined;
+  loading: boolean;
+  error: boolean;
+  message: string;
 };
 
-export type Mother = {
-  id?: string;
-  phoneNumber?: string;
-  babyRoomCode?: string;
-  babyCollection: BabyCollection[] | Baby[] | undefined;
-};
+// Payload
+export interface MotherPayload extends Omit<User, "uid"> {
+  isFinnishedOnboarding: boolean,
+  babyCollection: Omit<Baby, "id">[];
+  hospital: HospitalPayload;
+}
 
-export type Baby = {
-  id?: string;
-  displayName?: string;
-  gestationAge?: string;
-  birthDate?: string;
-  weight?: number;
-  length?: number;
-  gender?: "laki-laki" | "perempuan";
-};
+export interface NursePayload extends Omit<Nurse, "hospital"> {
+  hospital: HospitalPayload;
+}
 
-export type Nurse = {};
+export interface AddBabyPayload {
+  uid: string;
+  baby: BabyPayload;
+}
 
-export type Authetication = {
-  user: User | undefined;
-  mother: Mother | undefined;
-  nurse: Nurse | undefined;
-  loading?: boolean;
-  error?: boolean;
-};
+// Response
+export interface UserResponse extends Omit<User, "uid"> {}
+
+export interface MotherResponse {
+  isFinnishedOnboarding: boolean,
+  hospital: Hospital;
+}
+export interface NurseResponse {
+  hospital: DocumentReference;
+}

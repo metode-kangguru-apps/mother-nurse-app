@@ -5,7 +5,40 @@ import { AntDesign } from "@expo/vector-icons";
 import { Spacing } from "src/lib/ui/spacing";
 import { color } from "src/lib/ui/color";
 import { Font } from "src/lib/ui/font";
-import { TextSize } from "src/lib/ui/textSize";
+
+interface Props {
+  type: "warning";
+  title: string;
+  message: string;
+  showCloseButton?: boolean;
+}
+
+const Info: React.FC<Props> = ({
+  type,
+  title,
+  message,
+  showCloseButton = false,
+}) => {
+  const style = useMemo(() => createStyle(type), [type]);
+  return (
+    <View style={style.container}>
+      <View>
+        {type === "warning" && (
+          <FontAwesome name="warning" size={20} color={color.poop} />
+        )}
+      </View>
+      <View style={style.content}>
+        <Text style={style.contentHeader}>{title}</Text>
+        <Text style={style.contentMessage}>{message}</Text>
+      </View>
+      {showCloseButton && (
+        <View>
+          <AntDesign name="close" size={20} color={color.poop} />
+        </View>
+      )}
+    </View>
+  );
+};
 
 const createStyle = (type: string) => {
   let typeBasedStyle = {
@@ -17,13 +50,13 @@ const createStyle = (type: string) => {
     case "warning":
       typeBasedStyle = {
         container: {
-          backgroundColor: color.rose,
+          backgroundColor: color.mustard,
         },
         contentHeader: {
-          color: color.apple,
+          color: color.poop,
         },
         contentMessage: {
-          color: color.apple,
+          color: color.poop,
         },
       };
       break;
@@ -47,49 +80,15 @@ const createStyle = (type: string) => {
       top: -Spacing.extratiny / 2,
     },
     contentHeader: {
-      fontFamily: Font.Black,
+      fontFamily: Font.Bold,
       marginBottom: Spacing.extratiny,
       ...typeBasedStyle.contentHeader,
     },
     contentMessage: {
-        fontFamily: Font.Regular,
+      fontFamily: Font.Regular,
       ...typeBasedStyle.contentMessage,
     },
   });
-};
-
-interface Props {
-  type: "warning";
-  title: string;
-  message: string;
-  showCloseButton?: boolean;
-}
-
-const Info: React.FC<Props> = ({
-  type,
-  title,
-  message,
-  showCloseButton = false,
-}) => {
-  const style = useMemo(() => createStyle(type), [type]);
-  return (
-    <View style={style.container}>
-      <View>
-        {type === "warning" && (
-          <FontAwesome name="warning" size={20} color={color.apple} />
-        )}
-      </View>
-      <View style={style.content}>
-        <Text style={style.contentHeader}>{title}</Text>
-        <Text style={style.contentMessage}>{message}</Text>
-      </View>
-      {showCloseButton && (
-        <View>
-          <AntDesign name="close" size={20} color={color.apple} />
-        </View>
-      )}
-    </View>
-  );
 };
 
 export default Info;

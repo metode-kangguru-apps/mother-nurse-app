@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   Animated,
-  Platform,
   Pressable,
   FlatList,
   TouchableOpacity,
@@ -16,21 +15,33 @@ import { TextSize } from "src/lib/ui/textSize";
 import BottomSheet from "./BottomSheet";
 import Separator from "./Separator";
 import { Options } from "./types";
+import FloatingInput from "./FloatingInput";
+import { firstCapital } from "src/lib/utils/string";
 
 type Props = {
   label: string;
   items: Options[];
   defaultValue?: string;
   onFocus?: (state: boolean) => void;
-  onChange?: (value: string) => void;
+  onChange?: (value: Options) => void;
+  onSearch?: (value: string) => void;
+  searchable?: boolean;
+  loading?: boolean;
+  required?: boolean;
+  onError?: boolean;
 };
 
-const FloatingInput: React.FC<Props> = ({
+const PickerFiled: React.FC<Props> = ({
   label,
   items,
   defaultValue,
   onFocus,
   onChange,
+  onSearch,
+  searchable = false,
+  loading = false,
+  required = false,
+  onError = false,
 }) => {
   const [focus, setFocus] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>(defaultValue || "");
@@ -39,37 +50,23 @@ const FloatingInput: React.FC<Props> = ({
 
   const borderColor = useMemo(() => handleBorderColorChange(focus), [focus]);
 
-  const handleTopBasedOnPlatform = (): number[] => {
-    switch (Platform.OS) {
-      case "ios":
-        return [17, 7];
-      default:
-        return [16, 6];
-    }
-  };
-
   const handleAnimatedOnFocusTop = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: handleTopBasedOnPlatform(),
-  });
-
-  const handleAnimatedOnFocusLeft = isFocusedAnimated.interpolate({
-    inputRange: [0, 1],
-    outputRange: Platform.OS === "android" ? [14, 8] : [14, 9],
+    outputRange: [16, 6],
   });
 
   const handleAnimatedOnFocusSize = isFocusedAnimated.interpolate({
     inputRange: [0, 1],
-    outputRange: Platform.OS === "web" ? [1, 0.9] : [1, 0.9],
+    outputRange: [14, 12],
   });
 
   function handleBorderColorChange(focus: boolean) {
-    return !focus ? "rgb(203, 203, 203)" : "rgba(0, 0, 255, 0.5)";
+    return !focus ? "transparent" : "rgba(0, 0, 255, 0.5)";
   }
 
   function handlerSelectedValue(item: Options) {
     setInputValue(item.key);
-    onChange && onChange(item.value);
+    onChange && onChange(item);
     setModalVisible(false);
   }
 
@@ -77,95 +74,126 @@ const FloatingInput: React.FC<Props> = ({
     Animated.timing(isFocusedAnimated, {
       toValue: focus || inputValue !== "" ? 1 : 0,
       duration: 200,
-      useNativeDriver: true,
+      useNativeDriver: false,
     }).start();
   }, [focus]);
 
+  useEffect(() => {});
+
   return (
-    <View style={style.container}>
-      <Animated.Text
-        style={[
-          style.labelStyle,
-          {
-            transform: [
-              { translateX: handleAnimatedOnFocusLeft },
-              { translateY: handleAnimatedOnFocusTop },
-              { scaleX: handleAnimatedOnFocusSize },
-              { scaleY: handleAnimatedOnFocusSize },
-            ],
-            fontSize: 14,
-            // web 14
-            color: "#aaa",
-          },
-        ]}
-      >
-        {label}
-      </Animated.Text>
-      <Pressable
-        style={[style.textInput, { borderColor: borderColor }]}
-        onPress={() => {
-          setFocus(true);
-          onFocus && onFocus(true);
-          setModalVisible(true);
-        }}
-      >
-        <Text>{inputValue}</Text>
-      </Pressable>
-      <BottomSheet
-        visible={modalVisible}
-        onCloseModal={() => {
-          setModalVisible(false);
-          setFocus(false);
-          onFocus && onFocus(false);
-        }}
-      >
-        <Text style={style.bottomSheetTitle}>{label}</Text>
-        <FlatList
-          data={items}
-          renderItem={(state) => (
-            <TouchableOpacity
-              onPress={() => handlerSelectedValue(state.item)}
-              style={style.selectorItem}
-            >
-              <Text>{state.item.key}</Text>
-            </TouchableOpacity>
+    <>
+      {required && onError && !inputValue && (
+        <Text style={style.errorMessage}>
+          {firstCapital(label.toLowerCase())} harus di isi!
+        </Text>
+      )}
+      <View style={style.container}>
+        <Animated.View
+          pointerEvents={"none"}
+          style={[
+            style.labelWrapper,
+            {
+              transform: [{ translateY: handleAnimatedOnFocusTop }],
+            },
+          ]}
+        >
+          <Animated.Text
+            style={[style.labelStyle, { fontSize: handleAnimatedOnFocusSize }]}
+          >
+            {label}
+          </Animated.Text>
+        </Animated.View>
+        <Pressable
+          style={[style.textInput, { borderColor: borderColor }]}
+          onPress={() => {
+            setFocus(true);
+            onFocus && onFocus(true);
+            setModalVisible(true);
+          }}
+        >
+          <Text>{inputValue}</Text>
+        </Pressable>
+        <BottomSheet
+          visible={modalVisible}
+          onCloseModal={() => {
+            setModalVisible(false);
+            setFocus(false);
+            onFocus && onFocus(false);
+          }}
+          height={searchable ? "90%" : undefined}
+        >
+          {!searchable && <Text style={style.bottomSheetTitle}>{label}</Text>}
+          {searchable && (
+            <View style={style.searchPicker}>
+              <FloatingInput
+                bindFocus={modalVisible}
+                onChange={(value) => {
+                  onSearch && onSearch(value);
+                }}
+                label={`Cari ${label}`}
+              />
+            </View>
           )}
-          ItemSeparatorComponent={() => (
-            <Separator spacing={1} color={color.surface} />
-          )}
-          ListHeaderComponent={() => (
-            <Separator spacing={1} color={color.surface} />
-          )}
-          ListFooterComponent={() => (
-            <Separator spacing={1} color={color.surface} />
-          )}
-        ></FlatList>
-      </BottomSheet>
-    </View>
+          <FlatList
+            data={items}
+            showsVerticalScrollIndicator={false}
+            renderItem={(state) => (
+              <TouchableOpacity
+                onPress={() => handlerSelectedValue(state.item)}
+                style={style.selectorItem}
+              >
+                <Text>{state.item.key}</Text>
+              </TouchableOpacity>
+            )}
+            ItemSeparatorComponent={() => (
+              <Separator spacing={1} color={color.surface} />
+            )}
+            ListFooterComponent={() => (
+              <>
+                <Separator spacing={1} color={color.surface} />
+                <Separator spacing={Spacing.base} color={color.lightneutral} />
+              </>
+            )}
+          ></FlatList>
+        </BottomSheet>
+      </View>
+    </>
   );
 };
 
 const style = StyleSheet.create({
+  errorMessage: {
+    marginLeft: Spacing.extratiny,
+    marginVertical: Spacing.extratiny,
+    fontSize: TextSize.caption,
+    color: color.apple,
+  },
   container: {
     position: "relative",
   },
-  labelStyle: {
+  labelWrapper: {
     position: "absolute",
+    left: 14,
+    zIndex: 1,
   },
-  statePrefix: {
-    position: "absolute",
-    top: Platform.OS === "android" ? 23 : 26,
-    left: 15,
+  labelStyle: {
+    fontSize: 14,
+    color: color.neutral,
   },
   textInput: {
-    paddingHorizontal: Spacing.tiny + Spacing.extratiny,
-    paddingTop: Platform.OS === "android" ? 17 : 24,
-    paddingBottom: Platform.OS === "android" ? 4 : 8,
-    position: "relative",
-    borderWidth: 2,
     outlineStyle: "none",
+    paddingTop: 22,
+    paddingBottom: 8,
+    position: "relative",
+    backgroundColor: color.surface,
     borderRadius: 10,
+    borderWidth: 2,
     height: 52,
+    paddingHorizontal: Spacing.tiny + Spacing.extratiny,
+  },
+  searchPicker: {
+    marginTop: Spacing.tiny,
+    marginBottom: Spacing.small,
   },
   pickerContainer: {
     position: "absolute",
@@ -177,13 +205,13 @@ const style = StyleSheet.create({
     zIndex: 10,
   },
   bottomSheetTitle: {
-    fontFamily: Font.Bold,
+    fontFamily: Font.Medium,
     fontSize: TextSize.title,
-    marginBottom: Spacing.tiny,
+    marginBottom: Spacing.small,
   },
   selectorItem: {
     padding: Spacing.extratiny,
   },
 });
 
-export default FloatingInput;
+export default PickerFiled;

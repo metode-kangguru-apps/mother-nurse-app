@@ -1,49 +1,50 @@
-import { RootState } from "@redux/types";
-import { useSelector } from "react-redux";
+import { useState } from "react";
 import {
-  FlatList,
-  ListRenderItem,
+  ActivityIndicator,
+  ImageBackground,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import moment from "moment";
+import { RootStateV2 } from "@redux/types";
+import { useSelector } from "react-redux";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 import { Font } from "src/lib/ui/font";
-import { Spacing } from "src/lib/ui/spacing";
-import { TextSize } from "src/lib/ui/textSize";
-import { MotherStackParamList } from "src/router/types";
 import { color } from "src/lib/ui/color";
+import { Spacing } from "src/lib/ui/spacing";
+import BabyIcon from "src/lib/ui/icons/Baby";
+import { TextSize } from "src/lib/ui/textSize";
+import { weekDifference } from "src/lib/utils/calculate";
 
-import { EvilIcons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { MotherStackParamList } from "src/router/types";
+
 import { useAppDispatch } from "@redux/hooks";
-import { getMotherData } from "@redux/actions/authentication/thunks";
-import { BabyCollection } from "@redux/actions/authentication/types";
-import { setSelectedTerapiBaby } from "@redux/actions/global";
-import moment from "moment";
-import BabyIcon from "src/lib/ui/icons/baby";
+import { EvilIcons, AntDesign } from "@expo/vector-icons";
+
+import { Timestamp } from "firebase/firestore";
+import { getBabyProgressAndSession } from "@redux/actions/pmkCare/thunks";
+import { Mother } from "@redux/actions/authentication/types";
+import { Baby } from "@redux/actions/pmkCare/types";
 
 interface Props
   extends NativeStackScreenProps<MotherStackParamList, "select-baby"> {}
 
-const HomePage: React.FC<Props> = ({ navigation }) => {
+const SelectedBabyPage: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
-  const { user, mother } = useSelector(
-    (state: RootState) => state.authentication
+  const { uid, babyCollection } = useSelector(
+    (state: RootStateV2) => state.authentication.user as Mother
   );
+  const [loading, setLoading] = useState<boolean>();
   const [selectedBaby, setSelectedBaby] = useState<number | undefined>(
     undefined
   );
-  useEffect(() => {
-    if (!mother && user?.uid) {
-      dispatch(getMotherData(user?.uid));
-    }
-  }, [mother]);
 
-  const renderItemList: ListRenderItem<BabyCollection> = ({ item, index }) => {
-    const dateBirthFormat = moment(item.babyObj.birthDate, "DD/MM/YYYY").format(
+  const renderItemList = (item: Baby, index: number) => {
+    const dateBirthFormat = moment(item.birthDate, "DD/MM/YYYY").format(
       "DD MMMM YYYY"
     );
     return (
@@ -51,6 +52,7 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
         onPress={() => {
           setSelectedBaby(index);
         }}
+        key={index}
       >
         <View
           style={[
@@ -62,83 +64,130 @@ const HomePage: React.FC<Props> = ({ navigation }) => {
             <View style={style.babyIcon}>
               <BabyIcon
                 color={
-                  item.babyObj.gender === "laki-laki"
-                    ? color.primary
-                    : color.secondary
+                  item.gender === "laki-laki" ? color.primary : color.secondary
                 }
               ></BabyIcon>
             </View>
             <View>
               <Text style={style.babyBirthDate}>{dateBirthFormat}</Text>
-              <Text style={style.babyName}>{item.babyObj.displayName}</Text>
+              <Text style={style.babyName}>By. {item.displayName}</Text>
             </View>
           </View>
           <View style={style.babyInfo}>
-            <Text style={style.babyWeight}>Berat {item.babyObj.weight} gr</Text>
+            <Text style={style.babyWeight}>Berat {item.currentWeight} gr</Text>
             <View style={style.devider}></View>
             <Text style={style.babyLength}>
-              Panjang {item.babyObj.weight} cm
+              Panjang {item.currentLength} cm
             </Text>
           </View>
         </View>
       </TouchableWithoutFeedback>
     );
   };
+
+  const handleSelectedBaby = () => {
+    if (selectedBaby !== undefined && babyCollection[selectedBaby]) {
+      setLoading(true);
+      // count different week
+      const babyCreatedAt = babyCollection[selectedBaby].createdAt as Timestamp;
+      const formattedBabyCreatedAt = new Date(
+        babyCreatedAt.seconds * 1000 + babyCreatedAt.nanoseconds / 1000000
+      );
+      const weekDiff = weekDifference(formattedBabyCreatedAt);
+      const currentWeek = babyCollection[selectedBaby].gestationAge + weekDiff;
+
+      let selectedBabyDocument = {
+        ...babyCollection[selectedBaby],
+        currentWeek,
+      };
+      dispatch(
+        getBabyProgressAndSession({ userID: uid, baby: selectedBabyDocument })
+      ).then(() => {
+        setLoading(false);
+      });
+    }
+  };
+
   return (
-    <View style={style.container}>
-      <Text style={style.title}>Pilih Bayi</Text>
-      <View style={style.babiesWrapper}>
-        {/* TODO: @muhammadhafizm implement loading */}
-        <FlatList
-          data={mother?.babyCollection as BabyCollection[]}
-          renderItem={renderItemList}
-        />
-      </View>
-      <TouchableWithoutFeedback
-        onPress={() => {
-          if (
-            selectedBaby !== undefined &&
-            mother?.babyCollection?.[selectedBaby]
-          ) {
-            // navigate to selected baby
-            // navigation.navigate("home", {
-            //   "baby-id": (mother.babyCollection[selectedBaby] as BabyCollection)
-            //     .babyID,
-            // });
-            dispatch(
-              setSelectedTerapiBaby(
-                mother.babyCollection[selectedBaby] as BabyCollection
-              )
-            );
-            navigation.navigate("profile");
-          }
-        }}
+    <View style={style.scrollWrapper}>
+      <ImageBackground
+        source={require("../../../assets/baby-pattern.png")}
+        style={style.backgroundPattern}
+      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={style.wrapper}
       >
-        <View
-          style={[
-            style.buttonStart,
-            selectedBaby !== undefined ? style.buttonSelectedBaby : undefined,
-          ]}
-        >
-          <Text style={style.textStart}>Mulai Terapi</Text>
-          <EvilIcons name="arrow-right" size={24} color={color.lightneutral} />
+        <View style={style.container}>
+          <Text style={style.title}>Pilih Bayi</Text>
+          <View style={style.babiesWrapper}>
+            {/* TODO: @muhammadhafizm implement loading */}
+            {babyCollection &&
+              babyCollection.map((element: Baby, index: number) => {
+                return renderItemList(element, index);
+              })}
+            <TouchableWithoutFeedback
+              onPress={() => navigation.push("add-new-baby")}
+            >
+              <View style={style.addBabyButton} pointerEvents="box-only">
+                <Text style={style.addBabyTitle}>Tambah Bayi</Text>
+                <AntDesign name="pluscircleo" size={20} color={color.primary} />
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+          <TouchableWithoutFeedback onPress={handleSelectedBaby}>
+            <View
+              style={[
+                style.buttonStart,
+                selectedBaby !== undefined
+                  ? style.buttonSelectedBaby
+                  : undefined,
+              ]}
+            >
+              {!loading ? (
+                <>
+                  <Text style={style.textStart}>Mulai PMK</Text>
+                  <EvilIcons
+                    name="arrow-right"
+                    size={TextSize.h5}
+                    color={color.lightneutral}
+                  />
+                </>
+              ) : (
+                <ActivityIndicator size={TextSize.h5} color={color.rose} />
+              )}
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </TouchableWithoutFeedback>
+      </ScrollView>
     </View>
   );
 };
 
 const style = StyleSheet.create({
-  container: {
+  scrollWrapper: {
     flex: 1,
+    height: "100%",
+    width: "100%",
+  },
+  wrapper: {
+    flexGrow: 1,
+    justifyContent: "space-around",
+  },
+  container: {
     padding: Spacing.small,
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
-    alignItems: "center",
+  },
+  backgroundPattern: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    position: "absolute",
+    opacity: 0.25,
   },
   title: {
-    fontFamily: Font.Black,
+    fontFamily: Font.Bold,
     fontSize: TextSize.h5,
     textAlign: "center",
     marginBottom: Spacing.base,
@@ -158,8 +207,8 @@ const style = StyleSheet.create({
     padding: Spacing.small,
     shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 7,
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
     marginBottom: Spacing.tiny,
     borderWidth: 2,
     borderColor: color.surface,
@@ -174,7 +223,7 @@ const style = StyleSheet.create({
   },
   babyBirthDate: {
     color: color.neutral,
-    fontFamily: Font.Bold,
+    fontFamily: Font.Medium,
   },
   babyName: {
     fontSize: TextSize.h6,
@@ -217,6 +266,26 @@ const style = StyleSheet.create({
   buttonSelectedBaby: {
     backgroundColor: color.secondary,
   },
+  addBabyButton: {
+    width: "100%",
+    borderRadius: 30,
+    paddingVertical: Spacing.xsmall,
+    backgroundColor: color.lightneutral,
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    marginBottom: Spacing.small,
+  },
+  addBabyTitle: {
+    fontFamily: Font.Medium,
+    fontSize: TextSize.title,
+    color: color.primary,
+    marginRight: Spacing.tiny,
+  },
 });
 
-export default HomePage;
+export default SelectedBabyPage;

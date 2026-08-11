@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { StyleSheet, PanResponder, Animated, Dimensions } from "react-native";
 import { Spacing } from "src/lib/ui/spacing";
 import CustomModal from "./Modal";
@@ -7,11 +7,14 @@ interface Props {
   visible: boolean;
   onCloseModal: () => void;
   children: React.ReactNode;
+  height?: number | string
 }
 
-const BottomSheet: React.FC<Props> = ({ visible, onCloseModal, children }) => {
-  const screenHeight = Dimensions.get("screen").height;
+const BottomSheet: React.FC<Props> = ({ visible, onCloseModal, children, height }) => {
+  const screenHeight = Dimensions.get("window").height;
   const panY = useRef(new Animated.Value(screenHeight)).current;
+
+  const style = useMemo(() => createStyle(height), [height])
 
   const startPositionAnim = Animated.timing(panY, {
     toValue: 0,
@@ -48,7 +51,7 @@ const BottomSheet: React.FC<Props> = ({ visible, onCloseModal, children }) => {
         useNativeDriver: false,
       }),
       onPanResponderRelease: (_, gs) => {
-        if (gs.moveY > Dimensions.get("window").height - 20) {
+        if (gs.moveY > screenHeight - 20) {
           return handleDismiss();
         }
         return resetPositionAnim.start();
@@ -84,15 +87,18 @@ const BottomSheet: React.FC<Props> = ({ visible, onCloseModal, children }) => {
   );
 };
 
-const style = StyleSheet.create({
-  modalContainer: {
-    width: "100%",
-    minHeight: 200,
-    backgroundColor: "white",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: Spacing.base,
-  },
-});
+const createStyle = (height?: number | string) =>
+  StyleSheet.create({
+    modalContainer: {
+      width: "100%",
+      height: height,
+      minHeight: 200,
+      maxHeight: "100%",
+      backgroundColor: "white",
+      borderTopLeftRadius: 30,
+      borderTopRightRadius: 30,
+      padding: Spacing.base,
+    },
+  });
 
 export default BottomSheet;
