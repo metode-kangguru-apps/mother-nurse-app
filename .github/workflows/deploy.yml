@@ -1,0 +1,90 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main] # → staging env
+    tags: ["v*"] # → production env
+  pull_request:
+    types: [opened, synchronize, reopened, closed] # → pr-<number> preview env
+  workflow_dispatch:
+
+# never cancel a deploy mid-flight (partial SST state is worse than a queue).
+concurrency:
+  group: deploy-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write # to comment the preview URL
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      # tag v*  → production | push to main → staging | PR → pr-<number>
+      - name: Resolve stage
+        id: stage
+        run: |
+          if [[ "${{ github.ref_type }}" == "tag" ]]; then
+            echo "name=production" >> "$GITHUB_OUTPUT"
+          elif [[ -n "${{ github.event.pull_request.number }}" ]]; then
+            echo "name=pr-${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "name=staging" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install deps
+        run: npm install --legacy-peer-deps
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-1
+
+      # PR closed → tear the preview down and stop.
+      - name: Remove preview
+        if: github.event.action == 'closed'
+        run: npx sst remove --stage ${{ steps.stage.outputs.name }}
+
+      # react-native-dotenv reads a .env file (not process.env) and errors on any
+      # declared-but-missing @env var, so write ALL of them. Firebase keys/client
+      # IDs are public identifiers, not real secrets, but kept in secrets to match
+      # the gitignored .env. Fork PRs don't get secrets — assumes same-repo branches.
+      - name: Write .env
+        if: github.event.action != 'closed'
+        run: |
+          cat > .env <<'EOF'
+          FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_AUTH_DOMAIN=${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          FIREBASE_PROJECT_ID=${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_STORAGE_BUCKET=${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          FIREBASE_MESSAGING_SENDER_ID=${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          FIREBASE_APP_ID=${{ secrets.FIREBASE_APP_ID }}
+          FIREBASE_WEB_CLIENT_ID=${{ secrets.FIREBASE_WEB_CLIENT_ID }}
+          FIREBASE_IOS_CLIENT_ID=${{ secrets.FIREBASE_IOS_CLIENT_ID }}
+          FIREBASE_ANDROID_CLIENT_ID=${{ secrets.FIREBASE_ANDROID_CLIENT_ID }}
+          EOF
+
+      - name: Deploy
+        if: github.event.action != 'closed'
+        id: deploy
+        run: |
+          npx sst deploy --stage ${{ steps.stage.outputs.name }} | tee deploy.log
+          # ponytail: scrape the CloudFront URL from deploy output. Fragile if SST
+          # changes its log format; sst.config.ts returns `url` so it's in the summary.
+          echo "url=$(grep -Eo 'https://[a-z0-9]+\.cloudfront\.net' deploy.log | head -1)" >> "$GITHUB_OUTPUT"
+
+      # Upsert one comment on the PR with the preview URL (don't spam on every push).
+      - name: Comment preview URL
+        if: github.event_name == 'pull_request' && github.event.action != 'closed'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.number }}
+          BODY: "🚀 Preview `pr-${{ github.event.pull_request.number }}` → ${{ steps.deploy.outputs.url }}"
+        run: gh pr comment "$PR" --edit-last --body "$BODY" || gh pr comment "$PR" --body "$BODY"

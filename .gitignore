@@ -10,6 +10,12 @@ npm-debug.*
 *.orig.*
 web-build/
 
+# sst
+.sst/
+
+# Claude (specs, notes, local claude config — kept out of git)
+.claude/
+
 .env
 ios
 android
