@@ -1,6 +1,4 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { updateMotherFinnishedOnboard } from "@redux/actions/authentication";
-import { useAppDispatch } from "@redux/hooks";
 import { useMemo } from "react";
 import {
   ImageBackground,
@@ -20,7 +18,6 @@ interface Props
   extends NativeStackScreenProps<MotherStackParamList, "welcome"> {}
 
 const WelcomePage: React.FC<Props> = ({ navigation }) => {
-  const dispatch = useAppDispatch();
   const insets = useSafeAreaInsets();
   const style = useMemo(() => createStyle(insets), [insets]);
   return (

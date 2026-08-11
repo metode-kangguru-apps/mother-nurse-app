@@ -8,4 +8,5 @@
       "@redux/*": ["src/redux/*"],
     }
   },
+  "exclude": ["sst.config.ts"],
 }

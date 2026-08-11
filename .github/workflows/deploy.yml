@@ -76,7 +76,7 @@ jobs:
         id: deploy
         run: |
           npx sst deploy --stage ${{ steps.stage.outputs.name }} | tee deploy.log
-          # ponytail: scrape the CloudFront URL from deploy output. Fragile if SST
+          # scrape the CloudFront URL from deploy output. Fragile if SST
           # changes its log format; sst.config.ts returns `url` so it's in the summary.
           echo "url=$(grep -Eo 'https://[a-z0-9]+\.cloudfront\.net' deploy.log | head -1)" >> "$GITHUB_OUTPUT"
 
